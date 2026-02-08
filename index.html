@@ -2,6 +2,9 @@
 <html lang="en">
 <head>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script> (function(){ emailjs.init("YOUR_PUBLIC_KEY"); })(); </script>
     <meta charset="UTF-8">
     <title>Shree Ji | Premium E-Commerce & Jan Sewa</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -493,6 +496,102 @@ window.generatePDF = function(orderData) {
 
     // PDF डाउनलोड करें
     doc.save(`ShreeJi_Order_${orderData.id}.pdf`);
+// --- 1. Customer Profile Logic ---
+window.updateProfile = function() {
+    const profileData = {
+        name: document.getElementById("editName").value,
+        address: document.getElementById("editAddress").value,
+        gender: document.getElementById("editGender").value,
+        phone: document.getElementById("userDisplayPhone").innerText
+    };
+    localStorage.setItem("user_profile_" + profileData.phone, JSON.stringify(profileData));
+    alert("Profile Updated Successfully!");
+    renderUserProfile();
+};
+
+function renderUserProfile() {
+    const phone = document.getElementById("userDisplayPhone").innerText;
+    const saved = JSON.parse(localStorage.getItem("user_profile_" + phone)) || {};
+    
+    document.getElementById("userProfile").innerHTML = `
+        <h3>My Account</h3>
+        <div class="admin-controls">
+            <input id="editName" value="${saved.name || ''}" placeholder="Full Name">
+            <input id="editAddress" value="${saved.address || ''}" placeholder="Delivery Address">
+            <select id="editGender">
+                <option value="Male" ${saved.gender==='Male'?'selected':''}>Male</option>
+                <option value="Female" ${saved.gender==='Female'?'selected':''}>Female</option>
+            </select>
+        </div>
+        <button onclick="updateProfile()" class="primary-btn" style="background:var(--success)">Save Changes</button>
+        <hr>
+        <h4>My Orders Status</h4>
+        <div id="customerOrders">Loading orders...</div>
+    `;
+    loadCustomerOrders(phone);
+}
+
+// --- 2. Order Status System ---
+async function loadCustomerOrders(phone) {
+    // Firebase से सिर्फ इस कस्टमर के ऑर्डर्स लाएं
+    const q = query(collection(db, "orders"), where("customerPhone", "==", phone));
+    const docs = await getDocs(q);
+    let html = "";
+    docs.forEach(doc => {
+        const o = doc.data();
+        html += `<div style="border:1px solid #ddd; padding:10px; margin-bottom:5px; border-radius:8px;">
+            <b>ID: ${o.id}</b> | Status: <span style="color:var(--primary)">${o.status || 'Pending'}</span><br>
+            Total: ₹${o.total}
+        </div>`;
+    });
+    document.getElementById("customerOrders").innerHTML = html || "No orders found.";
+}
+
+// --- 3. Checkout with Email Notification ---
+window.processCheckout = async function(method) {
+    const phone = document.getElementById("userDisplayPhone").innerText;
+    const profile = JSON.parse(localStorage.getItem("user_profile_" + phone)) || {};
+    
+    if(!profile.name || !profile.address) return alert("Please complete your profile first!");
+
+    const orderData = {
+        id: "SJ" + Date.now().toString().slice(-4),
+        name: profile.name,
+        address: profile.address,
+        customerPhone: phone,
+        total: document.getElementById("cartTotal").innerText,
+        method: method,
+        status: "Processing",
+        date: new Date().toLocaleString()
+    };
+
+    try {
+        // 1. Save to Firebase
+        await addDoc(collection(db, "orders"), orderData);
+
+        // 2. Send Email Notification
+        emailjs.send("service_id", "template_id", {
+            to_email: "shreeradhecommunication63@gmail.com",
+            order_id: orderData.id,
+            customer_name: orderData.name,
+            total_amount: orderData.total,
+            items: cart.map(i => i.n).join(", ")
+        });
+
+        // 3. Show Success
+        alert("Order Placed! Notification sent to Admin.");
+        location.reload();
+    } catch (e) {
+        alert("Error placing order: " + e.message);
+    }
+};
+
+// --- 4. Admin Side: Update Status ---
+window.updateOrderStatus = async function(docId, newStatus) {
+    const orderRef = doc(db, "orders", docId);
+    await updateDoc(orderRef, { status: newStatus });
+    alert("Status Updated to: " + newStatus);
+};
 };
 </script>
 </body>
