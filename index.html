@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,42 +5,92 @@
 <title>Shree Ji E-Commerce</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-body{font-family:Arial;margin:0;background:#f5f5f5}
-header{background:#ff6f00;color:#fff;padding:15px;display:flex;justify-content:space-between}
-button{padding:6px 10px;margin:3px;cursor:pointer}
-.container{padding:15px}
+.carousel{position:relative;overflow:hidden;height:150px;margin-bottom:10px;border-radius:5px}
+.carousel img{width:100%;height:150px;object-fit:cover;position:absolute;transition:opacity .3s;opacity:0;border-radius:5px}
+.carousel img.active{opacity:1}
+.carousel button.prev, .carousel button.next{
+  position:absolute;top:50%;transform:translateY(-50%);
+  background:rgba(0,0,0,0.3);border:none;color:#fff;font-size:20px;padding:5px 10px;
+  cursor:pointer;border-radius:3px;z-index:10;
+}
+.carousel button.prev{left:5px}
+.carousel button.next{right:5px}
+.carousel button.prev:hover, .carousel button.next:hover{background:rgba(0,0,0,0.6)}
+
+body{font-family:Arial;margin:0;background:#f0f2f5;color:#333}
+header{background:#ff6f00;color:#fff;padding:10px 15px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:1000;box-shadow:0 2px 5px rgba(0,0,0,0.1)}
+.logo-area{display:flex;align-items:center;gap:10px}
+.logo-area img{width:45px;height:45px;object-fit:cover;border-radius:5px}
+.nav-buttons{display:flex;gap:8px;align-items:center}
+.nav-buttons button{padding:6px 12px;border:none;border-radius:4px;background:#fff;color:#ff6f00;cursor:pointer;transition:0.2s}
+.nav-buttons button:hover{background:#ffe0b2}
+.hamburger{display:none;flex-direction:column;cursor:pointer}
+.hamburger span{height:3px;width:25px;background:#fff;margin:3px 0;border-radius:2px}
+@media(max-width:700px){.nav-buttons{display:none}.hamburger{display:flex}}
+.mobile-menu{display:none;background:#ff8c00;padding:10px;flex-direction:column;gap:5px}
+.mobile-menu.open{display:flex}
+.container{padding:20px;max-width:1200px;margin:auto}
 .products{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px}
-.card,.box{background:#fff;padding:10px;border-radius:5px}
-.card img{width:100%;height:150px;object-fit:cover}
-.cart{position:fixed;top:0;right:-100%;width:340px;height:100%;background:#fff;padding:15px;transition:.3s;overflow:auto}
+.card,.box{background:#fff;padding:15px;border-radius:8px;position:relative;box-shadow:0 2px 5px rgba(0,0,0,0.1)}
+.card img{width:100%;height:150px;object-fit:cover;border-radius:5px}
+.cart{position:fixed;top:0;right:-100%;width:350px;height:100%;background:#fff;padding:20px;transition:.3s;overflow:auto;z-index:999;box-shadow:-2px 0 8px rgba(0,0,0,0.2)}
 .cart.open{right:0}
-input{width:100%;padding:7px;margin:4px 0}
+input,select{width:100%;padding:8px;margin:6px 0;border-radius:4px;border:1px solid #ccc}
 .small{font-size:12px;color:gray}
-footer{background:#222;color:#fff;text-align:center;padding:10px}
+footer{background:#222;color:#fff;text-align:center;padding:12px;margin-top:20px}
+.carousel{position:relative;overflow:hidden;height:150px;margin-bottom:10px;border-radius:5px}
+.carousel img{width:100%;height:150px;object-fit:cover;position:absolute;transition:opacity .5s;opacity:0;border-radius:5px}
+.carousel img.active{opacity:1}
+.category-filter{margin-bottom:15px}
+button.primary{background:#ff6f00;color:#fff}
+button.primary:hover{background:#e65c00}
 </style>
 </head>
-
 <body>
 
 <header>
-<div class="logo-area">
-<img src="1000007701.jpg">
-<div>
-<h2>🛍️ Shree Ji E-Commerce</h2>
-<div>
-<button onclick="toggleCart()">🛒 Cart (<span id="cartCount">0</span>)</button>
-<button onclick="logout()">Logout</button>
-</div>
+  <div class="logo-area">
+    <img src="1000007701.jpg" alt="Logo">
+    <h2>🛍️ Shree Ji E-Commerce</h2>
+  </div>
+  <div class="nav-buttons" id="navButtons">
+    <button onclick="toggleCart()">🛒 Cart (<span id="cartCount">0</span>)</button>
+    <span id="customerName"></span>
+    <button id="loginBtn" onclick="showLogin()">Login</button>
+    <button id="signupBtn" onclick="showSignup()">Sign Up</button>
+    <button id="logoutBtn" onclick="logoutCustomer()">Logout</button>
+  </div>
+  <div class="hamburger" onclick="toggleMobileMenu()">
+    <span></span><span></span><span></span>
+  </div>
 </header>
+
+<div class="mobile-menu" id="mobileMenu">
+  <button onclick="toggleCart()">🛒 Cart (<span id="cartCountMob">0</span>)</button>
+  <span id="customerNameMob"></span>
+  <button id="loginBtnMob" onclick="showLogin()">Login</button>
+  <button id="signupBtnMob" onclick="showSignup()">Sign Up</button>
+  <button id="logoutBtnMob" onclick="logoutCustomer()">Logout</button>
+</div>
 
 <div class="container">
 
-<!-- ADMIN LOGIN -->
-<div id="loginBox" class="box">
-<h3>Admin Login</h3>
-<input id="user" placeholder="Username">
-<input id="pass" type="password" placeholder="Password">
-<button onclick="login()">Login</button>
+<!-- CUSTOMER LOGIN/SIGNUP -->
+<div id="customerBox" class="box">
+<h3>Customer Login / Sign Up</h3>
+<div id="loginForm">
+<input id="cUser" placeholder="Username or Phone">
+<button onclick="customerLogin()" class="primary">Login</button>
+<button onclick="showSignup()">Sign Up</button>
+</div>
+<div id="signupForm" style="display:none">
+<input id="sUser" placeholder="Username">
+<input id="sName" placeholder="Full Name">
+<input id="sPhone" placeholder="Phone">
+<input id="sAddress" placeholder="Address">
+<button onclick="customerSignup()" class="primary">Sign Up</button>
+<button onclick="showLogin()">Back to Login</button>
+</div>
 </div>
 
 <!-- ADMIN PANEL -->
@@ -50,28 +99,41 @@ footer{background:#222;color:#fff;text-align:center;padding:10px}
 
 <label>Contact Number</label>
 <input id="contact">
-<button onclick="saveContact()">Save</button>
+<button onclick="saveContact()" class="primary">Save</button>
 <p class="small">Current: <b id="showContact"></b></p>
 
-<button onclick="toggleCOD()">Toggle COD</button>
+<button onclick="toggleCOD()" class="primary">Toggle COD</button>
 <p class="small">COD: <b id="codStatus"></b></p>
-
-<h4>Change Password</h4>
-<input id="newPass" placeholder="New Password">
-<button onclick="changePass()">Update</button>
 
 <h4>Add Product</h4>
 <input id="pname" placeholder="Name">
 <input id="pprice" placeholder="Price">
-<input id="pimg" placeholder="Image URL">
+<input id="pimg" placeholder="Image URLs (comma separated)">
 <input id="pstock" placeholder="Stock">
-<button onclick="addProduct()">Add</button>
+<select id="pcategory">
+<option value="General">General</option>
+<option value="Electronics">Electronics</option>
+<option value="Fashion">Fashion</option>
+<option value="Groceries">Groceries</option>
+</select>
+<button onclick="addProduct()" class="primary">Add Product</button>
 
 <h4>Orders</h4>
 <div id="orders"></div>
 </div>
 
 <input id="search" placeholder="Search products..." onkeyup="renderProducts()">
+
+<div class="category-filter">
+<label>Filter by Category:</label>
+<select id="filterCategory" onchange="renderProducts()">
+<option value="">All</option>
+<option value="Electronics">Electronics</option>
+<option value="Fashion">Fashion</option>
+<option value="Groceries">Groceries</option>
+<option value="General">General</option>
+</select>
+</div>
 
 <h3>Products</h3>
 <div class="products" id="products"></div>
@@ -94,7 +156,7 @@ footer{background:#222;color:#fff;text-align:center;padding:10px}
 <p class="small">UPI ID: <b>dr.deepak2121-2@oksbi</b></p>
 </div>
 
-<button onclick="checkout()">Checkout</button>
+<button onclick="checkout()" class="primary">Checkout</button>
 <button onclick="toggleCart()">Close</button>
 </div>
 
@@ -103,9 +165,8 @@ footer{background:#222;color:#fff;text-align:center;padding:10px}
 </footer>
 
 <script>
-/* ADMIN */
-let admin={u:"admin",p:localStorage.getItem("ap")||"12345"};
-let isAdmin=localStorage.getItem("ia");
+/* MOBILE MENU */
+function toggleMobileMenu(){document.getElementById("mobileMenu").classList.toggle("open");}
 
 /* DATA */
 let products=JSON.parse(localStorage.getItem("pr"))||[];
@@ -114,6 +175,11 @@ let orders=JSON.parse(localStorage.getItem("or"))||[];
 let COD=JSON.parse(localStorage.getItem("cod")); if(COD==null)COD=true;
 let contact=localStorage.getItem("ct")||"7052055713";
 
+/* CUSTOMERS */
+let customers=JSON.parse(localStorage.getItem("cu"))||[];
+let currentCustomer=JSON.parse(localStorage.getItem("cc"));
+let isAdmin=false;
+
 /* SAVE */
 function save(){
 localStorage.setItem("pr",JSON.stringify(products));
@@ -121,50 +187,107 @@ localStorage.setItem("ca",JSON.stringify(cart));
 localStorage.setItem("or",JSON.stringify(orders));
 localStorage.setItem("cod",JSON.stringify(COD));
 localStorage.setItem("ct",contact);
+localStorage.setItem("cu",JSON.stringify(customers));
+localStorage.setItem("cc",JSON.stringify(currentCustomer));
 }
 
-/* LOGIN */
-function login(){
-if(user.value==admin.u&&pass.value==admin.p){
-localStorage.setItem("ia",1);location.reload();
-}else alert("Wrong login");
-}
-function logout(){localStorage.removeItem("ia");location.reload();}
+/* CUSTOMER LOGIN/SIGNUP */
+function showSignup(){loginForm.style.display="none";signupForm.style.display="block";}
+function showLogin(){loginForm.style.display="block";signupForm.style.display="none";}
 
-if(isAdmin){loginBox.style.display="none";adminPanel.style.display="block";}
+function customerSignup(){
+let u=sUser.value,n=sName.value,ph=sPhone.value,a=sAddress.value;
+if(!u||!n||!ph)return alert("Fill required fields");
+if(customers.find(c=>c.u==u))return alert("Username exists");
+let c={u,n,ph,a};customers.push(c);currentCustomer=c;save();updateCustomerUI();
+alert("Signup successful!");
+if(ph=="7052055713")showAdminPanel();
+}
+
+function customerLogin(){
+let val=cUser.value;
+let cust=customers.find(c=>c.u==val||c.ph==val);
+if(!cust)return alert("User not found");
+currentCustomer=cust;save();updateCustomerUI();alert("Login successful");
+if(cust.ph=="7052055713")showAdminPanel();
+}
+
+function logoutCustomer(){currentCustomer=null;isAdmin=false;save();updateCustomerUI();document.getElementById("adminPanel").style.display="none";}
+
+/* UPDATE CUSTOMER UI */
+function updateCustomerUI(){
+if(currentCustomer){
+customerName.innerText=currentCustomer.n;
+customerNameMob.innerText=currentCustomer.n;
+loginBtn.style.display="none";signupBtn.style.display="none";
+loginBtnMob.style.display="none";signupBtnMob.style.display="none";
+logoutBtn.style.display="inline";logoutBtnMob.style.display="inline";
+bname.value=currentCustomer.n;bphone.value=currentCustomer.ph;baddress.value=currentCustomer.a;
+}else{
+customerName.innerText="";customerNameMob.innerText="";
+loginBtn.style.display="inline";signupBtn.style.display="inline";
+loginBtnMob.style.display="inline";signupBtnMob.style.display="inline";
+logoutBtn.style.display="none";logoutBtnMob.style.display="none";
+bname.value="";bphone.value="";baddress.value="";
+}}
+
+/* ADMIN PANEL */
+function showAdminPanel(){isAdmin=true;document.getElementById("adminPanel").style.display="block";}
 
 /* ADMIN ACTIONS */
-function saveContact(){contact=contactInput.value;save();renderContact();}
+function saveContact(){contact=document.getElementById("contact").value;save();renderContact();}
 function toggleCOD(){COD=!COD;save();renderCOD();}
-function changePass(){localStorage.setItem("ap",newPass.value);alert("Updated");}
 
 /* PRODUCTS */
 function addProduct(){
-products.push({id:Date.now(),n:pname.value,p:+pprice.value,i:pimg.value,s:+pstock.value});
+let imgs=document.getElementById("pimg").value.split(",");
+products.push({id:Date.now(),n:document.getElementById("pname").value,p:+document.getElementById("pprice").value,i:imgs,s:+document.getElementById("pstock").value,c:document.getElementById("pcategory").value});
 save();renderProducts();
 }
+
 function renderProducts(){
-let q=search.value.toLowerCase();
-productsDiv.innerHTML=products.filter(x=>x.n.toLowerCase().includes(q)).map(p=>`
-<div class="card">
-<img src="${p.i}">
-<h4>${p.n}</h4>
-₹${p.p}<br>Stock: ${p.s}
-<button onclick="addToCart(${p.id})">Add</button>
-</div>`).join("");
+  let q = document.getElementById("search").value.toLowerCase();
+  let catFilter = document.getElementById("filterCategory").value;
+  
+  productsDiv.innerHTML = products
+    .filter(p => p.n.toLowerCase().includes(q) && (catFilter=="" || p.c==catFilter))
+    .map(p => {
+      let imgs = p.i.map((img,idx) => `<img src="${img}" class="${idx==0?'active':''}">`).join("");
+      return `<div class="card">
+                <div class="carousel" id="carousel-${p.id}">
+                  ${imgs}
+                  <button class="prev" onclick="changeSlide(${p.id}, -1)">‹</button>
+                  <button class="next" onclick="changeSlide(${p.id}, 1)">›</button>
+                </div>
+                <h4>${p.n}</h4>₹${p.p}<br>Stock: ${p.s}<br>Category: ${p.c}<br>
+                <button onclick="addToCart(${p.id})" class="primary">Add</button>
+              </div>`;
+    }).join("");
+
+  // Initialize carousel indexes
+  products.forEach(p => {
+    if (!p.currentSlide) p.currentSlide = 0;
+  });
+}
+function changeSlide(productId, dir){
+  let product = products.find(p => p.id === productId);
+  if (!product || !product.i.length) return;
+
+  product.currentSlide += dir;
+  if (product.currentSlide < 0) product.currentSlide = product.i.length - 1;
+  if (product.currentSlide >= product.i.length) product.currentSlide = 0;
+
+  let carousel = document.getElementById(`carousel-${productId}`);
+  if (!carousel) return;
+
+  let imgs = carousel.querySelectorAll('img');
+  imgs.forEach((img, idx) => img.classList.toggle('active', idx === product.currentSlide));
 }
 
+
 /* CART */
-function addToCart(id){
-let p=products.find(x=>x.id==id);
-if(p.s<=0)return alert("Out of stock");
-cart.push(p);p.s--;save();renderCart();renderProducts();
-}
-function renderCart(){
-let t=0;
-cartItems.innerHTML=cart.map((c,i)=>{t+=c.p;return `${c.n} ₹${c.p} <button onclick="cart.splice(${i},1);save();renderCart()">❌</button>`}).join("<br>");
-total.innerText=t;cartCount.innerText=cart.length;
-}
+function addToCart(id){let p=products.find(x=>x.id==id);if(p.s<=0)return alert("Out of stock");cart.push(p);p.s--;save();renderCart();renderProducts();}
+function renderCart(){let t=0;cartItems.innerHTML=cart.map((c,i)=>{t+=c.p;return `${c.n} ₹${c.p} <button onclick="cart.splice(${i},1);save();renderCart()">❌</button>`}).join("<br>");total.innerText=t;cartCount.innerText=cart.length;cartCountMob.innerText=cart.length;}
 function toggleCart(){cartBox.classList.toggle("open");}
 
 /* CHECKOUT */
@@ -173,32 +296,17 @@ if(!bname.value||!bphone.value||!baddress.value)return alert("Fill details");
 let m=document.querySelector('[name=pay]:checked').value;
 if(m=="cod"&&!COD)return alert("COD disabled");
 if(m=="upi")alert("Pay to UPI ID:\n dr.deepak2121-2@oksbi");
-
-let o={
-id:Date.now(),items:cart,total:cart.reduce((s,i)=>s+i.p,0),
-buyer:{n:bname.value,p:bphone.value,a:baddress.value},
-pay:m,status:"Pending"
-};
+let o={id:Date.now(),items:cart,total:cart.reduce((s,i)=>s+i.p,0),buyer:{n:bname.value,p:bphone.value,a:baddress.value},pay:m,status:"Pending"};
 orders.push(o);cart=[];save();renderCart();renderOrders();
 window.open(`https://wa.me/91${contact}?text=`+encodeURIComponent(JSON.stringify(o,null,2)));
-alert("Order placed");
-}
+alert("Order placed");}
 
 /* ORDERS */
-function renderOrders(){
-if(!isAdmin)return;
-ordersDiv.innerHTML=orders.map(o=>`
-<div class="box">
-<b>#${o.id}</b><br>
-${o.buyer.n} (${o.buyer.p})<br>
-${o.buyer.a}<br>
-₹${o.total} | ${o.pay}<br>
-Status: ${o.status}<br>
+function renderOrders(){if(!isAdmin)return;
+ordersDiv.innerHTML=orders.map(o=>`<div class="box"><b>#${o.id}</b><br>${o.buyer.n} (${o.buyer.p})<br>${o.buyer.a}<br>₹${o.total} | ${o.pay}<br>Status: ${o.status}<br>
 <button onclick="o.status='Shipped';save();renderOrders()">🚚</button>
 <button onclick="o.status='Delivered';save();renderOrders()">✅</button>
-<button onclick="o.status='Cancelled';save();renderOrders()">❌</button>
-</div>`).join("");
-}
+<button onclick="o.status='Cancelled';save();renderOrders()">❌</button></div>`).join("");}
 
 /* HELPERS */
 function renderCOD(){codStatus.innerText=COD?"ON":"OFF";}
@@ -207,9 +315,7 @@ const productsDiv=document.getElementById("products");
 const cartItems=document.getElementById("cartItems");
 const cartBox=document.getElementById("cart");
 const ordersDiv=document.getElementById("orders");
-const contactInput=document.getElementById("contact");
-
-renderProducts();renderCart();renderOrders();renderCOD();renderContact();
+updateCustomerUI();renderProducts();renderCart();renderOrders();renderCOD();renderContact();
 </script>
 
 </body>
