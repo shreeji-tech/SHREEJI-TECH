@@ -3,8 +3,11 @@
 <head>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script> (function(){ emailjs.init("YOUR_PUBLIC_KEY"); })(); </script>
+<script> (function(){ emailjs.init("_MNsCEgmK6AabAywr"); })(); </script>
+
+<style>
+    .logo-img { content: url('1000007701.jpg') !important; }
+</style>
     <meta charset="UTF-8">
     <title>Shree Ji | Premium E-Commerce & Jan Sewa</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -92,10 +95,35 @@
         <button id="mainLoginBtn" class="btn-login" onclick="loginToggle()">Login</button>
         <button class="btn-cart" onclick="toggleCart()">🛒 <span id="cartCount">0</span></button>
         <button id="adminToggle" class="btn-admin hidden" onclick="showAdminPanel()">Control Center</button>
+<button id="profileBtn" class="btn-login hidden" onclick="document.getElementById('profileModal').classList.remove('hidden')" style="background:var(--primary);">👤 My Profile</button>
         <button id="logoutBtn" class="hidden" style="background:var(--danger); color:white" onclick="location.reload()">Logout</button>
     </div>
 </header>
-
+<div id="profileModal" class="hidden" style="position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; padding:20px; border-radius:15px; z-index:3000; width:90%; max-width:360px; box-shadow:0 0 30px rgba(0,0,0,0.5); color:#333; font-family:sans-serif;">
+    <h3 style="margin-top:0; color:#1a237e; border-bottom:2px solid #ffd700; padding-bottom:10px;">👤 My Profile</h3>
+    
+    <label style="font-size:12px; font-weight:bold; display:block; margin-top:10px;">Full Name</label>
+    <input type="text" id="pName" placeholder="अपना पूरा नाम लिखें" style="width:100%; margin:5px 0 15px; padding:10px; border:1px solid #ccc; border-radius:8px; box-sizing:border-box;">
+    
+    <label style="font-size:12px; font-weight:bold; display:block;">Delivery Address</label>
+    <textarea id="pAddress" placeholder="मकान नंबर, गली, शहर, पिनकोड" style="width:100%; margin:5px 0 15px; padding:10px; border:1px solid #ccc; border-radius:8px; height:80px; box-sizing:border-box; resize:none;"></textarea>
+    
+    <label style="font-size:12px; font-weight:bold; display:block;">Gender</label>
+    <select id="pGender" style="width:100%; margin:5px 0 20px; padding:10px; border:1px solid #ccc; border-radius:8px; box-sizing:border-box;">
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+        <option value="Other">Other</option>
+    </select>
+    
+    <button onclick="saveProfile()" style="width:100%; background:#27ae60; color:white; padding:12px; border:none; border-radius:8px; cursor:pointer; font-weight:bold; font-size:16px;">SAVE & UPDATE</button>
+    
+    <div id="orderStatusArea" style="margin-top:20px; background:#f9f9f9; padding:10px; border-radius:8px;">
+        <p style="margin:0 0 10px; font-size:13px; font-weight:bold;">Track Orders:</p>
+        <div id="statusList" style="font-size:12px; color:#555; max-height:80px; overflow-y:auto;">प्रोफाइल सेव करने के बाद आर्डर दिखेंगे।</div>
+    </div>
+    
+    <button onclick="document.getElementById('profileModal').classList.add('hidden')" style="width:100%; margin-top:15px; background:none; border:none; color:#e74c3c; cursor:pointer; font-weight:bold;">CLOSE WINDOW</button>
+</div>
 <div class="container">
     <div id="adminPanel" class="box hidden">
         <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -461,137 +489,106 @@
     window.showAdminPanel = () => document.getElementById("adminPanel").classList.toggle("hidden");
 
     renderProducts();
-window.generatePDF = function(orderData) {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-
-    // डिजाइन और हेडर
-    doc.setFillColor(26, 35, 126); // Primary Blue
-    doc.rect(0, 0, 210, 40, 'F');
-    
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(22);
-    doc.text("SHREE JI ENTERPRISES", 105, 20, { align: "center" });
-    doc.setFontSize(10);
-    doc.text("Adarsh Nagar, Bichhiya, Gorakhpur, UP", 105, 30, { align: "center" });
-
-    // बॉडी कंटेंट
-    doc.setTextColor(0, 0, 0);
-    doc.setFontSize(16);
-    doc.text("Service Application Receipt", 20, 55);
-    
-    doc.setFontSize(12);
-    doc.text(`Order ID: ${orderData.id}`, 20, 70);
-    doc.text(`Date: ${orderData.date}`, 20, 80);
-    doc.text(`Customer Name: ${orderData.name}`, 20, 90);
-    doc.text(`Payment Method: ${orderData.method}`, 20, 100);
-    doc.text(`Total Amount: Rs. ${orderData.total}`, 20, 110);
-    
-    doc.setLineWidth(0.5);
-    doc.line(20, 115, 190, 115);
-
-    doc.setFontSize(10);
-    doc.text("Note: Keep this receipt for tracking your document status.", 20, 130);
-    doc.text("Support: 7052055713", 20, 140);
-
-    // PDF डाउनलोड करें
-    doc.save(`ShreeJi_Order_${orderData.id}.pdf`);
-// --- 1. Customer Profile Logic ---
-window.updateProfile = function() {
-    const profileData = {
-        name: document.getElementById("editName").value,
-        address: document.getElementById("editAddress").value,
-        gender: document.getElementById("editGender").value,
-        phone: document.getElementById("userDisplayPhone").innerText
+// --- 1. प्रोफाइल डेटा सेव करने का फंक्शन ---
+window.saveProfile = function() {
+    // लॉगिन आईडी (फोन नंबर) के आधार पर डेटा अलग रखने के लिए
+    const userKey = document.getElementById("userDisplayPhone")?.innerText || "GuestUser";
+    const profile = {
+        name: document.getElementById("pName").value.trim(),
+        address: document.getElementById("pAddress").value.trim(),
+        gender: document.getElementById("pGender").value
     };
-    localStorage.setItem("user_profile_" + profileData.phone, JSON.stringify(profileData));
-    alert("Profile Updated Successfully!");
-    renderUserProfile();
+
+    if(!profile.name || !profile.address) {
+        alert("कृपया अपना नाम और पूरा पता (Pin Code के साथ) भरें!");
+        return;
+    }
+
+    localStorage.setItem("shreeji_profile_" + userKey, JSON.stringify(profile));
+    alert("Profile Updated! अब आप आर्डर कर सकते हैं। ✅");
+    viewMyOrders(); // तुरंत स्टेटस रिफ्रेश करें
 };
 
-function renderUserProfile() {
-    const phone = document.getElementById("userDisplayPhone").innerText;
-    const saved = JSON.parse(localStorage.getItem("user_profile_" + phone)) || {};
-    
-    document.getElementById("userProfile").innerHTML = `
-        <h3>My Account</h3>
-        <div class="admin-controls">
-            <input id="editName" value="${saved.name || ''}" placeholder="Full Name">
-            <input id="editAddress" value="${saved.address || ''}" placeholder="Delivery Address">
-            <select id="editGender">
-                <option value="Male" ${saved.gender==='Male'?'selected':''}>Male</option>
-                <option value="Female" ${saved.gender==='Female'?'selected':''}>Female</option>
-            </select>
-        </div>
-        <button onclick="updateProfile()" class="primary-btn" style="background:var(--success)">Save Changes</button>
-        <hr>
-        <h4>My Orders Status</h4>
-        <div id="customerOrders">Loading orders...</div>
-    `;
-    loadCustomerOrders(phone);
-}
+// --- 2. कस्टमर के आर्डर स्टेटस देखने का फंक्शन ---
+window.viewMyOrders = async function() {
+    const userKey = document.getElementById("userDisplayPhone")?.innerText;
+    if(!userKey) return;
 
-// --- 2. Order Status System ---
-async function loadCustomerOrders(phone) {
-    // Firebase से सिर्फ इस कस्टमर के ऑर्डर्स लाएं
-    const q = query(collection(db, "orders"), where("customerPhone", "==", phone));
-    const docs = await getDocs(q);
-    let html = "";
-    docs.forEach(doc => {
-        const o = doc.data();
-        html += `<div style="border:1px solid #ddd; padding:10px; margin-bottom:5px; border-radius:8px;">
-            <b>ID: ${o.id}</b> | Status: <span style="color:var(--primary)">${o.status || 'Pending'}</span><br>
-            Total: ₹${o.total}
-        </div>`;
-    });
-    document.getElementById("customerOrders").innerHTML = html || "No orders found.";
-}
+    try {
+        // Firebase से इस यूजर के आर्डर लाना
+        const q = query(collection(db, "orders"), where("customerPhone", "==", userKey));
+        const snap = await getDocs(q);
+        let html = "";
+        
+        snap.forEach(doc => {
+            const o = doc.data();
+            const statusColor = o.status === "Completed" ? "green" : "blue";
+            html += `<div style="padding:8px; border-bottom:1px dotted #ccc; display:flex; justify-content:space-between;">
+                <span>ID: ${o.id}</span>
+                <b style="color:${statusColor}">${o.status || 'Pending'}</b>
+            </div>`;
+        });
+        
+        document.getElementById("statusList").innerHTML = html || "No orders found.";
+    } catch (e) {
+        console.error("Status Error:", e);
+    }
+};
 
-// --- 3. Checkout with Email Notification ---
-window.processCheckout = async function(method) {
-    const phone = document.getElementById("userDisplayPhone").innerText;
-    const profile = JSON.parse(localStorage.getItem("user_profile_" + phone)) || {};
-    
-    if(!profile.name || !profile.address) return alert("Please complete your profile first!");
+// --- 3. नया 'Buy' लॉजिक (WhatsApp की जगह Firebase + Email) ---
+// ध्यान दें: अगर आपके पास पहले से 'confirmOrder' नाम का फंक्शन है, तो उसे इससे बदल दें।
+window.confirmOrder = async function() {
+    const userKey = document.getElementById("userDisplayPhone")?.innerText;
+    const profile = JSON.parse(localStorage.getItem("shreeji_profile_" + userKey));
 
+    // सुरक्षा चेक
+    if (!profile) {
+        alert("आर्डर करने के लिए पहले 'My Profile' बटन दबाकर अपना नाम और पता भरें!");
+        document.getElementById('profileModal').classList.remove('hidden');
+        return;
+    }
+
+    if (cart.length === 0) {
+        alert("आपका कार्ट खाली है!");
+        return;
+    }
+
+    const orderId = "SJ" + Date.now().toString().slice(-4);
     const orderData = {
-        id: "SJ" + Date.now().toString().slice(-4),
-        name: profile.name,
+        id: orderId,
+        customerName: profile.name,
+        customerPhone: userKey,
         address: profile.address,
-        customerPhone: phone,
+        items: cart.map(i => `${i.n} (₹${i.p})`).join(", "),
         total: document.getElementById("cartTotal").innerText,
-        method: method,
         status: "Processing",
         date: new Date().toLocaleString()
     };
 
     try {
-        // 1. Save to Firebase
+        // 1. Firebase में आर्डर सेव करें
         await addDoc(collection(db, "orders"), orderData);
 
-        // 2. Send Email Notification
-        emailjs.send("service_id", "template_id", {
+        // 2. Admin को Email भेजें (EmailJS)
+        emailjs.send("service_6ythfes", "template_ct8vznr", {
             to_email: "shreeradhecommunication63@gmail.com",
-            order_id: orderData.id,
-            customer_name: orderData.name,
-            total_amount: orderData.total,
-            items: cart.map(i => i.n).join(", ")
-        });
+            order_id: orderId,
+            customer: profile.name,
+            phone: userKey,
+            amount: orderData.total,
+            address: profile.address
+        }).then(() => console.log("Email Sent!"), (err) => console.log("Email Failed", err));
 
-        // 3. Show Success
-        alert("Order Placed! Notification sent to Admin.");
-        location.reload();
+        alert("Order Successful! ✅\nOrder ID: " + orderId);
+        
+        // कार्ट साफ़ करें और विंडो बंद करें
+        cart = []; 
+        if(typeof updateCart === 'function') updateCart(); 
+        document.getElementById("cartModal").classList.add("hidden");
+        
     } catch (e) {
-        alert("Error placing order: " + e.message);
+        alert("आर्डर फेल हो गया: " + e.message);
     }
-};
-
-// --- 4. Admin Side: Update Status ---
-window.updateOrderStatus = async function(docId, newStatus) {
-    const orderRef = doc(db, "orders", docId);
-    await updateDoc(orderRef, { status: newStatus });
-    alert("Status Updated to: " + newStatus);
-};
 };
 </script>
 </body>
