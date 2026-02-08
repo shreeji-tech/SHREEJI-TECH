@@ -234,7 +234,7 @@
             <label><input type="radio" name="payMethod" value="UPI" checked> UPI</label>
             <label style="margin-left:15px;"><input type="radio" name="payMethod" value="COD"> COD</label>
         </div>
-        <button onclick="processCheckout()" class="primary-btn" style="padding:18px;">Place Order Now</button>
+        <button id="checkoutBtn" onclick="processCheckout()" class="primary-btn" style="padding:18px;">Place Order Now</button>
     </div>
 </div>
 
@@ -258,7 +258,6 @@
 </footer>
 
 <script>
-// Logic preserved from your code, theme-integrated
 let contactNumber = "7052055713";
 let upiId = "dr.deepak2121-2@oksbi";
 let orderHistory = JSON.parse(localStorage.getItem("shreeji_orders")) || [];
@@ -324,35 +323,51 @@ function updateCartUI() {
 function removeFromCart(idx) { cart.splice(idx, 1); updateCartUI(); }
 function toggleCart() { document.getElementById("cartDrawer").classList.toggle("open"); }
 
-// NEW SYSTEM: Website Internal Checkout (No WhatsApp)
-function processCheckout() {
+// Modified processCheckout to support Firebase if needed
+async function processCheckout() {
     const name = document.getElementById("custName").value;
     const phone = document.getElementById("custPhone").value;
     const addr = document.getElementById("custAddress").value;
     const pay = document.querySelector('input[name="payMethod"]:checked').value;
 
     if(!name || !phone || !addr) return alert("Missing delivery details!");
+    if(cart.length === 0) return alert("Cart is empty!");
 
     const orderId = "SJ-" + Math.floor(1000 + Math.random() * 9000);
     const total = cart.reduce((s, i) => s + i.p, 0);
     
-    const newOrder = { orderId, name, phone, addr, total, pay, items: [...cart], date: new Date().toLocaleString() };
+    const newOrder = { 
+        orderId, 
+        name, 
+        phone, 
+        addr, 
+        total, 
+        pay, 
+        items: [...cart], 
+        date: new Date().toLocaleString(),
+        email: "shreeradhecommunication63@gmail.com" 
+    };
+
+    // Store locally
     orderHistory.push(newOrder);
     localStorage.setItem("shreeji_orders", JSON.stringify(orderHistory));
 
-    // Show Invoice
+    // Display Invoice
     document.getElementById("invoiceContent").innerHTML = `
         <p><strong>Order ID:</strong> ${orderId}</p>
         <p><strong>Customer:</strong> ${name}</p>
-        <p><strong>Items:</strong> ${cart.length} Products</p>
         <p><strong>Total Amount:</strong> ₹${total}</p>
         <p><strong>Payment Mode:</strong> ${pay}</p>
-        <p style="background:#fff3cd; padding:10px; border-radius:5px;">${pay === 'UPI' ? 'Please pay to: <b>'+upiId+'</b>' : 'Pay at time of delivery.'}</p>
+        <p style="background:#fff3cd; padding:10px; border-radius:5px;">${pay === 'UPI' ? 'Pay to: <b>'+upiId+'</b>' : 'Pay at time of delivery.'}</p>
     `;
     
     document.getElementById("invoiceOverlay").classList.remove("hidden");
     document.getElementById("invoiceModal").classList.remove("hidden");
     
+    // Save to Firebase (Trigger custom event)
+    const event = new CustomEvent('orderPlaced', { detail: newOrder });
+    window.dispatchEvent(event);
+
     // Reset Cart
     cart = [];
     updateCartUI();
@@ -366,12 +381,11 @@ function closeInvoice() {
 }
 
 function renderInternalOrders() {
-    document.getElementById("internalOrders").innerHTML = orderHistory.reverse().map(o => 
+    document.getElementById("internalOrders").innerHTML = [...orderHistory].reverse().map(o => 
         `<div style="border-bottom:1px solid #ddd; margin-bottom:5px;">ID: ${o.orderId} | ${o.name} | ₹${o.total}</div>`
     ).join("");
 }
 
-// Admin Logic
 function checkAdmin() { document.getElementById("adminLoginBox").classList.toggle("hidden"); }
 function loginAdmin() {
     if(document.getElementById("adminPass").value === "2121") {
@@ -399,5 +413,39 @@ function addProduct() {
 
 renderProducts();
 </script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
+  import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBuCywyMgEw_j9yeHD-E4KwRWZGreWagTc",
+    authDomain: "shree-4c33e.firebaseapp.com",
+    projectId: "shree-4c33e",
+    storageBucket: "shree-4c33e.firebasestorage.app",
+    messagingSenderId: "759128544690",
+    appId: "1:759128544690:web:3f57e7ed9117a1acdd80ab",
+    measurementId: "G-NP1D792NVF"
+  };
+
+  // Initialize
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  const db = getFirestore(app);
+
+  // Listen for orders to save in Firestore
+  window.addEventListener('orderPlaced', async (e) => {
+    try {
+      const docRef = await addDoc(collection(db, "orders"), e.detail);
+      console.log("Order saved to Firebase with ID: ", docRef.id);
+    } catch (err) {
+      console.error("Firebase Save Error: ", err);
+    }
+  });
+
+  console.log("Shree Ji Firebase System Active!");
+</script>
+
 </body>
 </html>
