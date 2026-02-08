@@ -94,7 +94,7 @@
     <div class="nav-buttons">
         <button id="mainLoginBtn" class="btn-login" onclick="loginToggle()">Login</button>
         <button class="btn-cart" onclick="toggleCart()">🛒 <span id="cartCount">0</span></button>
-        <button id="adminToggle" class="btn-admin" onclick="showAdminPanel()">Control Center</button>
+        <button id="adminToggle" class="btn-admin hidden" onclick="showAdminPanel()">Control Center</button>
 <button id="profileBtn" class="btn-login" onclick="document.getElementById('profileModal').classList.remove('hidden')" style="background:var(--primary);">👤 My Profile</button>
         <button id="logoutBtn" class="hidden" style="background:var(--danger); color:white" onclick="location.reload()">Logout</button>
     </div>
@@ -178,8 +178,15 @@
     </div>
     
     <div id="cartItemsArea">
-        <div id="cartItems" style="margin: 20px 0;"></div>
+    <div id="cartItems" style="margin: 20px 0;"></div>
+    <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; margin-bottom: 15px;">
+        <span>Total Amount:</span>
+        <span id="cartTotal">₹0</span>
     </div>
+    <button onclick="confirmOrder()" style="width: 100%; background: #27ae60; color: white; padding: 15px; border: none; border-radius: 10px; font-weight: bold; font-size: 18px; cursor: pointer;">
+        ✅ CONFIRM ORDER
+    </button>
+</div>
 
     <div id="authSection" class="hidden" style="background: #f8f9fa; padding: 20px; border-radius: 12px; margin-top: 20px;">
         <p style="margin-top:0"><b>Verify Identity</b></p>
