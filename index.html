@@ -1,104 +1,138 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <meta charset="UTF-8">
     <title>Shree Ji | Premium E-Commerce & Jan Sewa</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         :root { 
             --primary: #1a237e; --accent: #ffd700; --bg: #f4f7f6;
-            --text: #2c3e50; --white: #ffffff; --success: #27ae60;
+            --text: #2c3e50; --white: #ffffff; --success: #27ae60; --danger: #e74c3c;
         }
 
         body { 
-            font-family: 'Inter', system-ui, -apple-system, sans-serif; 
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
             margin: 0; background: var(--bg); color: var(--text); line-height: 1.6;
         }
 
         header { 
-            background: var(--primary); color: var(--white); padding: 0.8rem 2rem; 
+            background: var(--primary); color: var(--white); padding: 0.5rem 5%; 
             display: flex; justify-content: space-between; align-items: center; 
             position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
-        .nav-buttons { display: flex; gap: 12px; align-items: center; }
+        .logo-img { height: 50px; width: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent); }
+        .logo-area { display: flex; align-items: center; gap: 10px; }
+
+        .nav-buttons { display: flex; gap: 15px; align-items: center; }
 
         button { 
-            padding: 10px 20px; border: none; border-radius: 8px; 
-            cursor: pointer; font-weight: 600; transition: all 0.3s ease;
+            padding: 10px 22px; border: none; border-radius: 8px; 
+            cursor: pointer; font-weight: 600; transition: 0.3s;
         }
 
-        .btn-cart { background: var(--accent); color: var(--primary); }
-        .btn-login { background: var(--white); color: var(--primary); }
+        .btn-cart { background: var(--accent); color: var(--primary); display: flex; align-items: center; gap: 8px; }
+        .btn-login { background: rgba(255,255,255,0.2); color: var(--white); border: 1px solid var(--white); }
         .btn-admin { background: #f39c12; color: var(--white); }
         .hidden { display: none !important; }
 
         .primary-btn { 
             background: var(--primary); color: var(--white); width: 100%; 
-            margin-top: 15px; text-transform: uppercase;
+            padding: 12px; margin-top: 15px; text-transform: uppercase; font-size: 14px;
         }
 
-        .container { padding: 30px 5%; max-width: 1400px; margin: auto; }
-        .box { background: var(--white); padding: 25px; border-radius: 15px; margin-bottom: 25px; border: 1px solid #e0e0e0; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-        .search-section { background: var(--white); padding: 20px; border-radius: 15px; margin-bottom: 30px; display: flex; gap: 15px; }
-        .search-section input, .search-section select { padding: 12px; border: 1px solid #ddd; border-radius: 8px; flex: 1; }
-        .products { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
-        .card { background: var(--white); border-radius: 16px; overflow: hidden; border: 1px solid #eee; padding: 20px; transition: 0.3s; box-shadow: 0 3px 10px rgba(0,0,0,0.03); }
-        .card:hover { transform: translateY(-10px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .container { padding: 40px 5%; max-width: 1400px; margin: auto; }
+        .box { background: var(--white); padding: 30px; border-radius: 15px; margin-bottom: 30px; border: 1px solid #e0e0e0; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
         
-        .doc-badge { background: #fff3cd; color: #856404; font-size: 11px; padding: 5px; border-radius: 5px; display: block; margin: 10px 0; border: 1px solid #ffeeba; }
+        .admin-controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .admin-controls input, .admin-controls select { padding: 12px; border: 1px solid #ddd; border-radius: 8px; width: 100%; box-sizing: border-box; }
 
-        .cart-drawer { position: fixed; top: 0; right: -100%; width: 400px; height: 100%; background: var(--white); z-index: 2000; transition: 0.4s; box-shadow: -10px 0 30px rgba(0,0,0,0.15); padding: 30px; overflow-y: auto; }
-        .cart-drawer.open { right: 0; }
-        .invoice-box { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 40px; border-radius: 12px; z-index: 3000; width: 90%; max-width: 500px; box-shadow: 0 0 100px rgba(0,0,0,0.5); }
-        footer { background: var(--primary); color: var(--white); text-align: center; padding: 40px 20px; margin-top: 50px; }
+        .search-section { display: flex; gap: 15px; margin-bottom: 40px; }
+        .search-section input { flex: 3; padding: 15px; border-radius: 10px; border: 1px solid #ccc; font-size: 16px; }
+        .search-section select { flex: 1; padding: 15px; border-radius: 10px; border: 1px solid #ccc; }
+
+        .products { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; }
+        .card { background: var(--white); border-radius: 20px; overflow: hidden; border: 1px solid #eee; padding: 0; transition: 0.4s; position: relative; }
+        .card:hover { transform: translateY(-10px); box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
         
-        .status-on { color: var(--success); font-weight: bold; }
-        .order-log { font-size: 13px; margin-top: 10px; border-top: 1px dashed #ccc; padding-top: 10px; }
+        .product-img { width: 100%; height: 200px; object-fit: cover; background: #eee; }
+        .product-info { padding: 20px; }
+        .product-price { font-size: 1.4rem; font-weight: 800; color: var(--primary); margin: 10px 0; }
+        
+        .doc-badge { background: #fff3cd; color: #856404; font-size: 11px; padding: 6px 10px; border-radius: 5px; margin: 10px 0; border: 1px solid #ffeeba; display: inline-block; }
+
+        .cart-drawer { position: fixed; top: 0; right: -100%; width: 420px; height: 100%; background: var(--white); z-index: 2000; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: -10px 0 50px rgba(0,0,0,0.2); padding: 30px; overflow-y: auto; }
+        .cart-drawer.open { right: 0; }
+        .close-cart { font-size: 2rem; background: none; color: #999; padding: 0; }
+
+        .invoice-box { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 40px; border-radius: 20px; z-index: 3000; width: 90%; max-width: 500px; box-shadow: 0 0 100px rgba(0,0,0,0.5); text-align: center; }
+        
+        .del-btn { background: var(--danger); color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; margin-top: 10px; }
+        
+        footer { background: var(--primary); color: var(--white); text-align: center; padding: 50px 20px; margin-top: 80px; border-top: 5px solid var(--accent); }
+        
+        @media (max-width: 500px) {
+            .cart-drawer { width: 100%; }
+            header { padding: 1rem 3%; }
+        }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="logo-area"><h2><span style="color:var(--accent)">SJ</span> SHREE JI</h2></div>
+    <div class="logo-area">
+        <img src="https://i.ibb.co/Vpy6L9D9/1000007701.jpg" alt="Logo" class="logo-img">
+        <h2 style="margin:0"><span style="color:var(--accent)">SHREE</span> JI</h2>
+    </div>
     <div class="nav-buttons">
-        <button id="mainLoginBtn" class="btn-login" onclick="loginToggle()">Login / Signup</button>
-        <button class="btn-cart" onclick="toggleCart()">🛒 Cart (<span id="cartCount">0</span>)</button>
-        <button id="adminToggle" class="btn-admin hidden" onclick="showAdminPanel()">Owner Dash</button>
-        <button id="logoutBtn" class="hidden btn-admin" style="background:#c0392b" onclick="location.reload()">Logout</button>
+        <button id="mainLoginBtn" class="btn-login" onclick="loginToggle()">Login</button>
+        <button class="btn-cart" onclick="toggleCart()">🛒 <span id="cartCount">0</span></button>
+        <button id="adminToggle" class="btn-admin hidden" onclick="showAdminPanel()">Control Center</button>
+        <button id="logoutBtn" class="hidden" style="background:var(--danger); color:white" onclick="location.reload()">Logout</button>
     </div>
 </header>
 
 <div class="container">
     <div id="adminPanel" class="box hidden">
-        <h3 style="color:var(--primary)">Owner Dashboard</h3>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom: 20px;">
+        <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3 style="color:var(--primary); margin:0;">Admin Control Center</h3>
+            <button onclick="showAdminPanel()" style="background:#eee">Close</button>
+        </div>
+        <div class="admin-controls">
             <input id="pname" placeholder="Item Name">
             <input id="pprice" placeholder="Price (₹)">
+            <input id="pimg" placeholder="Image URL (Link)">
             <select id="pcategory">
-                <option value="Refurbished Mobile">Mobile</option>
-                <option value="Refurbished Laptop">Laptop</option>
+                <option value="Refurbished Mobile">Refurbished Mobile</option>
+                <option value="Refurbished Laptop">Refurbished Laptop</option>
                 <option value="Accessories">Accessories</option>
-                <option value="Jan Sewa Kendra">Jan Sewa</option>
+                <option value="Jan Sewa Kendra">Jan Sewa Kendra</option>
             </select>
-            <input id="pdocs" placeholder="Required Docs (Only for Jan Sewa)">
+            <input id="pdocs" placeholder="Required Docs (For Jan Sewa)">
         </div>
-        <button onclick="addProduct()" class="primary-btn" style="margin-bottom: 10px;">Save Product</button>
+        <button onclick="addProduct()" class="primary-btn" style="background:var(--success)">List Product Now</button>
         
-        <div class="order-log">
-            <strong>Internal Order Log:</strong>
-            <div id="recentOrders">No recent orders in this session.</div>
+        <div style="margin-top:20px; border-top: 1px solid #eee; padding-top: 20px;">
+            <p><b>Manage Inventory (Delete Products):</b></p>
+            <div id="adminInventory" style="display:flex; flex-wrap: wrap; gap: 10px;"></div>
         </div>
     </div>
 
+    <div id="userProfile" class="box hidden">
+        <h3 style="margin-top:0">Welcome back!</h3>
+        <p>Logged in as: <b id="userDisplayPhone"></b></p>
+        <button onclick="location.reload()" style="background:var(--danger); color:white">Logout Account</button>
+    </div>
+
     <div class="search-section">
-        <input type="text" id="search" placeholder="Search Mobile, Laptop or Service..." onkeyup="renderProducts()">
+        <input type="text" id="search" placeholder="Search for Mobiles, Laptops or Services..." onkeyup="renderProducts()">
         <select id="filterCategory" onchange="renderProducts()">
             <option value="">All Categories</option>
             <option value="Refurbished Mobile">Mobiles</option>
             <option value="Refurbished Laptop">Laptops</option>
             <option value="Accessories">Accessories</option>
-            <option value="Jan Sewa Kendra">Jan Sewa</option>
+            <option value="Jan Sewa Kendra">Jan Sewa Kendra</option>
         </select>
     </div>
 
@@ -107,50 +141,61 @@
 </div>
 
 <div class="cart-drawer" id="cartDrawer">
-    <div style="display:flex; justify-content: space-between; align-items: center;">
-        <h3 id="drawerTitle" style="color:var(--primary)">Your Cart & Login</h3>
-        <button onclick="toggleCart()" style="background:none; font-size:2rem;">&times;</button>
+    <div style="display:flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 15px;">
+        <h3 id="drawerTitle" style="color:var(--primary); margin:0">Your Cart</h3>
+        <button class="close-cart" onclick="toggleCart()">&times;</button>
     </div>
     
     <div id="cartItemsArea">
-        <div id="cartItems" style="margin: 20px 0; border-top: 1px solid #eee;"></div>
+        <div id="cartItems" style="margin: 20px 0;"></div>
     </div>
 
-    <div id="authSection" style="background: #f8f9fa; padding: 15px; border-radius: 12px; margin-bottom: 15px;">
-        <label style="font-size: 12px; color: #666;">Mobile Number</label>
-        <input id="custPhone" type="tel" value="+91" 
-               oninput="validatePhone(this)" 
-               style="width:90%; padding:10px; margin-bottom:10px; font-weight: bold; letter-spacing: 1px;">
+    <div id="authSection" class="hidden" style="background: #f8f9fa; padding: 20px; border-radius: 12px; margin-top: 20px;">
+        <p style="margin-top:0"><b>Verify Identity</b></p>
+        <input id="custPhone" type="tel" value="+91" oninput="validatePhone(this)" style="width:100%; padding:12px; margin-bottom:15px; font-size: 16px; border-radius: 8px; border: 1px solid #ccc;">
         <div id="recaptcha-container"></div>
-        <button id="sendOtpBtn" onclick="sendOTP()" class="primary-btn" style="background:#27ae60;">Send OTP</button>
+        <button id="sendOtpBtn" onclick="sendOTP()" class="primary-btn" style="background:var(--success);">Send OTP Code</button>
         
         <div id="otpSection" class="hidden">
-            <input id="otpCode" placeholder="Enter 6-Digit OTP" style="width:90%; padding:10px; margin-top:10px;">
-            <button onclick="verifyOTP()" class="primary-btn" style="background:#e67e22;">Verify Now</button>
+            <input id="otpCode" placeholder="Enter 6-Digit OTP" style="width:100%; padding:12px; margin-top:10px; border-radius: 8px; border: 1px solid #ccc;">
+            <button onclick="verifyOTP()" class="primary-btn" style="background:#e67e22;">Confirm & Login</button>
         </div>
     </div>
 
     <div id="checkoutFields" class="hidden">
-        <input id="custName" placeholder="Full Name" style="width:90%; padding:10px; margin-bottom:10px;">
-        <textarea id="custAddress" placeholder="Delivery Address" style="width:90%; padding:10px; margin-bottom:10px; height:60px;"></textarea>
-        
-        <div id="docUploadArea" class="hidden" style="background:#e3f2fd; padding:10px; border-radius:10px; margin-bottom:10px;">
-            <p style="font-size:12px; margin:0; color:#0d47a1;"><b>Upload Documents (Jan Sewa Order):</b></p>
-            <input type="file" id="orderDocs" style="font-size:12px; margin-top:5px;">
-        </div>
+        <div style="border-top: 1px solid #eee; padding-top: 20px; margin-top: 20px;">
+            <input id="custName" placeholder="Recipient Full Name" style="width:100%; padding:12px; margin-bottom:12px; border-radius:8px; border:1px solid #ccc;">
+            <textarea id="custAddress" placeholder="Full Delivery Address with Pincode" style="width:100%; padding:12px; margin-bottom:12px; height:80px; border-radius:8px; border:1px solid #ccc;"></textarea>
+            
+            <div id="docUploadArea" class="hidden" style="background:#e3f2fd; padding:15px; border-radius:10px; margin-bottom:15px;">
+                <p style="font-size:12px; margin:0; color:#0d47a1;"><b>Upload Documents Required:</b></p>
+                <input type="file" id="orderDocs" style="margin-top:10px;">
+            </div>
 
-        <p style="font-weight: bold; font-size: 18px;">Total: ₹<span id="cartTotal">0</span></p>
-        <button onclick="processCheckout()" class="primary-btn">Confirm & Order (COD)</button>
+            <div style="display:flex; justify-content: space-between; align-items: center; background: #eee; padding: 15px; border-radius: 8px; margin-bottom:10px;">
+                <span>Total Amount:</span>
+                <b style="font-size: 1.2rem;">₹<span id="cartTotal">0</span></b>
+            </div>
+            
+            <button onclick="processCheckout('COD')" class="primary-btn" style="background:#555;">Place COD Order</button>
+            <button onclick="processCheckout('ONLINE')" class="primary-btn" style="background:var(--success);">Pay Online (UPI)</button>
+        </div>
     </div>
 </div>
 
 <div id="invoiceModal" class="invoice-box hidden">
-    <h2 style="color:var(--success); text-align:center">Order Confirmed!</h2>
-    <div id="invoiceContent" style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin: 15px 0;"></div>
-    <button onclick="location.reload()" class="primary-btn">Close & Continue Shopping</button>
+    <div style="font-size: 4rem; color: var(--success);">✓</div>
+    <h2 style="color:var(--success); margin-top:0">Order Placed!</h2>
+    <div id="invoiceContent" style="margin: 20px 0; text-align: left; background: #f9f9f9; padding: 15px; border-radius: 10px;"></div>
+    <button onclick="location.reload()" class="primary-btn">Back to Store</button>
 </div>
 
-<footer><p>© 2026 Shree Ji Enterprises | Bichhiya, Gorakhpur | 7052055713</p></footer>
+<footer>
+    <p style="font-size: 1.2rem; font-weight: bold; margin-bottom: 10px;">SHREE JI ENTERPRISES</p>
+    <p>Adarsh Nagar, Bichhiya, Gorakhpur, UP - 273014</p>
+    <p>WhatsApp Support: 7052055713</p>
+    <p style="margin-top: 30px; opacity: 0.6; font-size: 0.8rem;">© 2026 Shree Ji. All Rights Reserved.</p>
+</footer>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -171,168 +216,284 @@
     const db = getFirestore(app);
     let confirmationResult;
 
-    // Fixed Items and Dynamic Storage
     const baseItems = [
-        ...Array.from({length:20}, (_,i)=>({id:`m${i}`, n:`Redmi Note ${10+i} Pro`, p:12000+(i*500), c:"Refurbished Mobile"})),
-        ...Array.from({length:20}, (_,i)=>({id:`l${i}`, n:`HP EliteBook G${i+1}`, p:22000+(i*1000), c:"Refurbished Laptop"})),
-        {id:101, n:"Pan Card Apply", p:150, c:"Jan Sewa Kendra", d:"Aadhaar Card, Photo, Sign"},
-        {id:102, n:"Income Certificate", p:100, c:"Jan Sewa Kendra", d:"Ration Card, Self Declaration"}
+        // --- 20 MOBILES ---
+        {id:1, n:"iPhone 13 (Refurbished)", p:38000, c:"Refurbished Mobile", img:"https://m.media-amazon.com/images/I/61l9ppRIiqL._SL1500_.jpg"},
+        {id:2, n:"iPhone 12 Mini", p:25000, c:"Refurbished Mobile", img:"https://m.media-amazon.com/images/I/71sNNCTfMuL._SL1500_.jpg"},
+        {id:3, n:"Samsung S21 Ultra", p:32000, c:"Refurbished Mobile", img:"https://m.media-amazon.com/images/I/91dLTREdG1L._SL1500_.jpg"},
+        {id:4, n:"Redmi Note 12 Pro", p:15500, c:"Refurbished Mobile", img:"https://m.media-amazon.com/images/I/71pAtN09-PL._SL1500_.jpg"},
+        {id:5, n:"OnePlus 9R 5G", p:21000, c:"Refurbished Mobile", img:"https://m.media-amazon.com/images/I/61fy+u9uqPL._SL1500_.jpg"},
+        {id:6, n:"Vivo V23 5G", p:18000, c:"Refurbished Mobile", img:"https://m.media-amazon.com/images/I/61fXpP9o69L._SL1200_.jpg"},
+        {id:7, n:"Oppo Reno 7", p:16500, c:"Refurbished Mobile", img:"https://m.media-amazon.com/images/I/718C9D-A5DL._SL1500_.jpg"},
+        {id:8, n:"Google Pixel 6a", p:22000, c:"Refurbished Mobile", img:"https://m.media-amazon.com/images/I/61mIAn+79ML._SL1500_.jpg"},
+        {id:9, n:"Nothing Phone 1", p:19500, c:"Refurbished Mobile", img:"https://m.media-amazon.com/images/I/81vXzH8mX-L._SL1500_.jpg"},
+        {id:10, n:"Realme GT Master", p:14000, c:"Refurbished Mobile", img:"https://m.media-amazon.com/images/I/71S-rO2XbDL._SL1500_.jpg"},
+        {id:11, n:"iPhone 11 Pro", p:28000, c:"Refurbished Mobile", img:"https://m.media-amazon.com/images/I/81LmL94PUvL._SL1500_.jpg"},
+        {id:12, n:"Samsung Note 20", p:26000, c:"Refurbished Mobile", img:"https://m.media-amazon.com/images/I/81afQk-7AjL._SL1500_.jpg"},
+        {id:13, n:"OnePlus Nord 2", p:17000, c:"Refurbished Mobile", img:"https://m.media-amazon.com/images/I/61TnX0PmqES._SL1500_.jpg"},
+        {id:14, n:"Moto Edge 30", p:15000, c:"Refurbished Mobile", img:"https://m.media-amazon.com/images/I/61Y6f-8E2AL._SL1000_.jpg"},
+        {id:15, n:"Samsung M34 5G", p:12500, c:"Refurbished Mobile", img:"https://m.media-amazon.com/images/I/91ItZze1qOL._SL1500_.jpg"},
+        {id:16, n:"Redmi 12 5G", p:11000, c:"Refurbished Mobile", img:"https://m.media-amazon.com/images/I/71f6vNqY41L._SL1500_.jpg"},
+        {id:17, n:"iPhone SE 2020", p:14500, c:"Refurbished Mobile", img:"https://m.media-amazon.com/images/I/810KHyROIVL._SL1500_.jpg"},
+        {id:18, n:"Vivo T2x 5G", p:11500, c:"Refurbished Mobile", img:"https://m.media-amazon.com/images/I/61N+6E8xPUL._SL1200_.jpg"},
+        {id:19, n:"Oppo F19 Pro", p:13000, c:"Refurbished Mobile", img:"https://m.media-amazon.com/images/I/718Y-i89DUL._SL1500_.jpg"},
+        {id:20, n:"Poco X5 Pro", p:16000, c:"Refurbished Mobile", img:"https://m.media-amazon.com/images/I/61-v8f7u5NL._SL1100_.jpg"},
+
+        // --- 20 LAPTOPS ---
+        {id:21, n:"HP Elitebook 840 G3", p:22000, c:"Refurbished Laptop", img:"https://m.media-amazon.com/images/I/41O+1H0Y92L.jpg"},
+        {id:22, n:"Dell Latitude E7470", p:19500, c:"Refurbished Laptop", img:"https://m.media-amazon.com/images/I/61iVv4-R1vL._SL1000_.jpg"},
+        {id:23, n:"Lenovo Thinkpad T470", p:21000, c:"Refurbished Laptop", img:"https://m.media-amazon.com/images/I/61B5q+L4QDL._SL1000_.jpg"},
+        {id:24, n:"Apple MacBook Air M1", p:52000, c:"Refurbished Laptop", img:"https://m.media-amazon.com/images/I/71jGSfN6uPL._SL1500_.jpg"},
+        {id:25, n:"Asus Vivobook 15", p:24000, c:"Refurbished Laptop", img:"https://m.media-amazon.com/images/I/71S8U9VzLTL._SL1500_.jpg"},
+        {id:26, n:"HP ProBook 440 G5", p:23500, c:"Refurbished Laptop", img:"https://m.media-amazon.com/images/I/71H2O8qD-tL._SL1500_.jpg"},
+        {id:27, n:"Dell XPS 13", p:45000, c:"Refurbished Laptop", img:"https://m.media-amazon.com/images/I/7123L5-A-DL._SL1500_.jpg"},
+        {id:28, n:"Acer Aspire 5", p:18000, c:"Refurbished Laptop", img:"https://m.media-amazon.com/images/I/61vYpS-DL.jpg"},
+        {id:29, n:"Microsoft Surface Pro", p:35000, c:"Refurbished Laptop", img:"https://m.media-amazon.com/images/I/51pI-E-A-TL.jpg"},
+        {id:30, n:"Lenovo Yoga Slim", p:38000, c:"Refurbished Laptop", img:"https://m.media-amazon.com/images/I/61D8oE-DL.jpg"},
+        {id:31, n:"HP Victus Gaming", p:42000, c:"Refurbished Laptop", img:"https://m.media-amazon.com/images/I/71h-DL.jpg"},
+        {id:32, n:"Dell Vostro 3510", p:26000, c:"Refurbished Laptop", img:"https://m.media-amazon.com/images/I/61Y-DL.jpg"},
+        {id:33, n:"Samsung Galaxy Book", p:40000, c:"Refurbished Laptop", img:"https://m.media-amazon.com/images/I/71S-DL.jpg"},
+        {id:34, n:"MSI Modern 14", p:29000, c:"Refurbished Laptop", img:"https://m.media-amazon.com/images/I/61-DL.jpg"},
+        {id:35, n:"HP Pavilion x360", p:34000, c:"Refurbished Laptop", img:"https://m.media-amazon.com/images/I/71k-DL.jpg"},
+        {id:36, n:"Dell Precision 5520", p:48000, c:"Refurbished Laptop", img:"https://m.media-amazon.com/images/I/61p-DL.jpg"},
+        {id:37, n:"Lenovo IdeaPad 3", p:20000, c:"Refurbished Laptop", img:"https://m.media-amazon.com/images/I/71-DL.jpg"},
+        {id:38, n:"Apple MacBook Pro 2017", p:32000, c:"Refurbished Laptop", img:"https://m.media-amazon.com/images/I/61x-DL.jpg"},
+        {id:39, n:"HP Chromebook 14", p:12000, c:"Refurbished Laptop", img:"https://m.media-amazon.com/images/I/71z-DL.jpg"},
+        {id:40, n:"Dell Inspiron 15", p:25500, c:"Refurbished Laptop", img:"https://m.media-amazon.com/images/I/71q-DL.jpg"},
+
+        // --- 20 ACCESSORIES ---
+        {id:41, n:"Apple AirPods Pro (Grade A)", p:4500, c:"Accessories", img:"https://m.media-amazon.com/images/I/61SUj2W5yZL._SL1500_.jpg"},
+        {id:42, n:"Samsung Galaxy Buds 2", p:3800, c:"Accessories", img:"https://m.media-amazon.com/images/I/51S7A-DL.jpg"},
+        {id:43, n:"Boat Rockerz 450", p:1200, c:"Accessories", img:"https://m.media-amazon.com/images/I/51-DL.jpg"},
+        {id:44, n:"Sony WH-CH520", p:4200, c:"Accessories", img:"https://m.media-amazon.com/images/I/41-DL.jpg"},
+        {id:45, n:"Wireless Mouse HP", p:600, c:"Accessories", img:"https://m.media-amazon.com/images/I/51p-DL.jpg"},
+        {id:46, n:"Logitech Keyboard", p:950, c:"Accessories", img:"https://m.media-amazon.com/images/I/61-DL.jpg"},
+        {id:47, n:"Power Bank 20000mAh", p:1800, c:"Accessories", img:"https://m.media-amazon.com/images/I/61b-DL.jpg"},
+        {id:48, n:"65W Fast Charger", p:1200, c:"Accessories", img:"https://m.media-amazon.com/images/I/51-DL.jpg"},
+        {id:49, n:"Gaming Mouse Pad", p:400, c:"Accessories", img:"https://m.media-amazon.com/images/I/61-DL.jpg"},
+        {id:50, n:"Laptop Bag Premium", p:1100, c:"Accessories", img:"https://m.media-amazon.com/images/I/81-DL.jpg"},
+        {id:51, n:"Bluetooth Speaker JBL", p:2500, c:"Accessories", img:"https://m.media-amazon.com/images/I/71-DL.jpg"},
+        {id:52, n:"USB Hub 4-in-1", p:750, c:"Accessories", img:"https://m.media-amazon.com/images/I/51-DL.jpg"},
+        {id:53, n:"External Hard Drive 1TB", p:4200, c:"Accessories", img:"https://m.media-amazon.com/images/I/61-DL.jpg"},
+        {id:54, n:"HDMI Cable 4K", p:350, c:"Accessories", img:"https://m.media-amazon.com/images/I/61-DL.jpg"},
+        {id:55, n:"Webcam 1080p", p:1500, c:"Accessories", img:"https://m.media-amazon.com/images/I/61-DL.jpg"},
+        {id:56, n:"Smart Watch Series 8", p:2200, c:"Accessories", img:"https://m.media-amazon.com/images/I/61-DL.jpg"},
+        {id:57, n:"Ring Light with Stand", p:999, c:"Accessories", img:"https://m.media-amazon.com/images/I/51-DL.jpg"},
+        {id:58, n:"Condenser Mic", p:1800, c:"Accessories", img:"https://m.media-amazon.com/images/I/61-DL.jpg"},
+        {id:59, n:"VR Headset", p:1400, c:"Accessories", img:"https://m.media-amazon.com/images/I/61-DL.jpg"},
+        {id:60, n:"Wireless Earphones", p:850, c:"Accessories", img:"https://m.media-amazon.com/images/I/51-DL.jpg"},
+
+        // --- 20 JAN SEWA KENDRA ---
+        {id:61, n:"New Pan Card", p:150, c:"Jan Sewa Kendra", d:"Aadhaar, Photo", img:"https://5.imimg.com/data5/SELLER/Default/2023/11/359214777/TQ/OR/CP/199047913/pan-card-services-500x500.png"},
+        {id:62, n:"Aadhar Correction", p:100, c:"Jan Sewa Kendra", d:"Address Proof", img:"https://m.economictimes.com/thumb/msid-90325497,width-1200,height-900,resizemode-4,imgsize-23714/aadhaar-card.jpg"},
+        {id:63, n:"Income Certificate", p:120, c:"Jan Sewa Kendra", d:"Self Declaration", img:"https://i.ytimg.com/vi/zDAs9t40y_Y/maxresdefault.jpg"},
+        {id:64, n:"Caste Certificate", p:120, c:"Jan Sewa Kendra", d:"Family ID", img:"https://shreetech.in/wp-content/uploads/2021/06/caste.jpg"},
+        {id:65, n:"Domicile Certificate", p:120, c:"Jan Sewa Kendra", d:"Ration Card", img:"https://jnanabhumiap.in/wp-content/uploads/Resident-Certificate.png"},
+        {id:66, n:"Ration Card Apply", p:150, c:"Jan Sewa Kendra", d:"All Members Aadhar", img:"https://vlesociety.com/wp-content/uploads/2020/07/ration-card.jpg"},
+        {id:67, n:"Voter ID Apply", p:80, c:"Jan Sewa Kendra", d:"Age Proof", img:"https://nvsp.sr-results.com/wp-content/uploads/2019/07/voter-id.png"},
+        {id:68, n:"PF Withdrawal", p:500, c:"Jan Sewa Kendra", d:"UAN ID, Bank Passbook", img:"https://www.epfindia.gov.in/site_docs/images/logo.png"},
+        {id:69, n:"E-Shram Card", p:50, c:"Jan Sewa Kendra", d:"Aadhar Card", img:"https://eshram.gov.in/images/logo.png"},
+        {id:70, n:"Ayushman Card", p:100, c:"Jan Sewa Kendra", d:"Ration Card/HHID", img:"https://ayushmanbharat.mp.gov.in/images/logo.png"},
+        {id:71, n:"Passport Apply", p:2000, c:"Jan Sewa Kendra", d:"Aadhar, Marksheet", img:"https://www.passportindia.gov.in/AppOnlineProject/images/logo.png"},
+        {id:72, n:"Driving License", p:1500, c:"Jan Sewa Kendra", d:"Address Proof", img:"https://parivahan.gov.in/parivahan/sites/default/files/logo.png"},
+        {id:73, n:"Train Ticket Booking", p:50, c:"Jan Sewa Kendra", d:"Travel Details", img:"https://upload.wikimedia.org/wikipedia/en/thumb/4/45/IRCTC_Logo.svg/1200px-IRCTC_Logo.svg.png"},
+        {id:74, n:"Police Verification", p:200, c:"Jan Sewa Kendra", d:"ID Proof", img:"https://uppolice.gov.in/site/writereaddata/site_logo/upp-logo.png"},
+        {id:75, n:"GST Registration", p:1500, c:"Jan Sewa Kendra", d:"PAN, Aadhaar, Photo", img:"https://www.gst.gov.in/img/gst_logo.png"},
+        {id:76, n:"ITR Filing", p:1000, c:"Jan Sewa Kendra", d:"Form 16/Bank Statement", img:"https://www.incometax.gov.in/iec/foportal/sites/default/files/logo_0.png"},
+        {id:77, n:"Birth Certificate", p:250, c:"Jan Sewa Kendra", d:"Hospital Discharge", img:"https://crsorgi.gov.in/web/img/logo.png"},
+        {id:78, n:"Death Certificate", p:250, c:"Jan Sewa Kendra", d:"Hospital Report", img:"https://crsorgi.gov.in/web/img/logo.png"},
+        {id:79, n:"Electricity Bill Pay", p:20, c:"Jan Sewa Kendra", d:"Bill Copy", img:"https://uppcl.mpower.in/wf/images/logo_uppcl.png"},
+        {id:80, n:"Bank Account Opening", p:100, c:"Jan Sewa Kendra", d:"Aadhar, PAN", img:"https://www.sbi.co.in/o/sbi-theming-portlet/images/logo.png"}
     ];
+    
     let products = JSON.parse(localStorage.getItem("shreeji_prod")) || baseItems;
 
-    // --- Added +91 Automatic Logic ---
-    window.validatePhone = function(input) {
-        if (!input.value.startsWith('+91')) {
-            input.value = '+91' + input.value.replace(/^\+?91?/, '');
-        }
-        input.value = input.value.replace(/[^\d+]/g, ''); // Sirf numbers allow karega
+    window.validatePhone = (input) => {
+        if (!input.value.startsWith('+91')) input.value = '+91' + input.value.replace(/\D/g,'');
+        input.value = input.value.replace(/[^\d+]/g, '');
     };
 
     window.loginToggle = function() {
-        document.getElementById("drawerTitle").innerText = "Login / Signup";
+        if(document.getElementById("mainLoginBtn").innerText.includes("Verified")) {
+            document.getElementById("userProfile").classList.toggle("hidden");
+            return;
+        }
+        document.getElementById("drawerTitle").innerText = "Account Verification";
         document.getElementById("cartItemsArea").classList.add("hidden");
+        document.getElementById("checkoutFields").classList.add("hidden");
         document.getElementById("authSection").classList.remove("hidden");
         document.getElementById("cartDrawer").classList.add("open");
     };
 
-    window.toggleCart = function(force) {
-        document.getElementById("drawerTitle").innerText = "Your Cart";
+    window.toggleCart = function() {
+        document.getElementById("drawerTitle").innerText = "Your Shopping Cart";
+        document.getElementById("authSection").classList.add("hidden");
         document.getElementById("cartItemsArea").classList.remove("hidden");
         if(document.getElementById("mainLoginBtn").innerText.includes("Verified")) {
-            document.getElementById("authSection").classList.add("hidden");
             document.getElementById("checkoutFields").classList.remove("hidden");
         }
-        document.getElementById("cartDrawer").classList.toggle("open", force);
+        document.getElementById("cartDrawer").classList.toggle("open");
     };
 
     window.sendOTP = function() {
         const phone = document.getElementById("custPhone").value;
-        if(phone.length < 13) return alert("Please enter valid 10 digit number after +91");
-        
+        if(phone.length < 13) return alert("Enter 10 digit number!");
         const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {'size': 'invisible'});
         signInWithPhoneNumber(auth, phone, verifier).then(res => {
             confirmationResult = res;
             document.getElementById("otpSection").classList.remove("hidden");
-            document.getElementById("sendOtpBtn").innerText = "Resend OTP";
-            alert("OTP Sent to " + phone);
-        }).catch(err => alert("Error: " + err.message));
+            alert("OTP Sent!");
+        });
     };
 
     window.verifyOTP = function() {
         confirmationResult.confirm(document.getElementById("otpCode").value).then(res => {
-            const userPhone = res.user.phoneNumber;
-            document.getElementById("mainLoginBtn").innerText = "Verified ✅";
+            const phone = res.user.phoneNumber;
+            document.getElementById("mainLoginBtn").innerText = "Account ✅";
             document.getElementById("authSection").classList.add("hidden");
-            document.getElementById("checkoutFields").classList.remove("hidden");
+            document.getElementById("userDisplayPhone").innerText = phone;
             
-            // Admin Check
-            if(userPhone === "+917052055713") {
+            if(phone === "+917052055713") {
                 document.getElementById("adminToggle").classList.remove("hidden");
                 document.getElementById("logoutBtn").classList.remove("hidden");
+                showAdminPanel();
             }
-            alert("Login Successful!");
-        }).catch(err => alert("Incorrect OTP, please try again."));
+            toggleCart();
+        }).catch(() => alert("Wrong OTP!"));
     };
 
     window.renderProducts = function() {
         const grid = document.getElementById("productGrid");
+        const adminInv = document.getElementById("adminInventory");
         const query = document.getElementById("search").value.toLowerCase();
         const cat = document.getElementById("filterCategory").value;
-        grid.innerHTML = products.filter(p => p.n.toLowerCase().includes(query) && (!cat || p.c === cat))
-            .map(p => `
-                <div class="card">
-                    <span style="font-size:10px; color:#999;">ID: ${p.id}</span>
+        
+        const filtered = products.filter(p => p.n.toLowerCase().includes(query) && (!cat || p.c === cat));
+        
+        grid.innerHTML = filtered.map(p => `
+            <div class="card">
+                <img src="${p.img || 'https://via.placeholder.com/300x200'}" class="product-img">
+                <div class="product-info">
+                    <small style="color:#888">${p.c}</small>
                     <h4 style="margin:5px 0;">${p.n}</h4>
-                    <p style="font-weight:bold; color:var(--primary); font-size:1.2rem;">₹${p.p}</p>
-                    ${p.d ? `<span class="doc-badge">Required: ${p.d}</span>` : ''}
-                    <button onclick="addToCart('${p.id}')" style="background:var(--primary);color:white;width:100%; border-radius:5px;">Add to Cart</button>
+                    <div class="product-price">₹${p.p}</div>
+                    ${p.d ? `<span class="doc-badge">Req: ${p.d}</span>` : ''}
+                    <button onclick="addToCart('${p.id}')" style="background:var(--primary); color:white; width:100%; border-radius:5px;">Add to Cart</button>
                 </div>
-            `).join("");
+            </div>
+        `).join("");
+
+        adminInv.innerHTML = products.map(p => `
+            <div style="background:#f9f9f9; padding:10px; border:1px solid #ddd; border-radius:8px; text-align:center;">
+                <div style="font-size:11px;">${p.n}</div>
+                <button class="del-btn" onclick="deleteProduct(${p.id})">Delete</button>
+            </div>
+        `).join("");
     };
 
     let cart = [];
     window.addToCart = function(id) {
-        const item = products.find(p => p.id == id);
-        cart.push(item);
+        cart.push(products.find(p => p.id == id));
         document.getElementById("cartCount").innerText = cart.length;
         updateCart();
-        toggleCart(true);
+        toggleCart();
     };
 
     function updateCart() {
         const total = cart.reduce((s,i)=>s+i.p, 0);
         document.getElementById("cartTotal").innerText = total;
-        document.getElementById("cartItems").innerHTML = cart.map((i, idx) => 
-            `<div style="display:flex; justify-content:space-between; margin:10px 0;">
+        document.getElementById("cartItems").innerHTML = cart.map(i => `
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px; border-bottom:1px solid #eee; padding-bottom:5px;">
                 <span>${i.n}</span>
                 <b>₹${i.p}</b>
-             </div>`).join("");
-        
-        const janSewa = cart.some(i => i.c === "Jan Sewa Kendra");
-        document.getElementById("docUploadArea").classList.toggle("hidden", !janSewa);
+            </div>`).join("");
+        document.getElementById("docUploadArea").classList.toggle("hidden", !cart.some(i => i.c === "Jan Sewa Kendra"));
     }
 
-    window.processCheckout = async function() {
+    window.processCheckout = async function(method) {
         const name = document.getElementById("custName").value;
         const addr = document.getElementById("custAddress").value;
-        if(!name || !addr) return alert("Please provide Name and Address");
+        const total = document.getElementById("cartTotal").innerText;
+        if(!name || !addr) return alert("Fill Name and Address");
+
+        if(method === 'ONLINE') {
+            const upiUrl = `upi://pay?pa=dr.deepak2121-2@oksbi&pn=ShreeJi&am=${total}&cu=INR`;
+            window.location.href = upiUrl;
+            return;
+        }
         
-        const orderId = "SJ-" + Math.floor(1000 + Math.random() * 9000);
         const orderData = { 
-            orderId, 
-            customer: name, 
-            total: document.getElementById("cartTotal").innerText,
-            items: cart.length,
-            address: addr,
-            status: "Pending",
-            date: new Date().toLocaleTimeString() 
+            id: "SJ"+Date.now().toString().slice(-4), 
+            name, total, method,
+            date: new Date().toLocaleString()
         };
         
-        try {
-            await addDoc(collection(db, "orders"), orderData);
-            document.getElementById("invoiceContent").innerHTML = `
-                <b>Order ID:</b> ${orderId}<br>
-                <b>Customer:</b> ${name}<br>
-                <b>Amount Payable:</b> ₹${orderData.total}<br>
-                <b>Payment Mode:</b> Cash on Delivery
-            `;
-            document.getElementById("invoiceModal").classList.remove("hidden");
-            
-            // Log for Admin
-            let log = JSON.parse(localStorage.getItem("admin_logs")) || [];
-            log.unshift(orderData);
-            localStorage.setItem("admin_logs", JSON.stringify(log.slice(0, 5))); 
-            refreshAdminLog();
-            
-        } catch(e) { alert("Checkout Error: " + e.message); }
+        await addDoc(collection(db, "orders"), orderData);
+        document.getElementById("invoiceContent").innerHTML = `<b>Order ID:</b> ${orderData.id}<br><b>Customer:</b> ${name}<br><b>Amount:</b> ₹${total}<br><b>Method:</b> ${method}`;
+        document.getElementById("invoiceModal").classList.remove("hidden");
     };
-
-    function refreshAdminLog() {
-        const log = JSON.parse(localStorage.getItem("admin_logs")) || [];
-        document.getElementById("recentOrders").innerHTML = log.map(l => 
-            `<div style="font-size:11px; margin-bottom:5px;">${l.date} - ${l.customer} - ₹${l.total} (${l.status})</div>`
-        ).join("");
-    }
 
     window.addProduct = function() {
         const n = document.getElementById("pname").value;
         const p = +document.getElementById("pprice").value;
+        const img = document.getElementById("pimg").value;
         const c = document.getElementById("pcategory").value;
         const d = document.getElementById("pdocs").value;
-        if(!n || !p) return alert("Fill Product details");
         
-        products.push({ id: Date.now().toString().slice(-5), n, p, c, d });
+        if(!n || !p) return alert("Fill details!");
+        products.unshift({ id: Date.now(), n, p, c, d, img });
         localStorage.setItem("shreeji_prod", JSON.stringify(products));
         renderProducts();
-        alert("Product Added Successfully!");
+        alert("Product Listed!");
     };
 
-    window.showAdminPanel = () => {
-        document.getElementById("adminPanel").classList.toggle("hidden");
-        refreshAdminLog();
+    window.deleteProduct = function(id) {
+        if(confirm("Delete this product?")) {
+            products = products.filter(p => p.id != id);
+            localStorage.setItem("shreeji_prod", JSON.stringify(products));
+            renderProducts();
+        }
     };
+
+    window.showAdminPanel = () => document.getElementById("adminPanel").classList.toggle("hidden");
 
     renderProducts();
+window.generatePDF = function(orderData) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    // डिजाइन और हेडर
+    doc.setFillColor(26, 35, 126); // Primary Blue
+    doc.rect(0, 0, 210, 40, 'F');
+    
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(22);
+    doc.text("SHREE JI ENTERPRISES", 105, 20, { align: "center" });
+    doc.setFontSize(10);
+    doc.text("Adarsh Nagar, Bichhiya, Gorakhpur, UP", 105, 30, { align: "center" });
+
+    // बॉडी कंटेंट
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(16);
+    doc.text("Service Application Receipt", 20, 55);
+    
+    doc.setFontSize(12);
+    doc.text(`Order ID: ${orderData.id}`, 20, 70);
+    doc.text(`Date: ${orderData.date}`, 20, 80);
+    doc.text(`Customer Name: ${orderData.name}`, 20, 90);
+    doc.text(`Payment Method: ${orderData.method}`, 20, 100);
+    doc.text(`Total Amount: Rs. ${orderData.total}`, 20, 110);
+    
+    doc.setLineWidth(0.5);
+    doc.line(20, 115, 190, 115);
+
+    doc.setFontSize(10);
+    doc.text("Note: Keep this receipt for tracking your document status.", 20, 130);
+    doc.text("Support: 7052055713", 20, 140);
+
+    // PDF डाउनलोड करें
+    doc.save(`ShreeJi_Order_${orderData.id}.pdf`);
+};
 </script>
 </body>
 </html>
