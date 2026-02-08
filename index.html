@@ -6,130 +6,81 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         :root { 
-            --primary: #1a237e; /* Deep Navy */
-            --accent: #ffd700;  /* Gold */
-            --bg: #f4f7f6;
-            --text: #2c3e50;
-            --white: #ffffff;
-            --success: #27ae60;
+            --primary: #1a237e; --accent: #ffd700; --bg: #f4f7f6;
+            --text: #2c3e50; --white: #ffffff; --success: #27ae60;
         }
 
         body { 
             font-family: 'Inter', system-ui, -apple-system, sans-serif; 
-            margin: 0; 
-            background: var(--bg); 
-            color: var(--text);
-            line-height: 1.6;
+            margin: 0; background: var(--bg); color: var(--text); line-height: 1.6;
         }
 
         header { 
-            background: var(--primary); 
-            color: var(--white); 
-            padding: 0.8rem 2rem; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            position: sticky; 
-            top: 0; 
-            z-index: 1000; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            background: var(--primary); color: var(--white); padding: 0.8rem 2rem; 
+            display: flex; justify-content: space-between; align-items: center; 
+            position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
-        .nav-buttons { display: flex; gap: 12px; }
+        .nav-buttons { display: flex; gap: 12px; align-items: center; }
 
         button { 
-            padding: 10px 20px; 
-            border: none; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            font-weight: 600; 
-            transition: all 0.3s ease;
+            padding: 10px 20px; border: none; border-radius: 8px; 
+            cursor: pointer; font-weight: 600; transition: all 0.3s ease;
         }
 
         .btn-cart { background: var(--accent); color: var(--primary); }
+        .btn-login { background: var(--white); color: var(--primary); }
         .btn-admin { background: #f39c12; color: var(--white); }
         .hidden { display: none !important; }
 
         .primary-btn { 
-            background: var(--primary); 
-            color: var(--white); 
-            width: 100%; 
-            margin-top: 15px;
-            text-transform: uppercase;
+            background: var(--primary); color: var(--white); width: 100%; 
+            margin-top: 15px; text-transform: uppercase;
         }
 
         .container { padding: 30px 5%; max-width: 1400px; margin: auto; }
-        
         .box { background: var(--white); padding: 25px; border-radius: 15px; margin-bottom: 25px; border: 1px solid #e0e0e0; }
-
-        .search-section { 
-            background: var(--white); padding: 20px; border-radius: 15px; margin-bottom: 30px; 
-            display: flex; gap: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-        }
-
+        .search-section { background: var(--white); padding: 20px; border-radius: 15px; margin-bottom: 30px; display: flex; gap: 15px; }
         .search-section input, .search-section select { padding: 12px; border: 1px solid #ddd; border-radius: 8px; flex: 1; }
-
         .products { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
-
-        .card { background: var(--white); border-radius: 16px; overflow: hidden; border: 1px solid #eee; display: flex; flex-direction: column; transition: 0.3s; }
+        .card { background: var(--white); border-radius: 16px; overflow: hidden; border: 1px solid #eee; padding: 20px; transition: 0.3s; }
         .card:hover { transform: translateY(-10px); }
-        .card-content { padding: 20px; }
+        
+        .doc-badge { background: #fff3cd; color: #856404; font-size: 11px; padding: 5px; border-radius: 5px; display: block; margin: 10px 0; border: 1px solid #ffeeba; }
 
-        .cart-drawer { 
-            position: fixed; top: 0; right: -100%; width: 400px; height: 100%; 
-            background: var(--white); z-index: 2000; transition: 0.4s;
-            box-shadow: -10px 0 30px rgba(0,0,0,0.15); padding: 30px;
-        }
+        .cart-drawer { position: fixed; top: 0; right: -100%; width: 400px; height: 100%; background: var(--white); z-index: 2000; transition: 0.4s; box-shadow: -10px 0 30px rgba(0,0,0,0.15); padding: 30px; overflow-y: auto; }
         .cart-drawer.open { right: 0; }
-
-        .invoice-box {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: white; padding: 40px; border-radius: 12px; z-index: 3000;
-            width: 90%; max-width: 500px; box-shadow: 0 0 100px rgba(0,0,0,0.5);
-        }
-
-        .otp-input { width: 94%; padding: 10px; margin-bottom: 10px; border: 2px solid var(--accent); border-radius: 8px; }
-        #recaptcha-container { margin: 10px 0; }
-
+        .invoice-box { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 40px; border-radius: 12px; z-index: 3000; width: 90%; max-width: 500px; box-shadow: 0 0 100px rgba(0,0,0,0.5); }
         footer { background: var(--primary); color: var(--white); text-align: center; padding: 40px 20px; margin-top: 50px; }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="logo-area">
-        <h2><span style="color:var(--accent)">SJ</span> SHREE JI</h2>
-    </div>
+    <div class="logo-area"><h2><span style="color:var(--accent)">SJ</span> SHREE JI</h2></div>
     <div class="nav-buttons">
+        <button id="mainLoginBtn" class="btn-login" onclick="toggleCart()">Login / Signup</button>
         <button class="btn-cart" onclick="toggleCart()">🛒 Cart (<span id="cartCount">0</span>)</button>
-        <button id="adminToggle" class="btn-admin hidden" onclick="showAdminPanel()">Owner Dashboard</button>
+        <button id="adminToggle" class="btn-admin hidden" onclick="showAdminPanel()">Owner Dash</button>
         <button id="logoutBtn" class="hidden btn-admin" style="background:#c0392b" onclick="location.reload()">Logout</button>
     </div>
 </header>
 
 <div class="container">
     <div id="adminPanel" class="box hidden">
-        <h3 style="color:var(--primary)">Owner Dashboard (Verified)</h3>
-        <div style="display:flex; gap:10px; margin-bottom:20px;">
-            <button onclick="toggleCOD()" class="btn-admin" style="background:var(--primary)">COD Status: Active</button>
-        </div>
-        <hr>
-        <h4>New Product</h4>
+        <h3 style="color:var(--primary)">Owner Dashboard</h3>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
             <input id="pname" placeholder="Item Name">
             <input id="pprice" placeholder="Price (₹)">
-            <input id="pimg" placeholder="Image URL">
             <select id="pcategory">
                 <option value="Refurbished Mobile">Mobile</option>
                 <option value="Refurbished Laptop">Laptop</option>
                 <option value="Accessories">Accessories</option>
                 <option value="Jan Sewa Kendra">Jan Sewa</option>
             </select>
+            <input id="pdocs" placeholder="Required Docs (Only for Jan Sewa)">
         </div>
         <button onclick="addProduct()" class="primary-btn">Save Product</button>
-        <hr>
-        <h4>Recent Orders</h4>
-        <div id="internalOrders" style="max-height: 200px; overflow: auto; background: #f9f9f9; padding: 10px; font-size: 12px;"></div>
     </div>
 
     <div class="search-section">
@@ -149,167 +100,154 @@
 
 <div class="cart-drawer" id="cartDrawer">
     <div style="display:flex; justify-content: space-between; align-items: center;">
-        <h3 style="color:var(--primary)">Your Cart</h3>
+        <h3 style="color:var(--primary)">Your Cart & Login</h3>
         <button onclick="toggleCart()" style="background:none; font-size:2rem;">&times;</button>
     </div>
-    <div id="cartItems" style="margin: 20px 0; border-top: 1px solid #eee;"></div>
     
-    <div style="background: #f8f9fa; padding: 20px; border-radius: 12px;">
-        <div style="display:flex; justify-content: space-between; margin-bottom: 10px;">
-            <span>Total</span>
-            <strong style="color:var(--primary)">₹<span id="cartTotal">0</span></strong>
-        </div>
-        <input id="custName" placeholder="Full Name" style="width:94%; margin-bottom:10px; padding:10px;">
-        
-        <input id="custPhone" type="tel" value="+91" 
-               onfocus="if(this.value==='') this.value='+91';" 
-               oninput="if(!this.value.startsWith('+91')) this.value='+91' + this.value.replace(/\D/g,'');"
-               placeholder="Mobile Number" style="width:94%; margin-bottom:10px; padding:10px;">
-        
+    <div id="cartItems" style="margin: 20px 0; border-top: 1px solid #eee;"></div>
+
+    <div id="authSection" style="background: #f8f9fa; padding: 15px; border-radius: 12px; margin-bottom: 15px;">
+        <input id="custPhone" type="tel" value="+91" oninput="if(!this.value.startsWith('+91')) this.value='+91' + this.value.replace(/\D/g,'');" style="width:90%; padding:10px; margin-bottom:10px;">
         <div id="recaptcha-container"></div>
-        <button id="sendOtpBtn" onclick="sendOTP()" class="primary-btn" style="background:#27ae60;">Send Verification OTP</button>
+        <button id="sendOtpBtn" onclick="sendOTP()" class="primary-btn" style="background:#27ae60;">Send OTP</button>
         
         <div id="otpSection" class="hidden">
-            <input id="otpCode" placeholder="Enter 6-Digit OTP" class="otp-input">
-            <button onclick="verifyOTP()" class="primary-btn" style="background:#e67e22;">Verify & Login</button>
+            <input id="otpCode" placeholder="Enter 6-Digit OTP" style="width:90%; padding:10px; margin-top:10px;">
+            <button onclick="verifyOTP()" class="primary-btn" style="background:#e67e22;">Verify</button>
+        </div>
+    </div>
+
+    <div id="checkoutFields" class="hidden">
+        <input id="custName" placeholder="Full Name" style="width:90%; padding:10px; margin-bottom:10px;">
+        <textarea id="custAddress" placeholder="Delivery Address" style="width:90%; padding:10px; margin-bottom:10px; height:60px;"></textarea>
+        
+        <div id="docUploadArea" class="hidden" style="background:#e3f2fd; padding:10px; border-radius:10px; margin-bottom:10px;">
+            <p style="font-size:12px; margin:0; color:#0d47a1;"><b>Upload Documents (Jan Sewa Order):</b></p>
+            <input type="file" id="orderDocs" style="font-size:12px; margin-top:5px;">
         </div>
 
-        <div id="checkoutFields" class="hidden">
-            <textarea id="custAddress" placeholder="Delivery Address" style="width:94%; margin-bottom:10px; padding:10px; height:60px;"></textarea>
-            <div style="margin: 15px 0;">
-                <label><input type="radio" name="payMethod" value="UPI" checked> UPI</label>
-                <label style="margin-left:15px;"><input type="radio" name="payMethod" value="COD"> COD</label>
-            </div>
-            <button id="checkoutBtn" onclick="processCheckout()" class="primary-btn">Confirm Order</button>
-        </div>
+        <p>Total: ₹<span id="cartTotal">0</span></p>
+        <button onclick="processCheckout()" class="primary-btn">Confirm Order</button>
     </div>
 </div>
 
-<div id="invoiceOverlay" class="hidden" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:2500;"></div>
 <div id="invoiceModal" class="invoice-box hidden">
     <h2 style="color:var(--success); text-align:center">Order Confirmed!</h2>
     <div id="invoiceContent"></div>
     <button onclick="location.reload()" class="primary-btn">Close</button>
 </div>
 
-<footer>
-    <p>© 2026 Shree Ji Enterprises | Registered: 7052055713</p>
-</footer>
+<footer><p>© 2026 Shree Ji Enterprises | Gorakhpur | 7052055713</p></footer>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-  import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyBuCywyMgEw_j9yeHD-E4KwRWZGreWagTc",
-    authDomain: "shree-4c33e.firebaseapp.com",
-    projectId: "shree-4c33e",
-    storageBucket: "shree-4c33e.firebasestorage.app",
-    messagingSenderId: "759128544690",
-    appId: "1:759128544690:web:3f57e7ed9117a1acdd80ab"
-  };
+    const firebaseConfig = {
+        apiKey: "AIzaSyBuCywyMgEw_j9yeHD-E4KwRWZGreWagTc",
+        authDomain: "shree-4c33e.firebaseapp.com",
+        projectId: "shree-4c33e",
+        storageBucket: "shree-4c33e.firebasestorage.app",
+        messagingSenderId: "759128544690",
+        appId: "1:759128544690:web:3f57e7ed9117a1acdd80ab"
+    };
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    let confirmationResult;
 
-  const adminMobile = "+917052055713";
-  let confirmationResult;
+    // --- Dynamic Items (20 per category) ---
+    const baseItems = [
+        ...Array.from({length:20}, (_,i)=>({id:`m${i}`, n:`Redmi Note ${10+i} Pro`, p:12000+(i*500), c:"Refurbished Mobile"})),
+        ...Array.from({length:20}, (_,i)=>({id:`l${i}`, n:`HP EliteBook G${i+1}`, p:22000+(i*1000), c:"Refurbished Laptop"})),
+        {id:101, n:"Pan Card Apply", p:150, c:"Jan Sewa Kendra", d:"Aadhaar Card, Photo, Sign"},
+        {id:102, n:"Income Certificate", p:100, c:"Jan Sewa Kendra", d:"Ration Card, Self Declaration"}
+    ];
+    let products = JSON.parse(localStorage.getItem("shreeji_prod")) || baseItems;
 
-  window.sendOTP = function() {
-    const phoneNumber = document.getElementById("custPhone").value;
-    if(phoneNumber.length < 13) return alert("Please enter valid 10 digit number after +91");
-    
-    const appVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', { 'size': 'invisible' });
+    // --- Functions ---
+    window.sendOTP = function() {
+        const phone = document.getElementById("custPhone").value;
+        const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {'size': 'invisible'});
+        signInWithPhoneNumber(auth, phone, verifier).then(res => {
+            confirmationResult = res;
+            document.getElementById("otpSection").classList.remove("hidden");
+            alert("OTP Sent!");
+        });
+    };
 
-    signInWithPhoneNumber(auth, phoneNumber, appVerifier)
-      .then((result) => {
-        confirmationResult = result;
-        document.getElementById("otpSection").classList.remove("hidden");
-        document.getElementById("sendOtpBtn").classList.add("hidden");
-        alert("OTP Sent to " + phoneNumber);
-      }).catch((error) => {
-          alert("Error: " + error.message);
-          location.reload();
-      });
-  };
+    window.verifyOTP = function() {
+        confirmationResult.confirm(document.getElementById("otpCode").value).then(res => {
+            document.getElementById("mainLoginBtn").innerText = "Verified ✅";
+            document.getElementById("authSection").classList.add("hidden");
+            document.getElementById("checkoutFields").classList.remove("hidden");
+            if(res.user.phoneNumber === "+917052055713") document.getElementById("adminToggle").classList.remove("hidden");
+        });
+    };
 
-  window.verifyOTP = function() {
-    const code = document.getElementById("otpCode").value;
-    confirmationResult.confirm(code).then((result) => {
-      const user = result.user;
-      alert("Verification Successful!");
-      
-      if(user.phoneNumber === adminMobile) {
-        document.getElementById("adminToggle").classList.remove("hidden");
-        document.getElementById("logoutBtn").classList.remove("hidden");
-      }
-      
-      document.getElementById("otpSection").classList.add("hidden");
-      document.getElementById("checkoutFields").classList.remove("hidden");
-    }).catch(() => alert("Wrong OTP! Try again."));
-  };
+    window.renderProducts = function() {
+        const grid = document.getElementById("productGrid");
+        const query = document.getElementById("search").value.toLowerCase();
+        const cat = document.getElementById("filterCategory").value;
+        grid.innerHTML = products.filter(p => p.n.toLowerCase().includes(query) && (!cat || p.c === cat))
+            .map(p => `
+                <div class="card">
+                    <h4>${p.n}</h4>
+                    <p style="font-weight:bold; color:var(--primary)">₹${p.p}</p>
+                    ${p.d ? `<span class="doc-badge">Required: ${p.d}</span>` : ''}
+                    <button onclick="addToCart('${p.id}')" style="background:var(--primary);color:white;width:100%">Add to Cart</button>
+                </div>
+            `).join("");
+    };
 
-  window.processCheckout = async function() {
-    const name = document.getElementById("custName").value;
-    const addr = document.getElementById("custAddress").value;
-    const pay = document.querySelector('input[name="payMethod"]:checked').value;
-    const phone = document.getElementById("custPhone").value;
+    let cart = [];
+    window.addToCart = function(id) {
+        cart.push(products.find(p => p.id == id));
+        document.getElementById("cartCount").innerText = cart.length;
+        updateCart();
+        toggleCart(true);
+    };
 
-    if(!name || !addr) return alert("Please fill Name and Address");
-    
-    const orderId = "SJ-" + Date.now().toString().slice(-4);
-    const total = cart.reduce((s, i) => s + i.p, 0);
-    const newOrder = { orderId, name, phone, addr, total, pay, date: new Date().toLocaleString() };
+    function updateCart() {
+        const total = cart.reduce((s,i)=>s+i.p, 0);
+        document.getElementById("cartTotal").innerText = total;
+        document.getElementById("cartItems").innerHTML = cart.map(i => `<div>${i.n} - ₹${i.p}</div>`).join("");
+        
+        // Document upload check
+        const janSewa = cart.some(i => i.c === "Jan Sewa Kendra");
+        document.getElementById("docUploadArea").classList.toggle("hidden", !janSewa);
+    }
 
-    try {
-      await addDoc(collection(db, "orders"), newOrder);
-      let history = JSON.parse(localStorage.getItem("shreeji_orders")) || [];
-      history.push(newOrder);
-      localStorage.setItem("shreeji_orders", JSON.stringify(history));
+    window.processCheckout = async function() {
+        const name = document.getElementById("custName").value;
+        const addr = document.getElementById("custAddress").value;
+        if(!name || !addr) return alert("Fill Name and Address");
+        
+        const orderId = "SJ" + Date.now().toString().slice(-4);
+        const orderData = { orderId, name, total: document.getElementById("cartTotal").innerText, date: new Date().toLocaleString() };
+        
+        await addDoc(collection(db, "orders"), orderData);
+        document.getElementById("invoiceContent").innerHTML = `Order: ${orderId}<br>Total: ₹${orderData.total}`;
+        document.getElementById("invoiceModal").classList.remove("hidden");
+    };
 
-      document.getElementById("invoiceContent").innerHTML = `<b>Order ID:</b> ${orderId}<br><b>Customer:</b> ${name}<br><b>Total:</b> ₹${total}<br><b>Payment:</b> ${pay}`;
-      document.getElementById("invoiceOverlay").classList.remove("hidden");
-      document.getElementById("invoiceModal").classList.remove("hidden");
-    } catch (e) { alert("Database Error!"); }
-  };
+    window.addProduct = function() {
+        const n = document.getElementById("pname").value;
+        const p = +document.getElementById("pprice").value;
+        const c = document.getElementById("pcategory").value;
+        const d = document.getElementById("pdocs").value;
+        products.push({ id: Date.now(), n, p, c, d });
+        localStorage.setItem("shreeji_prod", JSON.stringify(products));
+        renderProducts();
+        alert("Saved!");
+    };
 
-  // UI Support Functions
-  let cart = [];
-  const products = JSON.parse(localStorage.getItem("shreeji_prod")) || [
-    { id: 1, n: "iPhone 12 (Refurbished)", p: 28500, c: "Refurbished Mobile" },
-    { id: 11, n: "Dell Latitude 7490", p: 18500, c: "Refurbished Laptop" }
-  ];
+    window.toggleCart = (force) => document.getElementById("cartDrawer").classList.toggle("open", force);
+    window.showAdminPanel = () => document.getElementById("adminPanel").classList.toggle("hidden");
 
-  window.renderProducts = function() {
-    const grid = document.getElementById("productGrid");
-    const query = document.getElementById("search").value.toLowerCase();
-    grid.innerHTML = products.filter(p => p.n.toLowerCase().includes(query))
-      .map(p => `<div class="card"><div class="card-content"><h4>${p.n}</h4><p style="color:var(--primary);font-weight:bold">₹${p.p}</p><button onclick="addToCart(${p.id})" style="background:var(--primary);color:white;width:100%">Add to Cart</button></div></div>`).join("");
-  };
-
-  window.addToCart = function(id) {
-    cart.push(products.find(p => p.id === id));
-    document.getElementById("cartCount").innerText = cart.length;
-    document.getElementById("cartTotal").innerText = cart.reduce((s, i) => s + i.p, 0);
-    document.getElementById("cartDrawer").classList.add("open");
-  };
-
-  window.toggleCart = function() { document.getElementById("cartDrawer").classList.toggle("open"); };
-  window.showAdminPanel = function() { document.getElementById("adminPanel").classList.toggle("hidden"); };
-  
-  window.addProduct = function() {
-    const n = document.getElementById("pname").value;
-    const p = +document.getElementById("pprice").value;
-    products.push({ id: Date.now(), n, p, c: document.getElementById("pcategory").value });
-    localStorage.setItem("shreeji_prod", JSON.stringify(products));
     renderProducts();
-    alert("Product Saved!");
-  };
-
-  renderProducts();
 </script>
-
 </body>
 </html>
