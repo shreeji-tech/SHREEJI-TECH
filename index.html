@@ -1,191 +1,215 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Shree Ji Tech | Enterprise</title>
-
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-
+<title>Shree Ji E-Commerce</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-:root{
---red:#ff4d6d;
---green:#22c55e;
---bg:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
---glass:rgba(255,255,255,0.05);
-}
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif}
-body{background:var(--bg);color:white;padding-bottom:120px}
-header{background:rgba(0,0,0,.4);padding:12px;display:flex;justify-content:space-between;align-items:center}
-.logo-area{display:flex;align-items:center;gap:10px}
-.logo-area img{height:50px;width:50px;border-radius:50%;border:2px solid var(--red)}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;padding:15px}
-.card{background:var(--glass);padding:15px;border-radius:16px;text-align:center}
-.card img{height:90px;width:100%;object-fit:contain}
-.price{color:var(--green);font-weight:bold;margin:5px 0}
-.btn{background:linear-gradient(45deg,var(--red),#ff758f);border:none;padding:10px;border-radius:10px;color:white;font-weight:bold;margin:4px 0;width:100%;cursor:pointer}
-input{width:100%;padding:10px;margin:6px 0;border-radius:8px;border:none;background:#1e293b;color:white}
-.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);align-items:center;justify-content:center;z-index:999}
-.box{background:#111827;padding:20px;border-radius:16px;width:90%;max-width:400px}
-.login-icon{cursor:pointer;font-size:22px}
+body{font-family:Arial;margin:0;background:#f5f5f5}
+header{background:#ff6f00;color:#fff;padding:15px;display:flex;justify-content:space-between}
+button{padding:6px 10px;margin:3px;cursor:pointer}
+.container{padding:15px}
+.products{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px}
+.card,.box{background:#fff;padding:10px;border-radius:5px}
+.card img{width:100%;height:150px;object-fit:cover}
+.cart{position:fixed;top:0;right:-100%;width:340px;height:100%;background:#fff;padding:15px;transition:.3s;overflow:auto}
+.cart.open{right:0}
+input{width:100%;padding:7px;margin:4px 0}
+.small{font-size:12px;color:gray}
+footer{background:#222;color:#fff;text-align:center;padding:10px}
 </style>
 </head>
+
 <body>
 
 <header>
 <div class="logo-area">
 <img src="1000007701.jpg">
 <div>
-<b>SHREE JI TECH</b>
-<p id="welcomeMsg" style="font-size:10px">Welcome Guest</p>
-</div>
-</div>
-
+<h2>🛍️ Shree Ji E-Commerce</h2>
 <div>
-<span class="login-icon" onclick="showModal('loginModal')">👤</span>
-<button id="logoutBtn" class="btn" style="display:none;background:#444;width:auto" onclick="logoutUser()">Logout</button>
-<button id="adminBtn" class="btn" style="display:none;width:auto" onclick="showModal('adminPanel')">Admin</button>
+<button onclick="toggleCart()">🛒 Cart (<span id="cartCount">0</span>)</button>
+<button onclick="logout()">Logout</button>
 </div>
 </header>
 
-<div class="grid" id="productGrid"></div>
+<div class="container">
 
-<!-- LOGIN MODAL -->
-<div id="loginModal" class="modal">
-<div class="box">
-<h3>Mobile Login</h3>
-<input id="phone" value="+91" onfocus="if(this.value=='+91')this.setSelectionRange(3,3)">
-<input id="password" type="password" placeholder="Enter / Set Password">
-<button class="btn" onclick="handleAuth()">Continue</button>
-<button class="btn" style="background:#444" onclick="closeModal('loginModal')">Close</button>
-</div>
+<!-- ADMIN LOGIN -->
+<div id="loginBox" class="box">
+<h3>Admin Login</h3>
+<input id="user" placeholder="Username">
+<input id="pass" type="password" placeholder="Password">
+<button onclick="login()">Login</button>
 </div>
 
 <!-- ADMIN PANEL -->
-<div id="adminPanel" class="modal">
+<div id="adminPanel" class="box" style="display:none">
+<h3>Admin Panel</h3>
+
+<label>Contact Number</label>
+<input id="contact">
+<button onclick="saveContact()">Save</button>
+<p class="small">Current: <b id="showContact"></b></p>
+
+<button onclick="toggleCOD()">Toggle COD</button>
+<p class="small">COD: <b id="codStatus"></b></p>
+
+<h4>Change Password</h4>
+<input id="newPass" placeholder="New Password">
+<button onclick="changePass()">Update</button>
+
+<h4>Add Product</h4>
+<input id="pname" placeholder="Name">
+<input id="pprice" placeholder="Price">
+<input id="pimg" placeholder="Image URL">
+<input id="pstock" placeholder="Stock">
+<button onclick="addProduct()">Add</button>
+
+<h4>Orders</h4>
+<div id="orders"></div>
+</div>
+
+<input id="search" placeholder="Search products..." onkeyup="renderProducts()">
+
+<h3>Products</h3>
+<div class="products" id="products"></div>
+
+</div>
+
+<!-- CART -->
+<div class="cart" id="cart">
+<h3>Your Cart</h3>
+<div id="cartItems"></div>
+<h4>Total ₹<span id="total">0</span></h4>
+
 <div class="box">
-<h3>Add Product</h3>
-<input id="pName" placeholder="Name">
-<input id="pPrice" type="number" placeholder="Price">
-<input id="pImg" placeholder="Image URL">
-<button class="btn" onclick="saveProduct()">Save</button>
-<div id="orderList"></div>
-<button class="btn" style="background:#444" onclick="closeModal('adminPanel')">Close</button>
+<input id="bname" placeholder="Name">
+<input id="bphone" placeholder="Phone">
+<input id="baddress" placeholder="Address">
+
+<label><input type="radio" name="pay" value="upi" checked> UPI</label>
+<label><input type="radio" name="pay" value="cod"> COD</label>
+<p class="small">UPI ID: <b>dr.deepak2121-2@oksbi</b></p>
 </div>
+
+<button onclick="checkout()">Checkout</button>
+<button onclick="toggleCart()">Close</button>
 </div>
+
+<footer>
+© 2026 Shree Ji E-Commerce | Contact: <span id="footerContact"></span>
+</footer>
 
 <script>
-firebase.initializeApp({
-apiKey:"AIzaSyBuCywyMgEw_j9yeHD-E4KwRWZGreWagTc",
-authDomain:"shree-4c33e.firebaseapp.com",
-projectId:"shree-4c33e"
-});
+/* ADMIN */
+let admin={u:"admin",p:localStorage.getItem("ap")||"12345"};
+let isAdmin=localStorage.getItem("ia");
 
-const db=firebase.firestore();
-const ADMIN_NUMBER="7052055713";
+/* DATA */
+let products=JSON.parse(localStorage.getItem("pr"))||[];
+let cart=JSON.parse(localStorage.getItem("ca"))||[];
+let orders=JSON.parse(localStorage.getItem("or"))||[];
+let COD=JSON.parse(localStorage.getItem("cod")); if(COD==null)COD=true;
+let contact=localStorage.getItem("ct")||"7052055713";
 
-let currentUser=null;
-
-/* AUTH STATE */
-firebase.auth().onAuthStateChanged(user=>{
-if(user){
-currentUser=user;
-let number=user.email.replace("@shreeji.com","");
-welcomeMsg.innerText="Logged in: +91"+number;
-logoutBtn.style.display="inline-block";
-
-if(number===ADMIN_NUMBER){
-adminBtn.style.display="inline-block";
-loadOrders();
-}
-}
-loadProducts();
-});
-
-/* MOBILE LOGIN SYSTEM */
-function handleAuth(){
-
-let phone=document.getElementById("phone").value.trim();
-let pass=document.getElementById("password").value.trim();
-
-if(!phone.startsWith("+91") || phone.length<13){
-alert("Enter valid number");
-return;
+/* SAVE */
+function save(){
+localStorage.setItem("pr",JSON.stringify(products));
+localStorage.setItem("ca",JSON.stringify(cart));
+localStorage.setItem("or",JSON.stringify(orders));
+localStorage.setItem("cod",JSON.stringify(COD));
+localStorage.setItem("ct",contact);
 }
 
-let number=phone.replace("+91","");
-let email=number+"@shreeji.com";
-
-firebase.auth().fetchSignInMethodsForEmail(email)
-.then(methods=>{
-
-if(methods.length===0){
-// Register
-firebase.auth().createUserWithEmailAndPassword(email,pass)
-.then(()=>alert("Account Created"))
-.catch(e=>alert(e.message));
+/* LOGIN */
+function login(){
+if(user.value==admin.u&&pass.value==admin.p){
+localStorage.setItem("ia",1);location.reload();
+}else alert("Wrong login");
 }
-else{
-// Login
-firebase.auth().signInWithEmailAndPassword(email,pass)
-.catch(()=>alert("Wrong Password"));
-}
+function logout(){localStorage.removeItem("ia");location.reload();}
 
-});
-}
+if(isAdmin){loginBox.style.display="none";adminPanel.style.display="block";}
 
-function logoutUser(){
-firebase.auth().signOut();
-location.reload();
-}
+/* ADMIN ACTIONS */
+function saveContact(){contact=contactInput.value;save();renderContact();}
+function toggleCOD(){COD=!COD;save();renderCOD();}
+function changePass(){localStorage.setItem("ap",newPass.value);alert("Updated");}
 
 /* PRODUCTS */
-function loadProducts(){
-db.collection("products").onSnapshot(s=>{
-productGrid.innerHTML="";
-s.forEach(doc=>{
-let p=doc.data();
-productGrid.innerHTML+=`
+function addProduct(){
+products.push({id:Date.now(),n:pname.value,p:+pprice.value,i:pimg.value,s:+pstock.value});
+save();renderProducts();
+}
+function renderProducts(){
+let q=search.value.toLowerCase();
+productsDiv.innerHTML=products.filter(x=>x.n.toLowerCase().includes(q)).map(p=>`
 <div class="card">
-<img src="${p.img||''}">
-<p>${p.name}</p>
-<div class="price">₹${p.price}</div>
-</div>`;
-});
-});
+<img src="${p.i}">
+<h4>${p.n}</h4>
+₹${p.p}<br>Stock: ${p.s}
+<button onclick="addToCart(${p.id})">Add</button>
+</div>`).join("");
 }
 
-function saveProduct(){
-db.collection("products").add({
-name:pName.value,
-price:Number(pPrice.value),
-img:pImg.value,
-date:Date.now()
-});
-alert("Product Added");
+/* CART */
+function addToCart(id){
+let p=products.find(x=>x.id==id);
+if(p.s<=0)return alert("Out of stock");
+cart.push(p);p.s--;save();renderCart();renderProducts();
+}
+function renderCart(){
+let t=0;
+cartItems.innerHTML=cart.map((c,i)=>{t+=c.p;return `${c.n} ₹${c.p} <button onclick="cart.splice(${i},1);save();renderCart()">❌</button>`}).join("<br>");
+total.innerText=t;cartCount.innerText=cart.length;
+}
+function toggleCart(){cartBox.classList.toggle("open");}
+
+/* CHECKOUT */
+function checkout(){
+if(!bname.value||!bphone.value||!baddress.value)return alert("Fill details");
+let m=document.querySelector('[name=pay]:checked').value;
+if(m=="cod"&&!COD)return alert("COD disabled");
+if(m=="upi")alert("Pay to UPI ID:\n dr.deepak2121-2@oksbi");
+
+let o={
+id:Date.now(),items:cart,total:cart.reduce((s,i)=>s+i.p,0),
+buyer:{n:bname.value,p:bphone.value,a:baddress.value},
+pay:m,status:"Pending"
+};
+orders.push(o);cart=[];save();renderCart();renderOrders();
+window.open(`https://wa.me/91${contact}?text=`+encodeURIComponent(JSON.stringify(o,null,2)));
+alert("Order placed");
 }
 
-/* ADMIN ORDERS */
-function loadOrders(){
-db.collection("orders").onSnapshot(s=>{
-orderList.innerHTML="<h4>All Orders</h4>";
-s.forEach(doc=>{
-let o=doc.data();
-orderList.innerHTML+=`
-<div style="background:#1e293b;padding:8px;margin:5px 0;border-radius:8px;font-size:12px">
-🆔 ${o.orderId}<br>
-👤 ${o.customerName}<br>
-💰 ₹${o.price}<br>
-Status: ${o.status}
-</div>`;
-});
-});
+/* ORDERS */
+function renderOrders(){
+if(!isAdmin)return;
+ordersDiv.innerHTML=orders.map(o=>`
+<div class="box">
+<b>#${o.id}</b><br>
+${o.buyer.n} (${o.buyer.p})<br>
+${o.buyer.a}<br>
+₹${o.total} | ${o.pay}<br>
+Status: ${o.status}<br>
+<button onclick="o.status='Shipped';save();renderOrders()">🚚</button>
+<button onclick="o.status='Delivered';save();renderOrders()">✅</button>
+<button onclick="o.status='Cancelled';save();renderOrders()">❌</button>
+</div>`).join("");
 }
 
-function showModal(id){document.getElementById(id).style.display="flex"}
-function closeModal(id){document.getElementById(id).style.display="none"}
+/* HELPERS */
+function renderCOD(){codStatus.innerText=COD?"ON":"OFF";}
+function renderContact(){showContact.innerText=contact;footerContact.innerText=contact;}
+const productsDiv=document.getElementById("products");
+const cartItems=document.getElementById("cartItems");
+const cartBox=document.getElementById("cart");
+const ordersDiv=document.getElementById("orders");
+const contactInput=document.getElementById("contact");
+
+renderProducts();renderCart();renderOrders();renderCOD();renderContact();
 </script>
 
 </body>
