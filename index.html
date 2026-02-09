@@ -103,10 +103,10 @@
     <h3 style="margin-top:0; color:#1a237e; border-bottom:2px solid #ffd700; padding-bottom:10px;">👤 My Profile</h3>
     
     <label style="font-size:12px; font-weight:bold; display:block; margin-top:10px;">Full Name</label>
-    <input type="text" id="pName" placeholder="अपना पूरा नाम लिखें" style="width:100%; margin:5px 0 15px; padding:10px; border:1px solid #ccc; border-radius:8px; box-sizing:border-box;">
+    <input type="text" id="pName" placeholder="Your Full Name" style="width:100%; margin:5px 0 15px; padding:10px; border:1px solid #ccc; border-radius:8px; box-sizing:border-box;">
     
     <label style="font-size:12px; font-weight:bold; display:block;">Delivery Address</label>
-    <textarea id="pAddress" placeholder="मकान नंबर, गली, शहर, पिनकोड" style="width:100%; margin:5px 0 15px; padding:10px; border:1px solid #ccc; border-radius:8px; height:80px; box-sizing:border-box; resize:none;"></textarea>
+    <textarea id="pAddress" placeholder="House No., Village, Landmark, City, Pincode" style="width:100%; margin:5px 0 15px; padding:10px; border:1px solid #ccc; border-radius:8px; height:80px; box-sizing:border-box; resize:none;"></textarea>
     
     <label style="font-size:12px; font-weight:bold; display:block;">Gender</label>
     <select id="pGender" style="width:100%; margin:5px 0 20px; padding:10px; border:1px solid #ccc; border-radius:8px; box-sizing:border-box;">
@@ -556,7 +556,7 @@ window.confirmOrder = async function() {
     }
 
     if (cart.length === 0) {
-        alert("आपका कार्ट खाली है!");
+        alert("Your Cart is Empty");
         return;
     }
 
@@ -599,4 +599,5 @@ window.confirmOrder = async function() {
 };
 </script>
 </body>
+
 </html>
