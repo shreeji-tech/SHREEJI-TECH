@@ -92,14 +92,9 @@
         <h2 style="margin:0"><span style="color:var(--accent)">SHREE</span> JI</h2>
     </div>
     <div class="nav-buttons">
-        <button id="mainLoginBtn" class="btn-login" onclick="loginToggle()">Login</button>
-        <button class="btn-cart" onclick="toggleCart()">🛒 <span id="cartCount">0</span></button>
-        <button id="adminToggle" class="btn-admin hidden" onclick="showAdminPanel()">Control Center</button>
-<button id="profileBtn" class="btn-login" onclick="document.getElementById('profileModal').classList.remove('hidden')" style="background:var(--primary);">👤 My Profile</button>
-        <button id="logoutBtn" class="hidden" style="background:var(--danger); color:white" onclick="location.reload()">Logout</button>
-    </div>
+    </div<button class="btn-login" onclick="document.getElementById('profileModal').classList.remove('hidden')">Edit My Details</button>
 </header>
-<div id="profileModal" class="hidden" style="position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; padding:20px; border-radius:15px; z-index:3000; width:90%; max-width:360px; box-shadow:0 0 30px rgba(0,0,0,0.5); color:#333; font-family:sans-serif;">
+<div id="profileModal" class="" style="position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; padding:20px; border-radius:15px; z-index:3000; width:90%; max-width:360px; box-shadow:0 0 30px rgba(0,0,0,0.5); color:#333; font-family:sans-serif;">
     <h3 style="margin-top:0; color:#1a237e; border-bottom:2px solid #ffd700; padding-bottom:10px;">👤 My Profile</h3>
     
     <label style="font-size:12px; font-weight:bold; display:block; margin-top:10px;">Full Name</label>
@@ -237,7 +232,6 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
     import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -250,7 +244,6 @@
     };
 
     const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
     const db = getFirestore(app);
     let confirmationResult;
 
@@ -351,40 +344,14 @@
         input.value = input.value.replace(/[^\d+]/g, '');
     };
 
-    window.loginToggle = function() {
-        if(document.getElementById("mainLoginBtn").innerText.includes("Verified")) {
-            document.getElementById("userProfile").classList.toggle("hidden");
-            return;
-        }
-        document.getElementById("drawerTitle").innerText = "Account Verification";
-        document.getElementById("cartItemsArea").classList.add("hidden");
-        document.getElementById("checkoutFields").classList.add("hidden");
-        document.getElementById("authSection").classList.remove("hidden");
-        document.getElementById("cartDrawer").classList.add("open");
-    };
-
     window.toggleCart = function() {
         document.getElementById("drawerTitle").innerText = "Your Shopping Cart";
         document.getElementById("authSection").classList.add("hidden");
         document.getElementById("cartItemsArea").classList.remove("hidden");
-        if(document.getElementById("mainLoginBtn").innerText.includes("Verified")) {
-            document.getElementById("checkoutFields").classList.remove("hidden");
-        }
+       document.getElementById("checkoutFields").classList.remove("hidden");
         document.getElementById("cartDrawer").classList.toggle("open");
     };
 
-    window.sendOTP = function() {
-        const phone = document.getElementById("custPhone").value;
-        if(phone.length < 13) return alert("Enter 10 digit number!");
-        const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {'size': 'invisible'});
-        signInWithPhoneNumber(auth, phone, verifier).then(res => {
-            confirmationResult = res;
-            document.getElementById("otpSection").classList.remove("hidden");
-            alert("OTP Sent!");
-        });
-    };
-
-    window.verifyOTP = function() {
         confirmationResult.confirm(document.getElementById("otpCode").value).then(res => {
             const phone = res.user.phoneNumber;
             document.getElementById("mainLoginBtn").innerText = "Account ✅";
@@ -601,3 +568,4 @@ window.confirmOrder = async function() {
 </body>
 
 </html>
+
