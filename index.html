@@ -346,24 +346,8 @@
        document.getElementById("checkoutFields").classList.remove("hidden");
         document.getElementById("cartDrawer").classList.toggle("open");
     };
-
-        confirmationResult.confirm(document.getElementById("otpCode").value).then(res => {
-            const phone = res.user.phoneNumber;
-            document.getElementById("mainLoginBtn").innerText = "Account ✅";
             document.getElementById("authSection").classList.add("hidden");
-            document.getElementById("userDisplayPhone").innerText = phone;
-            
-            if(phone === "+917052055713") {
-                document.getElementById("adminToggle").classList.remove("hidden");
-                document.getElementById("logoutBtn").classList.remove("hidden");
-                showAdminPanel();
-            }
-            toggleCart();
-        }).catch(() => alert("Wrong OTP!"));
-    };
-
-    window.renderProducts = function() {
-        const grid = document.getElementById("productGrid");
+         
         const adminInv = document.getElementById("adminInventory");
         const query = document.getElementById("search").value.toLowerCase();
         const cat = document.getElementById("filterCategory").value;
@@ -456,8 +440,6 @@
     };
 
     window.showAdminPanel = () => document.getElementById("adminPanel").classList.toggle("hidden");
-
-    renderProducts();
 // --- 1. प्रोफाइल डेटा सेव करने का फंक्शन ---
 window.saveProfile = function() {
     // लॉगिन आईडी (फोन नंबर) के आधार पर डेटा अलग रखने के लिए
@@ -549,7 +531,7 @@ window.confirmOrder = async function() {
         }).then(() => console.log("Email Sent!"), (err) => console.log("Email Failed", err));
 
         alert("Order Successful! ✅\nOrder ID: " + orderId);
-        
+   
         // कार्ट साफ़ करें और विंडो बंद करें
         cart = []; 
         if(typeof updateCart === 'function') updateCart(); 
@@ -559,9 +541,8 @@ window.confirmOrder = async function() {
         alert("आर्डर फेल हो गया: " + e.message);
     }
 };
+      renderProducts();
 </script>
 </body>
 
 </html>
-
-
