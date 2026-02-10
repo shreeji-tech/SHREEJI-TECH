@@ -94,7 +94,7 @@
     <div class="nav-buttons">
     </div<button class="btn-login" onclick="document.getElementById('profileModal').classList.remove('hidden')">Edit My Details</button>
 </header>
-<div id="profileModal" class="" style="position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; padding:20px; border-radius:15px; z-index:3000; width:90%; max-width:360px; box-shadow:0 0 30px rgba(0,0,0,0.5); color:#333; font-family:sans-serif;">
+<div id="profileModal" class="hidden" style="position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; padding:20px; border-radius:15px; z-index:3000; width:90%; max-width:360px; box-shadow:0 0 30px rgba(0,0,0,0.5); color:#333; font-family:sans-serif;">
     <h3 style="margin-top:0; color:#1a237e; border-bottom:2px solid #ffd700; padding-bottom:10px;">👤 My Profile</h3>
     
     <label style="font-size:12px; font-weight:bold; display:block; margin-top:10px;">Full Name</label>
@@ -189,13 +189,8 @@
         <div id="recaptcha-container"></div>
         <button id="sendOtpBtn" onclick="sendOTP()" class="primary-btn" style="background:var(--success);">Send OTP Code</button>
         
-        <div id="otpSection" class="hidden">
-            <input id="otpCode" placeholder="Enter 6-Digit OTP" style="width:100%; padding:12px; margin-top:10px; border-radius: 8px; border: 1px solid #ccc;">
-            <button onclick="verifyOTP()" class="primary-btn" style="background:#e67e22;">Confirm & Login</button>
-        </div>
-    </div>
-
-    <div id="checkoutFields" class="hidden">
+       
+    <div id="checkoutFields" class="">
         <div style="border-top: 1px solid #eee; padding-top: 20px; margin-top: 20px;">
             <input id="custName" placeholder="Recipient Full Name" style="width:100%; padding:12px; margin-bottom:12px; border-radius:8px; border:1px solid #ccc;">
             <textarea id="custAddress" placeholder="Full Delivery Address with Pincode" style="width:100%; padding:12px; margin-bottom:12px; height:80px; border-radius:8px; border:1px solid #ccc;"></textarea>
@@ -568,4 +563,5 @@ window.confirmOrder = async function() {
 </body>
 
 </html>
+
 
