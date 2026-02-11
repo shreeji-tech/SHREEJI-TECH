@@ -152,21 +152,22 @@
         </ul>
     </div>
 </nav>
+   <div class="cart-drawer" id="cartDrawer">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-        <h3>Your Cart</h3>
-        <span onclick="toggleCart()" style="cursor:pointer; font-size:24px;">×</span>
+        <h3 style="margin:0;">Your Cart</h3>
+        <span onclick="toggleCart()" style="cursor:pointer; font-size:28px; line-height:1;">&times;</span>
     </div>
+    
     <div id="cartItemsList" style="max-height:60vh; overflow-y:auto; margin-bottom:20px;"></div>
+
     <div style="border-top:1px solid rgba(255,255,255,0.1); padding-top:15px;">
         <div style="display:flex; justify-content:space-between; font-size:20px; font-weight:800; margin-bottom:15px;">
             <span>Total:</span>
             <span>₹<span id="cartTotalDisplay">0</span></span>
-        </div> 
-</div>
+        </div>
         <button class="buy-btn" onclick="openCheckoutModal()">Checkout Now</button>
     </div>
 </div>
-
 <div class="main-content">
     <div id="customerSection">
         <div class="hero-section">
@@ -643,6 +644,7 @@ async function findMyOrder() {
 </script>
 </body>
 </html>
+
 
 
 
