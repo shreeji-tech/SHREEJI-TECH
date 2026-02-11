@@ -170,12 +170,13 @@
             <span>Total:</span>
             <span>₹<span id="cartTotalDisplay">0</span></span>
         </div>
-       <div id="profileSection" style="border-top:1px solid rgba(255,255,255,0.1); padding-top:15px; margin-top:15px;">
-    <h4 style="margin-bottom:10px; color:var(--primary);">Track Your Order</h4>
-    <input type="tel" id="trackPhone" class="form-input" placeholder="Enter Mobile Number" style="padding:10px; font-size:14px; margin-bottom:10px;">
-    <button class="buy-btn" style="padding:10px; background:var(--primary-dark);" onclick="trackOrders()">View Status</button>
+       <div id="track-container" style="border-top:1px solid rgba(255,255,255,0.1); padding-top:15px; margin-top:15px;">
+    <h4 style="margin-bottom:10px; color:var(--primary);">🔍 Track Your Order</h4>
+    <input type="tel" id="userTrackPhone" class="form-input" placeholder="Enter Mobile Number" style="padding:10px; font-size:14px; margin-bottom:10px; width:100%;">
+    <button class="buy-btn" style="padding:10px; width:100%; background:var(--primary-dark);" onclick="findMyOrder()">View Status</button>
     
-    <div id="myOrdersList" style="margin-top:15px; max-height:200px; overflow-y:auto;"></div>
+    <div id="userOrderResult" style="margin-top:15px; max-height:200px; overflow-y:auto;"></div>
+</div>
 </div>
         <button class="buy-btn" onclick="openCheckoutModal()">Checkout Now</button>
     </div>
@@ -607,50 +608,51 @@ function renderOrders(orders) {
             </div>`;
     }).join('');
 }
-async function trackOrders() {
-    // यहाँ हमने सुनिश्चित किया है कि इनपुट से नंबर सही मिले
-    const phoneInput = document.getElementById('trackPhone');
-    const phone = phoneInput ? phoneInput.value.trim() : "";
-    const list = document.getElementById('myOrdersList');
-    
-    if(!phone) {
+async function findMyOrder() {
+    const phoneInput = document.getElementById('userTrackPhone');
+    const displayDiv = document.getElementById('userOrderResult');
+    const phoneNum = phoneInput.value.trim();
+
+    if (!phoneNum) {
         alert("कृपया अपना मोबाइल नंबर दर्ज करें");
         return;
     }
 
-    list.innerHTML = "<p style='color:gray; font-size:12px;'>Searching...</p>";
+    displayDiv.innerHTML = "<p style='color:gray; font-size:12px;'>Checking status...</p>";
 
     try {
-        // डेटाबेस से नंबर मैच करना
-        const snap = await db.collection("orders").where("phone", "==", phone).get();
-        
-        if(snap.empty) {
-            list.innerHTML = "<p style='color:#ff4d4d; font-size:12px;'>कोई ऑर्डर नहीं मिला। कृपया सही नंबर डालें।</p>";
+        const querySnapshot = await db.collection("orders").where("phone", "==", phoneNum).get();
+
+        if (querySnapshot.empty) {
+            displayDiv.innerHTML = "<p style='color:#ff4d4d; font-size:12px;'>कोई ऑर्डर नहीं मिला। कृपया नंबर चेक करें।</p>";
             return;
         }
 
-        list.innerHTML = snap.docs.map(doc => {
-            const o = doc.data();
-            let color = "#f59e0b"; // Pending
-            if(o.status === "delivered") color = "#10b981";
-            if(o.status === "shipped") color = "#8b5cf6";
+        let output = "";
+        querySnapshot.forEach(doc => {
+            const data = doc.data();
+            let sColor = "#f59e0b"; // Pending
+            if(data.status === "delivered") sColor = "#10b981";
+            if(data.status === "shipped") sColor = "#8b5cf6";
 
-            return `
-                <div style="background:rgba(255,255,255,0.05); padding:10px; border-radius:10px; margin-bottom:8px; border:1px solid #333;">
-                    <div style="font-weight:bold; font-size:13px; color:#fff;">${o.product}</div>
+            output += `
+                <div style="background:rgba(255,255,255,0.05); padding:10px; border-radius:8px; margin-bottom:8px; border:1px solid #444;">
+                    <div style="font-weight:bold; font-size:13px; color:#fff;">📦 ${data.product}</div>
                     <div style="margin-top:5px; font-size:12px;">
-                        Status: <span style="color:${color}; font-weight:bold; text-transform:uppercase;">${o.status || 'PENDING'}</span>
+                        STATUS: <span style="color:${sColor}; font-weight:900;">${(data.status || 'PENDING').toUpperCase()}</span>
                     </div>
-                    <div style="color:gray; font-size:10px; margin-top:3px;">UTR: ${o.utr}</div>
                 </div>`;
-        }).join('');
-    } catch (error) {
-        console.error("Tracking Error:", error);
-        list.innerHTML = "<p style='color:red;'>सर्वर एरर। बाद में प्रयास करें।</p>";
+        });
+        displayDiv.innerHTML = output;
+
+    } catch (err) {
+        console.error(err);
+        displayDiv.innerHTML = "<p style='color:red;'>Error loading data.</p>";
     }
 }
 </script>
 </body>
 </html>
+
 
 
