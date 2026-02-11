@@ -32,47 +32,38 @@
             overflow-x: hidden;
         }
 
-        /* --- Navbar Styles --- */
+        #bg-slideshow {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            background-size: cover; background-position: center; background-repeat: no-repeat;
+            transition: background-image 1.5s ease-in-out; filter: brightness(0.3);
+        }
+
         .navbar {
-            background: rgba(3, 7, 18, 0.8);
-            backdrop-filter: blur(15px);
-            padding: 15px 6%;
-            display: flex; 
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
+            background: rgba(3, 7, 18, 0.8); backdrop-filter: blur(15px);
+            padding: 15px 6%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
             border-bottom: 1px solid rgba(255,255,255,0.05);
         }
         .nav-logo { display: flex; align-items: center; gap: 12px; }
         .nav-logo img { width: 42px; height: 42px; border-radius: 50%; border: 2px solid var(--primary); padding: 2px; }
         .nav-logo h2 { 
-            font-family: 'Space Grotesk', sans-serif;
-            font-weight: 800; margin: 0; 
+            font-family: 'Space Grotesk', sans-serif; font-weight: 800; margin: 0; 
             background: linear-gradient(to right, #fff, var(--primary)); 
             -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
         }
 
         .nav-actions { display: flex; align-items: center; gap: 15px; }
         .cart-icon-btn {
-            background: rgba(255,255,255,0.05);
-            padding: 10px 18px;
-            border-radius: 50px;
-            border: 1px solid rgba(255,255,255,0.1);
-            color: white;
-            cursor: pointer;
-            position: relative;
-            font-weight: 600;
+            background: rgba(255,255,255,0.05); padding: 10px 18px; border-radius: 50px;
+            border: 1px solid rgba(255,255,255,0.1); color: white; cursor: pointer;
+            position: relative; font-weight: 600;
         }
         #cartCount {
-            position: absolute; top: -5px; right: -5px;
-            background: var(--primary); color: white;
-            width: 20px; height: 20px; border-radius: 50%;
+            position: absolute; top: -5px; right: -5px; background: var(--primary);
+            color: white; width: 20px; height: 20px; border-radius: 50%;
             font-size: 12px; display: flex; align-items: center; justify-content: center;
         }
 
-        /* --- Cart Drawer --- */
         .cart-drawer {
             position: fixed; right: -400px; top: 0; width: 350px; height: 100%;
             background: #0f172a; border-left: 1px solid rgba(255,255,255,0.1);
@@ -86,7 +77,6 @@
             border-radius: 15px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.05);
         }
 
-        /* --- Sections & Grid --- */
         .main-content { padding: 40px 6%; }
         .hero-section { text-align: center; margin-bottom: 50px; }
         .hero-section h1 { font-size: 2.5rem; margin-bottom: 10px; font-weight: 800; }
@@ -113,11 +103,8 @@
             color: white; border: none; padding: 16px; border-radius: 18px; 
             font-weight: 700; cursor: pointer; transition: 0.3s; margin-top: 10px;
         }
-        .add-cart-btn {
-            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1);
-        }
+        .add-cart-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1); }
 
-        /* --- Modals --- */
         .modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.9); backdrop-filter: blur(10px); z-index: 3000; align-items: center; justify-content: center;
@@ -136,20 +123,6 @@
             position: fixed; bottom: 100px; right: 30px; width: 320px; height: 450px;
             background: #0f172a; border-radius: 25px; display: none; flex-direction: column; z-index: 4000; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);
         }
-/* बैकग्राउंड स्लाइड शो का स्टाइल */
-#bg-slideshow {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1; /* यह कंटेंट के पीछे रहेगा */
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    transition: background-image 1.5s ease-in-out; /* फोटो बदलने का स्मूथ असर */
-    filter: brightness(0.3); /* फोटो को थोड़ा डार्क रखेगा ताकि टेक्स्ट साफ दिखे */
-}
     </style>
 </head>
 <body>
@@ -161,16 +134,16 @@
     </div>
     <div class="nav-actions">
         <div class="cart-icon-btn" onclick="toggleCart()">🛒 Cart <span id="cartCount">0</span></div>
-        <ul class="nav-links" style="margin:0; padding:0; list-style:none; display:flex;">
-            <li class="active" onclick="switchSection('customer')">Store</li>
-            <li onclick="adminLogin()">Admin</li>
-            <div style="text-align: center; padding: 15px; background: rgba(139, 92, 246, 0.1); border-bottom: 1px solid rgba(255,255,255,0.05);">
-    <a href="app-release.apk" download style="text-decoration: none;">
-        <button class="buy-btn" style="width: auto; padding: 10px 20px; background: linear-gradient(135deg, #22c55e, #16a34a); border: none; border-radius: 50px; font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; color: white; font-weight: 600;">
-            <span>📲 Download Official App</span>
-        </button>
-    </a>
-</div>
+        <ul class="nav-links" style="margin:0; padding:0; list-style:none; display:flex; align-items:center; gap:15px;">
+            <li onclick="switchSection('customer')" style="cursor:pointer">Store</li>
+            <li onclick="adminLogin()" style="cursor:pointer">Admin</li>
+            <li>
+                <a href="app-release.apk" download style="text-decoration: none;">
+                    <button class="buy-btn" style="width: auto; padding: 8px 15px; background: #22c55e; border: none; border-radius: 50px; font-size: 12px; cursor: pointer; color: white;">
+                        📲 App
+                    </button>
+                </a>
+            </li>
         </ul>
     </div>
 </nav>
@@ -180,8 +153,7 @@
         <h3>Your Cart</h3>
         <span onclick="toggleCart()" style="cursor:pointer; font-size:24px;">×</span>
     </div>
-    <div id="cartItemsList" style="max-height:60vh; overflow-y:auto; margin-bottom:20px;">
-        </div>
+    <div id="cartItemsList" style="max-height:60vh; overflow-y:auto; margin-bottom:20px;"></div>
     <div style="border-top:1px solid rgba(255,255,255,0.1); padding-top:15px;">
         <div style="display:flex; justify-content:space-between; font-size:20px; font-weight:800; margin-bottom:15px;">
             <span>Total:</span>
@@ -243,19 +215,20 @@
         </div>
 
         <div id="stepPayment" style="display:none; text-align:center;">
-            <h3>Scan QR to Pay</h3>
-            <img src="qr.jpeg" style="width:180px; margin-bottom:15px; border-radius:15px; border:2px solid var(--primary)">
+            <h3>Pay via UPI App</h3>
+            <button onclick="redirectToUPI()" class="buy-btn" style="background: #2563eb; margin-bottom: 15px;">
+                🚀 Open GPay / PhonePe / Paytm
+            </button>
+            <p style="color:var(--text-dim); font-size:14px;">या फिर इस QR कोड को स्कैन करें:</p>
+            <img src="qr.jpeg" style="width:180px; margin:15px 0; border-radius:15px; border:2px solid var(--primary)">
             <div style="font-size:22px; margin-bottom:15px; font-weight:800;">Payable: ₹<span id="payAmount"></span></div>
-            <p style="font-size:12px; color:var(--text-dim)">Upload screenshot and UTR after payment</p>
-            <input type="file" id="payScreenshot" class="form-input" style="margin-bottom:10px">
             <input type="text" id="utrNumber" class="form-input" style="margin-bottom:10px" placeholder="12 Digit UTR Number">
-            <button id="finalConfirmBtn" class="buy-btn" onclick="finalizeOrder()">Confirm Payment</button>
+            <button id="finalConfirmBtn" class="buy-btn" onclick="finalizeOrder()">Place Order & Send WhatsApp</button>
         </div>
 
         <div id="stepBill" style="display:none; text-align:center;">
             <h2 style="color:var(--success)">Order Placed! 🎉</h2>
             <p id="billDetails"></p>
-            <button class="buy-btn" style="background:#25D366;" onclick="sendWhatsApp()">Notify on WhatsApp</button>
             <button class="buy-btn" style="background:#444" onclick="location.reload()">Back to Home</button>
         </div>
         <button onclick="closeModal()" style="background:none; border:none; color:grey; width:100%; margin-top:15px; cursor:pointer">Cancel</button>
@@ -275,7 +248,6 @@
 </div>
 
 <script>
-    // --- Firebase Setup ---
     const firebaseConfig = {
         apiKey: "AIzaSyBuCywyMgEw_j9yeHD-E4KwRWZGreWagTc",
         authDomain: "shree-4c33e.firebaseapp.com",
@@ -292,7 +264,6 @@
     let cart = [];
     let currentOrderData = null;
 
-    // --- Real-time Listeners ---
     db.collection("products").orderBy("timestamp", "desc").onSnapshot(snap => {
         products = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         renderStore();
@@ -305,16 +276,12 @@
         updateStats(orders);
     });
 
-    // --- Cart Logic ---
-    function toggleCart() {
-        document.getElementById('cartDrawer').classList.toggle('active');
-    }
+    function toggleCart() { document.getElementById('cartDrawer').classList.toggle('active'); }
 
     function addToCart(id) {
         const item = products.find(p => p.id === id);
         cart.push(item);
         updateCartUI();
-        // Visual Feedback
         alert(`${item.name} added to cart!`);
     }
 
@@ -327,76 +294,79 @@
         document.getElementById('cartCount').innerText = cart.length;
         const list = document.getElementById('cartItemsList');
         let total = 0;
-
         if (cart.length === 0) {
             list.innerHTML = `<p style="text-align:center; color:gray; margin-top:20px;">Cart is empty</p>`;
         } else {
             list.innerHTML = cart.map((item, index) => {
                 const priceNum = parseInt(item.price.replace(/[^\d]/g,''));
                 total += priceNum;
-                return `
-                    <div class="cart-item">
-                        <div>
-                            <div style="font-weight:600">${item.name}</div>
-                            <div style="color:var(--gold); font-size:14px">${item.price}</div>
-                        </div>
-                        <span onclick="removeFromCart(${index})" style="color:red; cursor:pointer; font-size:18px">×</span>
-                    </div>`;
+                return `<div class="cart-item">
+                    <div>
+                        <div style="font-weight:600">${item.name}</div>
+                        <div style="color:var(--gold); font-size:14px">${item.price}</div>
+                    </div>
+                    <span onclick="removeFromCart(${index})" style="color:red; cursor:pointer; font-size:18px">×</span>
+                </div>`;
             }).join('');
         }
         document.getElementById('cartTotalDisplay').innerText = total;
     }
 
-    // --- Checkout Logic ---
     function openCheckoutModal() {
         if(cart.length === 0) return alert("Cart is empty!");
         toggleCart();
-        
         const names = cart.map(i => i.name).join(", ");
         const total = document.getElementById('cartTotalDisplay').innerText;
-        
         currentOrderData = { productName: names, amount: "₹" + total };
         document.getElementById('itemSummary').innerHTML = `Items: ${names}`;
         document.getElementById('payAmount').innerText = total;
         document.getElementById('orderModal').style.display = 'flex';
     }
 
-    // --- Ordering Logic (Kept Original) ---
+    function redirectToUPI() {
+        const amount = document.getElementById('payAmount').innerText;
+        const upiId = "7052055713@paytm"; 
+        const name = "Shree Ji E-Commerce";
+        const upiUrl = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(name)}&am=${amount}&cu=INR`;
+        if (/Android|iPhone/i.test(navigator.userAgent)) {
+            window.location.href = upiUrl;
+        } else {
+            alert("कृपया पेमेंट ऐप के लिए मोबाइल का उपयोग करें।");
+        }
+    }
+
     async function finalizeOrder() {
         const name = document.getElementById('custName').value;
         const phone = document.getElementById('custPhone').value;
         const addr = document.getElementById('custAddress').value;
         const utr = document.getElementById('utrNumber').value;
-        const file = document.getElementById('payScreenshot').files[0];
 
-        if(!name || !phone || !utr || !file) return alert("Please fill all details and upload receipt!");
-        
+        if(!name || !phone || !utr) return alert("Please fill all details!");
+
         const btn = document.getElementById('finalConfirmBtn');
-        btn.innerText = "Processing..."; btn.disabled = true;
+        btn.innerText = "Saving Order..."; btn.disabled = true;
 
         try {
-            const ref = storage.ref(`receipts/${Date.now()}_${file.name}`);
-            await ref.put(file);
-            const url = await ref.getDownloadURL();
-
-            currentOrderData = { ...currentOrderData, name, phone, addr, utr };
-
             await db.collection("orders").add({
                 customer: name, phone, address: addr,
                 product: currentOrderData.productName,
                 amount: currentOrderData.amount,
-                utr, screenshot: url, status: "Pending",
+                utr, status: "Pending",
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             });
 
+            // WhatsApp Redirection
+            const adminPhone = "917052055713";
+            const msg = `*New Order Confirmed!*\n\n*Items:* ${currentOrderData.productName}\n*Total:* ${currentOrderData.amount}\n*Name:* ${name}\n*Phone:* ${phone}\n*UTR:* ${utr}\n*Address:* ${addr}\n\n_Sent via Shree Ji Web_`;
+            window.open(`https://wa.me/${adminPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+
             document.getElementById('stepPayment').style.display = 'none';
             document.getElementById('stepBill').style.display = 'block';
-            document.getElementById('billDetails').innerHTML = `Order ID: SJ-${Math.floor(Math.random()*99999)}<br>Total Items: ${cart.length}<br>Name: ${name}`;
-            cart = []; updateCartUI(); // Empty Cart
+            document.getElementById('billDetails').innerHTML = `Order Placed Successfully!<br>Name: ${name}<br>Items: ${currentOrderData.productName}`;
+            cart = []; updateCartUI();
         } catch(e) { alert("Error: " + e.message); btn.disabled = false; btn.innerText = "Confirm Order"; }
     }
 
-    // --- Store UI ---
     function renderStore() {
         document.getElementById('productGrid').innerHTML = products.map(p => `
             <div class="product-card">
@@ -417,7 +387,6 @@
         openCheckoutModal();
     }
 
-    // --- Admin & Other Features (Original Kept) ---
     function adminLogin() {
         const pass = prompt("Enter Admin Key:");
         if(pass === "ShreeJi@2026") switchSection('admin');
@@ -433,31 +402,10 @@
         if(!document.getElementById('custName').value) return alert("Fill Name");
         document.getElementById('stepDetails').style.display='none'; 
         document.getElementById('stepPayment').style.display='block'; 
-        function redirectToUPI() {
-    const amount = document.getElementById('payAmount').innerText;
-    const name = "Shree Ji E-Commerce";
-    const upiId = "dr.deepak2121-2@oksbi"; // अपना सही UPI ID यहाँ डालें
-    
-    // UPI Deep Link URL
-    const upiUrl = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(name)}&am=${amount}&cu=INR`;
-
-    // मोबाइल चेक करने के लिए और ऐप्स पर भेजने के लिए
-    if (/Android|iPhone/i.test(navigator.userAgent)) {
-        window.location.href = upiUrl;
-    } else {
-        alert("कृपया पेमेंट ऐप का उपयोग करने के लिए मोबाइल से प्रयास करें या नीचे दिए गए QR कोड को स्कैन करें।");
-    }
-}
     }
 
     function closeModal() { document.getElementById('orderModal').style.display='none'; }
     function toggleAI() { const win = document.getElementById('aiWindow'); win.style.display = win.style.display==='flex'?'none':'flex'; }
-    
-    function sendWhatsApp() {
-        const adminPhone = "917052055713";
-        const msg = `*New Order Placed!*\n\n*Items:* ${currentOrderData.productName}\n*Total:* ${currentOrderData.amount}\n*Name:* ${currentOrderData.name}\n*Phone:* ${currentOrderData.phone}\n*UTR:* ${currentOrderData.utr}\n\n_Shree Ji E-Commerce_`;
-        window.open(`https://wa.me/${adminPhone}?text=${encodeURIComponent(msg)}`, '_blank');
-    }
 
     async function saveProduct() {
         const name = document.getElementById('pName').value;
@@ -498,21 +446,14 @@
     async function deleteProduct(id) { if(confirm("Delete this item?")) await db.collection("products").doc(id).delete(); }
 
     function startEdit(id) {
-    const p = products.find(i => i.id === id);
-    
-    // फॉर्म में डेटा भरना
-    document.getElementById('pName').value = p.name;
-    document.getElementById('pPrice').value = p.price.replace('₹','');
-    document.getElementById('editId').value = p.id;
-    document.getElementById('formTitle').innerText = "Edit Service";
-    document.getElementById('cancelBtn').style.display = "block";
-
-    // --- पेज को ऊपर स्क्रॉल करने का लॉजिक ---
-    window.scrollTo({
-        top: 0,
-        behavior: 'smooth' // इससे पेज धीरे से ऊपर जाएगा
-    });
-}
+        const p = products.find(i => i.id === id);
+        document.getElementById('pName').value = p.name;
+        document.getElementById('pPrice').value = p.price.replace('₹','');
+        document.getElementById('editId').value = p.id;
+        document.getElementById('formTitle').innerText = "Edit Service";
+        document.getElementById('cancelBtn').style.display = "block";
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
 
     function resetForm() {
         document.getElementById('editId').value = "";
@@ -532,8 +473,7 @@
         document.getElementById('ordersList').innerHTML = orders.map(o => `
             <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:15px; margin-bottom:10px">
                 <b>${o.customer}</b> - ${o.product}<br>
-                <small>Amount: ${o.amount} | UTR: ${o.utr}</small><br>
-                <a href="${o.screenshot}" target="_blank" style="color:var(--gold); text-decoration:none;">View Screenshot</a>
+                <small>Amount: ${o.amount} | UTR: ${o.utr}</small>
             </div>`).join('');
     }
 
@@ -548,26 +488,21 @@
             c.style.display = c.querySelector('h3').innerText.toLowerCase().includes(q) ? 'flex':'none';
         });
     }
-// बैकग्राउंड में चलने वाली ऑनलाइन फोटो के लिंक्स
-const bgImages = [
-    "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2070", // Tech/Cyber
-    "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2070", // Electronics
-    "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072", // Digital World
-    "https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=2070"  // Services/Work
-];
 
-let currentBgIndex = 0;
-const bgElement = document.getElementById('bg-slideshow');
-
-function changeBackground() {
-    bgElement.style.backgroundImage = `url('${bgImages[currentBgIndex]}')`;
-    currentBgIndex = (currentBgIndex + 1) % bgImages.length;
-}
-
-// हर 5 सेकंड में फोटो बदलेगी
-setInterval(changeBackground, 4000);
-changeBackground(); // पहली बार तुरंत चलाने के लिए
+    const bgImages = [
+        "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2070",
+        "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2070",
+        "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072",
+        "https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=2070"
+    ];
+    let currentBgIndex = 0;
+    const bgElement = document.getElementById('bg-slideshow');
+    function changeBackground() {
+        bgElement.style.backgroundImage = `url('${bgImages[currentBgIndex]}')`;
+        currentBgIndex = (currentBgIndex + 1) % bgImages.length;
+    }
+    setInterval(changeBackground, 4000);
+    changeBackground();
 </script>
 </body>
 </html>
-
