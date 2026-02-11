@@ -588,26 +588,6 @@ function renderOrders(orders) {
             </div>`;
     }).join('');
 }
-// 1. ग्राहक के लिए ऑर्डर ट्रैक करने का फंक्शन
-async function trackOrders() {
-    const phone = document.getElementById('trackPhone').value;
-    if(!phone) return alert("कृपया अपना मोबाइल नंबर डालें");
-    
-    const snap = await db.collection("orders").where("phone", "==", phone).get();
-    const list = document.getElementById('myOrdersList');
-    
-    if(snap.empty) {
-        list.innerHTML = "<p style='color:gray; font-size:12px; padding:10px;'>कोई ऑर्डर नहीं मिला।</p>";
-        return;
-    }
-
-    list.innerHTML = snap.docs.map(doc => {
-        const o = doc.data();
-        let statusColor = "#f59e0b"; // Pending (Gold)
-        if(o.status === "delivered") statusColor = "#10b981"; // Success (Green)
-        if(o.status === "shipped") statusColor = "#8b5cf6"; // Shipped (Purple)
-
-        return `
             <div style="background:rgba(255,255,255,0.05); padding:12px; border-radius:12px; margin-bottom:10px; border:1px solid #333; font-size:13px;">
                 <div style="font-weight:bold; color:#fff;">${o.product}</div>
                 <div style="margin-top:8px; display:flex; align-items:center; gap:8px;">
@@ -621,6 +601,7 @@ async function trackOrders() {
 </script>
 </body>
 </html>
+
 
 
 
