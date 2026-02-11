@@ -147,7 +147,18 @@
         </ul>
     </div>
 </nav>
-
+<div class="drawer" id="profileDrawer" style="position: fixed; right: -100%; top: 0; width: 100%; max-width: 350px; height: 100%; background: #0f172a; z-index: 2500; transition: 0.4s; padding: 20px; box-sizing: border-box; border-left: 1px solid rgba(255,255,255,0.1);">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h3>My Profile & Orders</h3>
+        <span onclick="document.getElementById('profileDrawer').classList.remove('active')" style="cursor:pointer; font-size:28px;">×</span>
+    </div>
+    <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:15px; margin-bottom:20px;">
+        <p style="font-size:13px; color:#9ca3af">ऑर्डर ट्रैक करने के लिए नंबर डालें:</p>
+        <input type="tel" id="trackPhone" class="form-input" placeholder="Mobile Number" style="width:100%; padding:10px; margin-bottom:10px; border-radius:8px; border:1px solid #333; background:#111; color:white;">
+        <button class="buy-btn" style="padding:10px; width:100%;" onclick="trackOrders()">Track Orders Status</button>
+    </div>
+    <div id="myOrdersList"></div>
+</div>
 <div class="cart-drawer" id="cartDrawer">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
         <h3>Your Cart</h3>
@@ -159,6 +170,13 @@
             <span>Total:</span>
             <span>₹<span id="cartTotalDisplay">0</span></span>
         </div>
+       <div id="profileSection" style="border-top:1px solid rgba(255,255,255,0.1); padding-top:15px; margin-top:15px;">
+    <h4 style="margin-bottom:10px; color:var(--primary);">Track Your Order</h4>
+    <input type="tel" id="trackPhone" class="form-input" placeholder="Enter Mobile Number" style="padding:10px; font-size:14px; margin-bottom:10px;">
+    <button class="buy-btn" style="padding:10px; background:var(--primary-dark);" onclick="trackOrders()">View Status</button>
+    
+    <div id="myOrdersList" style="margin-top:15px; max-height:200px; overflow-y:auto;"></div>
+</div>
         <button class="buy-btn" onclick="openCheckoutModal()">Checkout Now</button>
     </div>
 </div>
@@ -473,7 +491,15 @@
         document.getElementById('ordersList').innerHTML = orders.map(o => `
             <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:15px; margin-bottom:10px">
                 <b>${o.customer}</b> - ${o.product}<br>
-                <small>Amount: ${o.amount} | UTR: ${o.utr}</small>
+                <small>Amount: ${o.amount} | UTR: ${o.utr}</small
+                <div style="margin-top:10px; border-top:1px solid rgba(255,255,255,0.1); padding-top:10px;">
+    <select onchange="updateOrderStatus('${o.id}', this.value)" style="width:100%; background:#111; color:white; border:1px solid #444; padding:8px; border-radius:8px;">
+        <option value="pending" ${o.status === 'pending' ? 'selected' : ''}>PENDING</option>
+        <option value="accepted" ${o.status === 'accepted' ? 'selected' : ''}>ACCEPTED</option>
+        <option value="shipped" ${o.status === 'shipped' ? 'selected' : ''}>SHIPPED</option>
+        <option value="delivered" ${o.status === 'delivered' ? 'selected' : ''}>DELIVERED</option>
+    </select>
+</div>
             </div>`).join('');
     }
 
@@ -503,6 +529,85 @@
     }
     setInterval(changeBackground, 4000);
     changeBackground();
+// 1. ग्राहक के लिए ऑर्डर ट्रैक करने का फंक्शन
+async function trackOrders() {
+    const phone = document.getElementById('trackPhone').value;
+    if(!phone) return alert("कृपया अपना मोबाइल नंबर डालें");
+    
+    const snap = await db.collection("orders").where("phone", "==", phone).get();
+    const list = document.getElementById('myOrdersList');
+    
+    if(snap.empty) {
+        list.innerHTML = "<p style='color:gray; font-size:12px; padding:10px;'>कोई ऑर्डर नहीं मिला।</p>";
+        return;
+    }
+
+    list.innerHTML = snap.docs.map(doc => {
+        const o = doc.data();
+        let statusColor = "#f59e0b"; // Pending (Gold)
+        if(o.status === "delivered") statusColor = "#10b981"; // Success (Green)
+        if(o.status === "shipped") statusColor = "#8b5cf6"; // Shipped (Purple)
+
+        return `
+            <div style="background:rgba(255,255,255,0.05); padding:12px; border-radius:12px; margin-bottom:10px; border:1px solid #333; font-size:13px;">
+                <div style="font-weight:bold; color:#fff;">${o.product}</div>
+                <div style="margin-top:8px; display:flex; align-items:center; gap:8px;">
+                    <span style="width:8px; height:8px; background:${statusColor}; border-radius:50%;"></span>
+                    <span style="color:${statusColor}; font-weight:800; text-transform:uppercase; font-size:11px;">${o.status || 'Pending'}</span>
+                </div>
+                <div style="color:#9ca3af; font-size:11px; margin-top:5px;">Total: ${o.amount} | UTR: ${o.utr}</div>
+            </div>`;
+    }).join('');
+}
+
+// 2. एडमिन के लिए स्टेटस अपडेट करने का फंक्शन
+async function updateOrderStatus(id, newStatus) {
+    try {
+        await db.collection("orders").doc(id).update({ status: newStatus });
+        alert("Status Updated Successfully to: " + newStatus.toUpperCase());
+    } catch(e) {
+        alert("Error updating status: " + e.message);
+    }
+}
+
+// 3. एडमिन ऑर्डर लिस्ट को रेंडर करना (Status Dropdown के साथ)
+function renderOrders(orders) {
+    const list = document.getElementById('ordersList');
+    if (!list) return;
+
+    list.innerHTML = orders.map(o => {
+        const statuses = ["pending", "accepted", "packed", "shipped", "delivered"];
+        let options = statuses.map(s => 
+            `<option value="${s}" ${o.status === s ? 'selected' : ''}>${s.toUpperCase()}</option>`
+        ).join('');
+
+        return `
+            <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:15px; margin-bottom:10px; border-left:4px solid var(--primary)">
+                <div style="display:flex; justify-content:space-between; align-items:start;">
+                    <div>
+                        <b style="font-size:16px;">${o.customer}</b><br>
+                        <small style="color:var(--gold)">${o.phone}</small>
+                    </div>
+                    <div style="text-align:right">
+                        <span style="font-weight:800; color:#fff;">${o.amount}</span>
+                    </div>
+                </div>
+                <div style="margin:10px 0; font-size:14px; color:#d1d5db;">
+                    📦 ${o.product}<br>
+                    <small>UTR: ${o.utr}</small><br>
+                    <small>📍 ${o.address || 'No Address'}</small>
+                </div>
+                <div style="margin-top:10px; border-top:1px solid rgba(255,255,255,0.1); padding-top:10px;">
+                    <label style="font-size:11px; color:gray; display:block; margin-bottom:5px;">Change Status:</label>
+                    <select onchange="updateOrderStatus('${o.id}', this.value)" 
+                            style="width:100%; background:#0f172a; color:white; border:1px solid #444; padding:8px; border-radius:8px; cursor:pointer;">
+                        ${options}
+                    </select>
+                </div>
+            </div>`;
+    }).join('');
+}
 </script>
 </body>
 </html>
+
