@@ -164,6 +164,13 @@
         <ul class="nav-links" style="margin:0; padding:0; list-style:none; display:flex;">
             <li class="active" onclick="switchSection('customer')">Store</li>
             <li onclick="adminLogin()">Admin</li>
+            <div style="text-align: center; padding: 15px; background: rgba(139, 92, 246, 0.1); border-bottom: 1px solid rgba(255,255,255,0.05);">
+    <a href="app-release.apk" download style="text-decoration: none;">
+        <button class="buy-btn" style="width: auto; padding: 10px 20px; background: linear-gradient(135deg, #22c55e, #16a34a); border: none; border-radius: 50px; font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; color: white; font-weight: 600;">
+            <span>📲 Download Official App</span>
+        </button>
+    </a>
+</div>
         </ul>
     </div>
 </nav>
@@ -426,6 +433,21 @@
         if(!document.getElementById('custName').value) return alert("Fill Name");
         document.getElementById('stepDetails').style.display='none'; 
         document.getElementById('stepPayment').style.display='block'; 
+        function redirectToUPI() {
+    const amount = document.getElementById('payAmount').innerText;
+    const name = "Shree Ji E-Commerce";
+    const upiId = "dr.deepak2121-2@oksbi"; // अपना सही UPI ID यहाँ डालें
+    
+    // UPI Deep Link URL
+    const upiUrl = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(name)}&am=${amount}&cu=INR`;
+
+    // मोबाइल चेक करने के लिए और ऐप्स पर भेजने के लिए
+    if (/Android|iPhone/i.test(navigator.userAgent)) {
+        window.location.href = upiUrl;
+    } else {
+        alert("कृपया पेमेंट ऐप का उपयोग करने के लिए मोबाइल से प्रयास करें या नीचे दिए गए QR कोड को स्कैन करें।");
+    }
+}
     }
 
     function closeModal() { document.getElementById('orderModal').style.display='none'; }
@@ -548,3 +570,4 @@ changeBackground(); // पहली बार तुरंत चलाने �
 </script>
 </body>
 </html>
+
