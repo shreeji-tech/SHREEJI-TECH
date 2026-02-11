@@ -607,7 +607,50 @@ function renderOrders(orders) {
             </div>`;
     }).join('');
 }
+async function trackOrders() {
+    // यहाँ हमने सुनिश्चित किया है कि इनपुट से नंबर सही मिले
+    const phoneInput = document.getElementById('trackPhone');
+    const phone = phoneInput ? phoneInput.value.trim() : "";
+    const list = document.getElementById('myOrdersList');
+    
+    if(!phone) {
+        alert("कृपया अपना मोबाइल नंबर दर्ज करें");
+        return;
+    }
+
+    list.innerHTML = "<p style='color:gray; font-size:12px;'>Searching...</p>";
+
+    try {
+        // डेटाबेस से नंबर मैच करना
+        const snap = await db.collection("orders").where("phone", "==", phone).get();
+        
+        if(snap.empty) {
+            list.innerHTML = "<p style='color:#ff4d4d; font-size:12px;'>कोई ऑर्डर नहीं मिला। कृपया सही नंबर डालें।</p>";
+            return;
+        }
+
+        list.innerHTML = snap.docs.map(doc => {
+            const o = doc.data();
+            let color = "#f59e0b"; // Pending
+            if(o.status === "delivered") color = "#10b981";
+            if(o.status === "shipped") color = "#8b5cf6";
+
+            return `
+                <div style="background:rgba(255,255,255,0.05); padding:10px; border-radius:10px; margin-bottom:8px; border:1px solid #333;">
+                    <div style="font-weight:bold; font-size:13px; color:#fff;">${o.product}</div>
+                    <div style="margin-top:5px; font-size:12px;">
+                        Status: <span style="color:${color}; font-weight:bold; text-transform:uppercase;">${o.status || 'PENDING'}</span>
+                    </div>
+                    <div style="color:gray; font-size:10px; margin-top:3px;">UTR: ${o.utr}</div>
+                </div>`;
+        }).join('');
+    } catch (error) {
+        console.error("Tracking Error:", error);
+        list.innerHTML = "<p style='color:red;'>सर्वर एरर। बाद में प्रयास करें।</p>";
+    }
+}
 </script>
 </body>
 </html>
+
 
