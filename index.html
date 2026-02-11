@@ -539,36 +539,7 @@
     }
     setInterval(changeBackground, 4000);
     changeBackground();
-// 1. ग्राहक के लिए ऑर्डर ट्रैक करने का फंक्शन
-async function trackOrders() {
-    const phone = document.getElementById('trackPhone').value;
-    if(!phone) return alert("कृपया अपना मोबाइल नंबर डालें");
-    
-    const snap = await db.collection("orders").where("phone", "==", phone).get();
-    const list = document.getElementById('myOrdersList');
-    
-    if(snap.empty) {
-        list.innerHTML = "<p style='color:gray; font-size:12px; padding:10px;'>कोई ऑर्डर नहीं मिला।</p>";
-        return;
-    }
 
-    list.innerHTML = snap.docs.map(doc => {
-        const o = doc.data();
-        let statusColor = "#f59e0b"; // Pending (Gold)
-        if(o.status === "delivered") statusColor = "#10b981"; // Success (Green)
-        if(o.status === "shipped") statusColor = "#8b5cf6"; // Shipped (Purple)
-
-        return `
-            <div style="background:rgba(255,255,255,0.05); padding:12px; border-radius:12px; margin-bottom:10px; border:1px solid #333; font-size:13px;">
-                <div style="font-weight:bold; color:#fff;">${o.product}</div>
-                <div style="margin-top:8px; display:flex; align-items:center; gap:8px;">
-                    <span style="width:8px; height:8px; background:${statusColor}; border-radius:50%;"></span>
-                    <span style="color:${statusColor}; font-weight:800; text-transform:uppercase; font-size:11px;">${o.status || 'Pending'}</span>
-                </div>
-                <div style="color:#9ca3af; font-size:11px; margin-top:5px;">Total: ${o.amount} | UTR: ${o.utr}</div>
-            </div>`;
-    }).join('');
-}
 
 // 2. एडमिन के लिए स्टेटस अपडेट करने का फंक्शन
 async function updateOrderStatus(id, newStatus) {
@@ -617,59 +588,40 @@ function renderOrders(orders) {
             </div>`;
     }).join('');
 }
-async function findMyOrder() {
-    const phoneInput = document.getElementById('userTrackPhone');
-    const displayDiv = document.getElementById('userOrderResult');
-    const phoneNum = phoneInput.value.trim();
-
-    if (!phoneNum) {
-        alert("कृपया अपना मोबाइल नंबर दर्ज करें");
+// 1. ग्राहक के लिए ऑर्डर ट्रैक करने का फंक्शन
+async function trackOrders() {
+    const phone = document.getElementById('trackPhone').value;
+    if(!phone) return alert("कृपया अपना मोबाइल नंबर डालें");
+    
+    const snap = await db.collection("orders").where("phone", "==", phone).get();
+    const list = document.getElementById('myOrdersList');
+    
+    if(snap.empty) {
+        list.innerHTML = "<p style='color:gray; font-size:12px; padding:10px;'>कोई ऑर्डर नहीं मिला।</p>";
         return;
     }
 
-    displayDiv.innerHTML = "<p style='color:gray; font-size:12px;'>Checking status...</p>";
+    list.innerHTML = snap.docs.map(doc => {
+        const o = doc.data();
+        let statusColor = "#f59e0b"; // Pending (Gold)
+        if(o.status === "delivered") statusColor = "#10b981"; // Success (Green)
+        if(o.status === "shipped") statusColor = "#8b5cf6"; // Shipped (Purple)
 
-    try {
-        const querySnapshot = await db.collection("orders").where("phone", "==", phoneNum).get();
-
-        if (querySnapshot.empty) {
-            displayDiv.innerHTML = "<p style='color:#ff4d4d; font-size:12px;'>कोई ऑर्डर नहीं मिला। कृपया नंबर चेक करें।</p>";
-            return;
-        }
-
-        let output = "";
-        querySnapshot.forEach(doc => {
-            const data = doc.data();
-            let sColor = "#f59e0b"; // Pending
-            if(data.status === "delivered") sColor = "#10b981";
-            if(data.status === "shipped") sColor = "#8b5cf6";
-
-            output += `
-                <div style="background:rgba(255,255,255,0.05); padding:10px; border-radius:8px; margin-bottom:8px; border:1px solid #444;">
-                    <div style="font-weight:bold; font-size:13px; color:#fff;">📦 ${data.product}</div>
-                    <div style="margin-top:5px; font-size:12px;">
-                        STATUS: <span style="color:${sColor}; font-weight:900;">${(data.status || 'PENDING').toUpperCase()}</span>
-                    </div>
-                </div>`;
-        });
-        displayDiv.innerHTML = output;
-
-    } catch (err) {
-        console.error(err);
-        displayDiv.innerHTML = "<p style='color:red;'>Error loading data.</p>";
-    }
-}
-    function scrollToTrack() {
-    const trackBox = document.getElementById('track-container');
-    if(trackBox) {
-        trackBox.scrollIntoView({ behavior: 'smooth' });
-        // इनपुट बॉक्स को हाईलाइट करें
-        document.getElementById('userTrackPhone').focus();
-    }
+        return `
+            <div style="background:rgba(255,255,255,0.05); padding:12px; border-radius:12px; margin-bottom:10px; border:1px solid #333; font-size:13px;">
+                <div style="font-weight:bold; color:#fff;">${o.product}</div>
+                <div style="margin-top:8px; display:flex; align-items:center; gap:8px;">
+                    <span style="width:8px; height:8px; background:${statusColor}; border-radius:50%;"></span>
+                    <span style="color:${statusColor}; font-weight:800; text-transform:uppercase; font-size:11px;">${o.status || 'Pending'}</span>
+                </div>
+                <div style="color:#9ca3af; font-size:11px; margin-top:5px;">Total: ${o.amount} | UTR: ${o.utr}</div>
+            </div>`;
+    }).join('');
 }
 </script>
 </body>
 </html>
+
 
 
 
