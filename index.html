@@ -1,292 +1,281 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ShreeJi Tech | Premium Store</title>
-    
-    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShreeJi Tech</title>
 
-    <style>
-        :root { 
-            --purple: #6a11cb; 
-            --pink: #2575fc; 
-            --card-grad: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-            --white: #ffffff;
-        }
-        
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
-        
-        body { 
-            background: linear-gradient(45deg, #0f0c29, #302b63, #24243e);
-            color: var(--white); 
-            min-height: 100vh;
-            overflow-y: auto; /* Scroll Enable */
-            padding-bottom: 100px;
-        }
+<style>
+:root{
+--purple:#6a11cb;
+--pink:#2575fc;
+--grad:linear-gradient(135deg,#6a11cb,#2575fc);
+}
 
-        /* Floating Background Icons */
-        .floating-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
-        .float-item { position: absolute; color: rgba(255, 255, 255, 0.08); animation: move 15s linear infinite; }
-        @keyframes move { 0% { transform: translateY(110vh); } 100% { transform: translateY(-10vh); } }
+body{
+margin:0;
+font-family:Segoe UI;
+background:linear-gradient(45deg,#0f0c29,#302b63,#24243e);
+color:white;
+padding-bottom:100px;
+}
 
-        /* Header */
-        header { 
-            background: rgba(45, 0, 93, 0.9);
-            backdrop-filter: blur(10px);
-            padding: 15px; 
-            position: sticky; 
-            top: 0; 
-            z-index: 1000; 
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-        .header-flex { display: flex; align-items: center; justify-content: space-between; }
-        .logo-img { height: 45px; width: 45px; border-radius: 50%; border: 2px solid #fff; object-fit: cover; }
-        .brand-name { font-size: 20px; font-weight: 800; background: linear-gradient(to right, #fff, #a18cd1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+header{
+background:#1a1a2e;
+padding:15px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+position:sticky;
+top:0;
+}
 
-        /* Search Bar */
-        .search-area { padding: 10px 15px; }
-        #searchBox { 
-            width: 100%; padding: 12px; border-radius: 25px; border: 1px solid rgba(255,255,255,0.2);
-            background: rgba(255,255,255,0.1); color: white; outline: none;
-        }
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:12px;
+padding:15px;
+}
 
-        /* Categories */
-        .cat-scroll { display: flex; overflow-x: auto; padding: 10px; gap: 10px; scrollbar-width: none; }
-        .cat-btn { 
-            padding: 8px 18px; border-radius: 20px; border: none; background: rgba(255,255,255,0.1); 
-            color: white; white-space: nowrap; cursor: pointer; font-size: 13px;
-        }
-        .cat-btn.active { background: var(--card-grad); font-weight: bold; }
+.card{
+background:rgba(255,255,255,0.06);
+padding:10px;
+border-radius:15px;
+text-align:center;
+}
 
-        /* Grid */
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 15px; }
-        .card { 
-            background: rgba(255, 255, 255, 0.06); backdrop-filter: blur(10px);
-            padding: 10px; border-radius: 15px; text-align: center; border: 1px solid rgba(255,255,255,0.1);
-            position: relative;
-        }
-        .card img { height: 110px; width: 100%; object-fit: contain; border-radius: 10px; background: #fff; margin-bottom: 8px; }
-        .price { color: #00f2fe; font-weight: 800; font-size: 17px; display: block; margin: 5px 0; }
-        
-        /* Admin Controls */
-        .admin-box { position: absolute; top: 5px; right: 5px; display: none; gap: 5px; }
-        .edit-btn { background: orange; border: none; padding: 5px; border-radius: 5px; font-size: 10px; }
-        .del-btn { background: red; color: white; border: none; padding: 5px; border-radius: 5px; font-size: 10px; }
+.card img{
+height:100px;
+width:100%;
+object-fit:contain;
+background:white;
+border-radius:10px;
+}
 
-        /* Modals */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; align-items: center; justify-content: center; padding: 20px; }
-        .box { background: #1a1a2e; padding: 20px; border-radius: 20px; width: 100%; max-width: 400px; border: 1px solid #333; }
-        input, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid #444; background: #0f0c29; color: white; }
+.price{
+color:#00f2fe;
+font-weight:bold;
+}
 
-        /* Navigation */
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: #0f0c29; display: flex; justify-content: space-around; padding: 12px; border-top: 1px solid #333; }
-        .nav-icon { text-align: center; font-size: 12px; color: #a18cd1; cursor: pointer; }
+button{
+padding:8px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+}
 
-        /* Scroll Top */
-        #scrollTop { position: fixed; bottom: 80px; right: 20px; background: var(--purple); width: 45px; height: 45px; border-radius: 50%; display: none; align-items: center; justify-content: center; border: none; color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-    </style>
+.cat-btn{
+background:var(--grad);
+color:white;
+width:100%;
+}
+
+.modal{
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.9);
+justify-content:center;
+align-items:center;
+}
+
+.box{
+background:#1a1a2e;
+padding:20px;
+border-radius:15px;
+width:90%;
+max-width:400px;
+}
+
+input,select{
+width:100%;
+padding:10px;
+margin:6px 0;
+border-radius:8px;
+border:1px solid #333;
+background:#0f0c29;
+color:white;
+}
+
+</style>
 </head>
+
 <body>
 
-    <div class="floating-bg" id="floatContainer"></div>
+<header>
+<h3>SHREEJI TECH</h3>
+<div onclick="openCheckout()">🛒 <span id="cartCount">0</span></div>
+</header>
 
-    <header>
-        <div class="header-flex">
-            <div style="display:flex; align-items:center; gap:10px;">
-                <img id="mainLogo" class="logo-img" src="" onerror="this.src='https://cdn-icons-png.flaticon.com/512/428/428933.png'">
-                <div class="brand-name">SHREEJI TECH</div>
-            </div>
-            <div onclick="openCheckout()" style="background:var(--card-grad); padding:6px 12px; border-radius:15px; font-size:12px;">
-                🛒 <span id="cartCount">0</span> Items
-            </div>
-        </div>
-    </header>
+<input type="text" id="searchBox" placeholder="Search..." oninput="search()" style="width:95%;margin:10px;padding:10px;border-radius:20px;border:none;">
 
-    <div class="search-area">
-        <input type="text" id="searchBox" placeholder="Search products..." oninput="search()">
-    </div>
+<div class="grid" id="productGrid"></div>
 
-    <div class="cat-scroll">
-        <button class="cat-btn active" onclick="filter('All', this)">All</button>
-        <button class="cat-btn" onclick="filter('Jan Sewa', this)">Jan Sewa</button>
-        <button class="cat-btn" onclick="filter('Laptop Accessories', this)">Laptop Accessories</button>
-        <button class="cat-btn" onclick="filter('Mobile Accessories', this)">Mobile Accessories</button>
-        <button class="cat-btn" onclick="filter('Refurbished Mobile', this)">Used Phones</button>
-        <button class="cat-btn" onclick="filter('Refurbished Laptop', this)">Used Laptops</button>
-    </div>
+<!-- ADMIN MODAL -->
+<div class="modal" id="adminModal">
+<div class="box">
+<h3>Admin Panel</h3>
+<input type="hidden" id="editKey">
+<input type="text" id="pName" placeholder="Product Name">
+<input type="number" id="pPrice" placeholder="Price">
+<input type="text" id="pImg" placeholder="Image URL">
+<select id="pCat">
+<option>Mobile Accessories</option>
+<option>Laptop Accessories</option>
+<option>Refurbished Mobile</option>
+<option>Refurbished Laptop</option>
+</select>
+<button onclick="save()">Save</button>
+<button onclick="closeModal()">Close</button>
+</div>
+</div>
 
-    <div class="grid" id="productGrid"></div>
+<!-- CHECKOUT -->
+<div class="modal" id="checkoutModal">
+<div class="box">
+<h3>Final Bill</h3>
+<div id="billItems"></div>
+<h2 id="totalAmount"></h2>
+<button onclick="confirmOrder()">Order via WhatsApp</button>
+<button onclick="closeModal()">Close</button>
+</div>
+</div>
 
-    <button id="scrollTop" onclick="window.scrollTo(0,0)">↑</button>
+<script type="module">
 
-    <div id="adminModal" class="modal">
-        <div class="box">
-            <h3 style="color:white; margin-bottom:10px;">Store Management</h3>
-            <input type="hidden" id="editKey">
-            <input type="text" id="pName" placeholder="Product Name">
-            <input type="number" id="pPrice" placeholder="Price (₹)">
-            <input type="text" id="pImg" placeholder="Image Name (e.g. phone.jpg)">
-            <select id="pCat">
-                <option value="Laptop Accessories">Laptop Accessories</option>
-                <option value="Mobile Accessories">Mobile Accessories</option>
-                <option value="Jan Sewa">Jan Sewa</option>
-                <option value="Refurbished Mobile">Refurbished Mobile</option>
-                <option value="Refurbished Laptop">Refurbished Laptop</option>
-            </select>
-            <button onclick="save()" style="width:100%; padding:12px; background:green; color:white; border:none; border-radius:10px; font-weight:bold;">SAVE PRODUCT</button>
-            <button onclick="toggleAdminView()" style="width:100%; padding:10px; background:orange; margin-top:10px; border:none; border-radius:10px;">SHOW EDIT BUTTONS</button>
-            <button onclick="closeModal()" style="margin-top:15px; background:none; border:none; color:gray; width:100%;">Cancel</button>
-        </div>
-    </div>
+//////////////////////////////
+// 🔥 FIREBASE MODULAR SETUP
+//////////////////////////////
 
-    <div id="checkoutModal" class="modal">
-        <div class="box">
-            <h3 style="color:#00f2fe">Final Bill</h3>
-            <div id="billItems" style="text-align:left; margin:15px 0; max-height:150px; overflow-y:auto; font-size:14px;"></div>
-            <h2 id="totalAmount" style="margin-bottom:15px;"></h2>
-            <div style="background:white; padding:10px; border-radius:10px; margin-bottom:15px; display:inline-block;">
-                <img id="qrLogo" src="" style="width:130px;" onerror="this.src='https://via.placeholder.com/130?text=Scan+to+Pay'">
-            </div>
-            <button onclick="confirmOrder()" style="width:100%; padding:15px; background:#25d366; color:white; border:none; border-radius:10px; font-weight:bold;">ORDER VIA WHATSAPP</button>
-            <button onclick="closeModal()" style="margin-top:10px; background:none; border:none; color:gray; width:100%;">Go Back</button>
-        </div>
-    </div>
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, onValue, push, update, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-    <div class="bottom-nav">
-        <div class="nav-icon" onclick="location.reload()">🏠<br>Home</div>
-        <div class="nav-icon" onclick="openCheckout()">💳<br>Cart</div>
-        <div class="nav-icon" onclick="openAdmin()">⚙️<br>Admin</div>
-        <div class="nav-icon" onclick="window.location.href='tel:7052055713'">📞<br>Call</div>
-    </div>
+const firebaseConfig = {
+apiKey: "AIzaSyBuCywyMgEw_j9yeHD-E4KwRWZGreWagTc",
+authDomain: "shree-4c33e.firebaseapp.com",
+databaseURL: "https://shree-4c33e-default-rtdb.firebaseio.com",
+projectId: "shree-4c33e",
+storageBucket: "shree-4c33e.firebasestorage.app",
+messagingSenderId: "759128544690",
+appId: "1:759128544690:web:3f57e7ed9117a1acdd80ab"
+};
 
-    <script>
-        // --- 1. CONFIGURATION ---
-        // Deepak ji, yahan apna Firebase URL daalye
-        const firebaseConfig = { databaseURL: "https://shreeji-tech-default-rtdb.firebaseio.com/" };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database().ref('products');
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
+const productsRef = ref(database, "products");
 
-        // GitHub Link Logic (Replace AAPKA_USERNAME)
-        const GITHUB_USER = "DeepakSingh"; 
-        const GITHUB_REPO = "ShreeJiTechImages";
-        const IMG_URL = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/`;
+//////////////////////////////
+// VARIABLES
+//////////////////////////////
 
-        // Logo Setup
-        document.getElementById('mainLogo').src = IMG_URL + "logo.png";
-        document.getElementById('qrLogo').src = IMG_URL + "qrcode.jpeg";
+let allProducts=[];
+let cart=[];
 
-        let allProducts = [], cart = [], adminView = false;
+//////////////////////////////
+// LOAD PRODUCTS
+//////////////////////////////
 
-        // --- 2. DATA LOAD ---
-        db.on('value', (snap) => {
-            const data = snap.val();
-            allProducts = data ? Object.keys(data).map(k => ({id:k, ...data[k]})) : [];
-            render(allProducts);
-        });
+onValue(productsRef,(snapshot)=>{
+const data=snapshot.val();
+allProducts=data?Object.keys(data).map(k=>({id:k,...data[k]})):[];
+render(allProducts);
+});
 
-        function render(items) {
-            const grid = document.getElementById('productGrid');
-            grid.innerHTML = items.map(p => `
-                <div class="card">
-                    <div class="admin-box" style="display:${adminView ? 'flex' : 'none'}">
-                        <button class="edit-btn" onclick="edit('${p.id}')">EDIT</button>
-                        <button class="del-btn" onclick="del('${p.id}')">DEL</button>
-                    </div>
-                    <img src="${IMG_URL + p.img}" onerror="this.src='https://via.placeholder.com/150?text=No+Image'">
-                    <div style="font-size:13px; font-weight:600; height:34px; overflow:hidden;">${p.name}</div>
-                    <span class="price">₹${p.price}</span>
-                    <button class="cat-btn" style="width:100%; background:var(--card-grad)" onclick="addToCart('${p.name}', ${p.price})">ADD TO CART</button>
-                </div>
-            `).join('');
-        }
+//////////////////////////////
+// RENDER
+//////////////////////////////
 
-        // --- 3. SEARCH & FILTER ---
-        function search() {
-            let q = document.getElementById('searchBox').value.toLowerCase();
-            render(allProducts.filter(p => p.name.toLowerCase().includes(q)));
-        }
+window.render=(items)=>{
+const grid=document.getElementById("productGrid");
+grid.innerHTML=items.map(p=>`
+<div class="card">
+<img src="${p.img}" onerror="this.src='https://via.placeholder.com/150'">
+<div>${p.name}</div>
+<div class="price">₹${p.price}</div>
+<button class="cat-btn" onclick="addToCart('${p.name}',${p.price})">Add To Cart</button>
+<button onclick="editProduct('${p.id}')">Edit</button>
+<button onclick="deleteProduct('${p.id}')">Delete</button>
+</div>
+`).join('');
+}
 
-        function filter(c, btn) {
-            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            render(c === 'All' ? allProducts : allProducts.filter(p => p.cat === c));
-        }
+//////////////////////////////
+// SEARCH
+//////////////////////////////
 
-        // --- 4. ADMIN PANEL ---
-        function openAdmin() {
-            let p = prompt("Admin Password:");
-            if(p === "ShreeJi2121@") document.getElementById('adminModal').style.display='flex';
-            else alert("Aap admin nahi hain!");
-        }
+window.search=()=>{
+let q=document.getElementById("searchBox").value.toLowerCase();
+render(allProducts.filter(p=>p.name.toLowerCase().includes(q)));
+}
 
-        function save() {
-            const name = document.getElementById('pName').value;
-            const price = document.getElementById('pPrice').value;
-            const img = document.getElementById('pImg').value;
-            const cat = document.getElementById('pCat').value;
-            const key = document.getElementById('editKey').value;
+//////////////////////////////
+// ADD PRODUCT
+//////////////////////////////
 
-            if(!name || !price || !img) return alert("Poori detail bhariye!");
+window.save=()=>{
+let name=pName.value;
+let price=pPrice.value;
+let img=pImg.value;
+let cat=pCat.value;
+let key=editKey.value;
 
-            const obj = { name, price: parseInt(price), img, cat };
-            if(key) db.child(key).update(obj);
-            else db.push(obj);
+if(!name||!price||!img)return alert("Fill all fields");
 
-            alert("Done!");
-            closeModal();
-        }
+let obj={name,price:parseInt(price),img,cat};
 
-        function toggleAdminView() { adminView = !adminView; render(allProducts); }
-        function del(id) { if(confirm("Delete karein?")) db.child(id).remove(); }
-        function edit(id) {
-            const p = allProducts.find(x => x.id === id);
-            document.getElementById('pName').value = p.name;
-            document.getElementById('pPrice').value = p.price;
-            document.getElementById('pImg').value = p.img;
-            document.getElementById('pCat').value = p.cat;
-            document.getElementById('editKey').value = id;
-            document.getElementById('adminModal').style.display='flex';
-        }
+if(key) update(ref(database,"products/"+key),obj);
+else push(productsRef,obj);
 
-        // --- 5. CART & ORDER ---
-        function addToCart(n, p) {
-            cart.push({n, p});
-            document.getElementById('cartCount').innerText = cart.length;
-            if(navigator.vibrate) navigator.vibrate(50);
-        }
+closeModal();
+}
 
-        function openCheckout() {
-            if(cart.length === 0) return alert("Cart khali hai!");
-            let total = cart.reduce((s, i) => s + i.p, 0);
-            document.getElementById('billItems').innerHTML = cart.map(i => `• ${i.n} <span style="float:right">₹${i.p}</span>`).join('<br>');
-            document.getElementById('totalAmount').innerText = "Total: ₹" + total;
-            document.getElementById('checkoutModal').style.display='flex';
-        }
+window.deleteProduct=(id)=>{
+if(confirm("Delete?")) remove(ref(database,"products/"+id));
+}
 
-        function confirmOrder() {
-            let total = cart.reduce((s, i) => s + i.p, 0);
-            let msg = `*ShreeJi Tech Order*%0A${cart.map(i => '- ' + i.n).join('%0A')}%0A*Total: ₹${total}*`;
-            window.open(`https://wa.me/917052055713?text=${msg}`);
-        }
+window.editProduct=(id)=>{
+let p=allProducts.find(x=>x.id===id);
+pName.value=p.name;
+pPrice.value=p.price;
+pImg.value=p.img;
+pCat.value=p.cat;
+editKey.value=id;
+adminModal.style.display="flex";
+}
 
-        function closeModal() { 
-            document.querySelectorAll('.modal').forEach(m => m.style.display='none'); 
-            document.getElementById('editKey').value = '';
-        }
+//////////////////////////////
+// CART
+//////////////////////////////
 
-        // Scroll Top
-        window.onscroll = () => { document.getElementById('scrollTop').style.display = window.scrollY > 300 ? 'flex' : 'none'; };
+window.addToCart=(n,p)=>{
+cart.push({n,p});
+cartCount.innerText=cart.length;
+}
 
-        // Floating Icons
-        setInterval(() => {
-            const i = document.createElement('div');
-            i.className = 'float-item'; i.innerText = '💻';
-            i.style.left = Math.random() * 100 + 'vw';
-            document.getElementById('floatContainer').appendChild(i);
-            setTimeout(() => i.remove(), 15000);
-        }, 3000);
-    </script>
+window.openCheckout=()=>{
+if(cart.length==0)return alert("Cart empty");
+let total=cart.reduce((s,i)=>s+i.p,0);
+billItems.innerHTML=cart.map(i=>`${i.n} - ₹${i.p}`).join("<br>");
+totalAmount.innerText="Total: ₹"+total;
+checkoutModal.style.display="flex";
+}
+
+window.confirmOrder=()=>{
+let total=cart.reduce((s,i)=>s+i.p,0);
+let msg=`*ShreeJi Tech Order*%0A${cart.map(i=>"- "+i.n).join("%0A")}%0A*Total: ₹${total}*`;
+window.open(`https://wa.me/917052055713?text=${msg}`);
+}
+
+window.closeModal=()=>{
+adminModal.style.display="none";
+checkoutModal.style.display="none";
+editKey.value="";
+}
+
+</script>
+
 </body>
 </html>
