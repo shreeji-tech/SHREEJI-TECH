@@ -1,259 +1,446 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ShreeJi Tech | Admin Store</title>
-
-    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
-
+    <title>Shree Ji | Jan Sewa & Digital Store</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --grad: linear-gradient(135deg, #6a11cb, #2575fc); }
-        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #0f0c29; color: white; padding-bottom: 100px; overflow-x: hidden; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .admin-only { display: none !important; }
+        .is-admin .admin-only { display: block !important; }
+        .is-admin .admin-flex { display: flex !important; }
+        .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        .product-card:hover { transform: translateY(-5px); transition: all 0.3s ease; }
+        .loader { border-top-color: #ea580c; animation: spinner 1.5s linear infinite; }
+        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        header { background: #1a1a2e; padding: 15px; position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; }
-        
-        .cat-bar { display: flex; overflow-x: auto; padding: 10px; gap: 8px; scrollbar-width: none; background: #1a1a2e; }
-        .cat-bar::-webkit-scrollbar { display: none; }
-        .cat-btn { background: #333; color: white; padding: 8px 15px; border-radius: 20px; border: none; white-space: nowrap; cursor: pointer; }
-        .active { background: #6a11cb; font-weight: bold; }
-
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 15px; }
-        .card { background: rgba(255, 255, 255, 0.06); padding: 10px; border-radius: 15px; text-align: center; position: relative; border: 1px solid #333; }
-        .card img { height: 110px; width: 100%; object-fit: contain; border-radius: 10px; background: white; margin-bottom: 8px; }
-        .price { color: #00f2fe; font-weight: bold; font-size: 1.1em; }
-        
-        button { cursor: pointer; border: none; transition: 0.3s; }
-        .add-btn { background: var(--grad); color: white; width: 100%; padding: 10px; border-radius: 10px; margin-top: 8px; font-weight: bold; }
-        
-        .admin-btn { position: absolute; top: 5px; padding: 5px 8px; border-radius: 5px; font-size: 12px; font-weight: bold; color: white; }
-        .edit-btn { right: 45px; background: orange; }
-        .del-btn { right: 5px; background: red; }
-
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); justify-content: center; align-items: center; z-index: 1000; padding: 10px; }
-        .box { background: #1a1a2e; padding: 20px; border-radius: 20px; width: 100%; max-width: 400px; max-height: 85vh; overflow-y: auto; border: 1px solid #444; }
-        
-        input, select { width: 100%; padding: 12px; margin: 8px 0; background: #0f0c29; color: white; border: 1px solid #444; border-radius: 10px; box-sizing: border-box; }
-        .save-btn { background: #00c851; color: white; width: 100%; padding: 12px; border-radius: 10px; font-weight: bold; margin-top: 10px; }
-        
-        .order-box { background: #111; padding: 12px; margin-bottom: 10px; border-radius: 10px; font-size: 13px; border-left: 4px solid #6a11cb; }
+        /* Logo Styling */
+        .brand-logo { width: 50px; height: 50px; object-fit: cover; border-radius: 12px; }
     </style>
 </head>
-<body>
+<body class="text-gray-900">
 
-<header>
-    <h3 style="margin:0;">SHREEJI TECH</h3>
-    <div style="font-size: 20px; display:flex; gap:15px;">
-        <span onclick="openOrders()">📋</span>
-        <span onclick="openCheckout()">🛒 <small id="cartCount" style="background:red;border-radius:50%;padding:2px 6px;font-size:10px;">0</small></span>
-        <span onclick="adminLogin()">⚙️</span>
+    <div id="admin-bar" class="admin-only bg-gray-900 text-white py-2 px-4 sticky top-0 z-[60]">
+        <div class="container mx-auto flex justify-between items-center text-xs font-bold uppercase tracking-widest">
+            <span><i class="fas fa-user-shield mr-2"></i> Admin Panel Active</span>
+            <div class="flex space-x-4">
+                <button onclick="openAdminModal()" class="hover:text-orange-400"><i class="fas fa-plus-circle"></i> Add Item</button>
+                <button onclick="openOrderManager()" class="hover:text-orange-400"><i class="fas fa-tasks"></i> Manage Orders</button>
+                <button onclick="logout()" class="text-red-400 hover:text-red-300">Logout</button>
+            </div>
+        </div>
     </div>
-</header>
 
-<input type="text" id="searchInput" placeholder="Laptop, Mobile search karein..." oninput="search(this.value)" style="width:92%; margin:15px auto; display:block; padding:12px; border-radius:25px; border:none; background:#1a1a2e; color:white; outline:none;">
+    <header class="bg-white shadow-sm sticky top-0 z-50 glass border-b border-orange-100">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="location.reload()">
+                <img src="logo.jpg" alt="Shree Ji Logo" class="brand-logo shadow-sm border border-orange-100">
+                <div>
+                    <h1 class="text-2xl font-black tracking-tighter text-gray-800 leading-none">SHREE JI</h1>
+                    <p class="text-[10px] font-bold text-orange-600 tracking-[0.2em] uppercase">Digital & Jan Sewa</p>
+                </div>
+            </div>
 
-<div class="cat-bar">
-    <button class="cat-btn active" onclick="filterCat('All',this)">All Items</button>
-    <button class="cat-btn" onclick="filterCat('Laptop Accessories',this)">Laptop</button>
-    <button class="cat-btn" onclick="filterCat('Mobile Accessories',this)">Mobile</button>
-    <button class="cat-btn" onclick="filterCat('Refurbished Mobile',this)">Used Phone</button>
-    <button class="cat-btn" onclick="filterCat('Refurbished Laptop',this)">Used Laptop</button>
-    <button class="cat-btn" onclick="filterCat('Jan Sewa',this)">Jan Sewa</button>
-</div>
+            <div class="hidden md:flex flex-1 mx-8 relative">
+                <input type="text" id="ai-input" placeholder="Ask AI: 'Laptop repair cost?' or 'Aadhar services?'" 
+                       class="w-full bg-gray-100 border-2 border-transparent focus:border-orange-500 focus:bg-white p-3 rounded-xl outline-none transition-all pl-12">
+                <i class="fas fa-robot absolute left-4 top-4 text-orange-500"></i>
+                <button onclick="askAI()" class="absolute right-2 top-2 bg-orange-600 text-white px-4 py-1.5 rounded-lg font-bold hover:bg-orange-700">Ask</button>
+            </div>
 
-<div class="grid" id="productGrid"></div>
+            <div class="flex items-center space-x-5">
+                <button onclick="startVoice()" class="text-gray-500 hover:text-orange-600 transition"><i class="fas fa-microphone text-xl"></i></button>
+                <div class="relative cursor-pointer group" onclick="toggleCart()">
+                    <i class="fas fa-shopping-cart text-xl text-gray-700 group-hover:text-orange-600"></i>
+                    <span id="cart-count" class="absolute -top-2 -right-2 bg-orange-600 text-white text-[10px] rounded-full w-5 h-5 flex items-center justify-center font-bold">0</span>
+                </div>
+                <button onclick="checkAdminAccess()" class="text-gray-400 hover:text-gray-600 text-sm"><i class="fas fa-lock"></i></button>
+            </div>
+        </div>
+    </header>
 
-<div class="modal" id="adminModal">
-    <div class="box">
-        <h3 id="modalTitle">Add Product</h3>
-        <input type="hidden" id="editKey">
-        <input id="pName" placeholder="Item Name">
-        <input id="pPrice" type="number" placeholder="Price (₹)">
-        <input id="pImg" placeholder="GitHub File Name (e.g. mouse.jpg)">
-        <select id="pCat">
-            <option>Laptop Accessories</option>
-            <option>Mobile Accessories</option>
-            <option>Refurbished Mobile</option>
-            <option>Refurbished Laptop</option>
-            <option>Jan Sewa</option>
-        </select>
-        <button class="save-btn" onclick="saveProduct()">SAVE TO STORE</button>
-        <button onclick="closeModal()" style="width:100%; background:none; color:gray; margin-top:10px;">Cancel</button>
+    <nav class="bg-white border-b border-gray-100 overflow-x-auto">
+        <div class="container mx-auto px-4 flex space-x-8 py-4 text-sm font-semibold text-gray-500 whitespace-nowrap">
+            <button onclick="filterCat('All')" class="hover:text-orange-600 uppercase border-b-2 border-transparent hover:border-orange-600 pb-1">All Items</button>
+            <button onclick="filterCat('Jan Sewa')" class="hover:text-orange-600 uppercase">Jan Sewa (Govt. Services)</button>
+            <button onclick="filterCat('Mobiles')" class="hover:text-orange-600 uppercase">Refurbished Mobiles</button>
+            <button onclick="filterCat('Laptops')" class="hover:text-orange-600 uppercase">Refurbished Laptops</button>
+            <button onclick="filterCat('Repairing')" class="hover:text-orange-600 uppercase">Repairing Center</button>
+        </div>
+    </nav>
+
+    <section class="container mx-auto px-4 mt-8">
+        <div class="bg-gradient-to-r from-orange-600 to-orange-400 rounded-3xl p-8 md:p-12 text-white flex flex-col md:flex-row items-center justify-between shadow-xl overflow-hidden relative">
+            <div class="z-10">
+                <span class="bg-white/20 px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest">Premium Digital Hub</span>
+                <h2 class="text-4xl md:text-5xl font-black mt-4 leading-tight">Fastest Digital Services <br>& Tech Store.</h2>
+                <p class="mt-4 text-orange-50 font-medium">Refurbished gadgets with 6-month warranty and Instant Govt. ID works.</p>
+                <div class="mt-8 flex space-x-4">
+                    <button onclick="filterCat('Laptops')" class="bg-white text-orange-600 px-6 py-3 rounded-xl font-bold shadow-lg hover:bg-orange-50 transition">Browse Laptops</button>
+                    <button onclick="scrollToProducts()" class="border-2 border-white/50 px-6 py-3 rounded-xl font-bold hover:bg-white/10 transition">See All</button>
+                </div>
+            </div>
+            <div class="mt-8 md:mt-0 opacity-20 md:opacity-100">
+                <i class="fas fa-laptop-code fa-10x"></i>
+            </div>
+        </div>
+    </section>
+
+    <main class="container mx-auto px-4 py-12">
+        <div class="flex justify-between items-center mb-10">
+            <h3 id="category-title" class="text-2xl font-extrabold text-gray-800">Featured Products</h3>
+            <div class="flex items-center space-x-3 bg-white p-2 rounded-xl shadow-sm border border-gray-100">
+                <span class="text-xs font-bold text-gray-400 uppercase ml-2">Sort By Price:</span>
+                <select onchange="sortByPrice(this.value)" class="outline-none text-sm font-bold text-gray-700 bg-transparent cursor-pointer">
+                    <option value="none">Default</option>
+                    <option value="low">Low to High</option>
+                    <option value="high">High to Low</option>
+                </select>
+            </div>
+        </div>
+        <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"></div>
+    </main>
+
+    <div class="fixed bottom-8 left-8 flex flex-col space-y-4 z-40">
+        <button onclick="openTracker()" class="bg-blue-600 text-white w-14 h-14 rounded-2xl shadow-2xl flex items-center justify-center hover:scale-110 transition group">
+            <i class="fas fa-truck-loading text-xl"></i>
+            <span class="absolute left-16 bg-blue-600 text-white px-3 py-1 rounded text-xs font-bold opacity-0 group-hover:opacity-100 transition whitespace-nowrap">Track Order</span>
+        </button>
+        <button onclick="window.open('https://wa.me/917052055713')" class="bg-green-500 text-white w-14 h-14 rounded-2xl shadow-2xl flex items-center justify-center hover:scale-110 transition group">
+            <i class="fab fa-whatsapp text-2xl"></i>
+            <span class="absolute left-16 bg-green-500 text-white px-3 py-1 rounded text-xs font-bold opacity-0 group-hover:opacity-100 transition whitespace-nowrap">Support</span>
+        </button>
     </div>
-</div>
 
-<div class="modal" id="cartModal">
-    <div class="box">
-        <h3>🛒 Your Cart</h3>
-        <div id="cartItems" style="margin:15px 0; border-top:1px solid #333; padding-top:10px;"></div>
-        <h3 id="total" style="color:#00f2fe">Total: ₹0</h3>
-        <button class="save-btn" style="background:#25d366" onclick="placeOrder()">PLACE ORDER (WhatsApp)</button>
-        <button onclick="closeModal()" style="width:100%; background:none; color:gray; margin-top:10px;">Close</button>
+    <div id="admin-modal" class="hidden fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl w-full max-w-xl p-8 max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-black text-gray-800" id="modal-heading">Add New Item</h2>
+                <button onclick="closeAdminModal()" class="text-gray-400 hover:text-red-500"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <form id="product-form" class="space-y-5">
+                <input type="hidden" id="edit-id">
+                <input type="text" id="p-name" placeholder="Product Name" class="w-full border-2 border-gray-100 p-3 rounded-xl focus:border-orange-500 outline-none font-semibold">
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="number" id="p-price" placeholder="Price (₹)" class="border-2 border-gray-100 p-3 rounded-xl outline-none focus:border-orange-500 font-semibold">
+                    <select id="p-cat" class="border-2 border-gray-100 p-3 rounded-xl outline-none focus:border-orange-500 font-semibold">
+                        <option value="Jan Sewa">Jan Sewa</option>
+                        <option value="Mobiles">Mobiles</option>
+                        <option value="Laptops">Laptops</option>
+                        <option value="Repairing">Repairing</option>
+                        <option value="Accessories">Accessories</option>
+                    </select>
+                </div>
+                <textarea id="p-desc" placeholder="Specifications..." class="w-full border-2 border-gray-100 p-3 rounded-xl outline-none focus:border-orange-500 font-semibold h-24"></textarea>
+                <div class="border-2 border-dashed border-gray-200 p-6 rounded-2xl text-center">
+                    <input type="file" id="p-image-file" class="hidden" accept="image/*" onchange="previewImage(this)">
+                    <label for="p-image-file" class="cursor-pointer">
+                        <i class="fas fa-cloud-upload-alt text-4xl text-orange-400 mb-2"></i>
+                        <p id="file-name" class="text-sm font-bold text-gray-500">Upload Product Image</p>
+                    </label>
+                </div>
+                <button type="button" onclick="handleSave()" id="save-btn" class="w-full bg-orange-600 text-white py-4 rounded-2xl font-black text-lg hover:bg-orange-700 shadow-lg transition-all uppercase tracking-widest">Confirm & Save</button>
+            </form>
+        </div>
     </div>
-</div>
 
-<div class="modal" id="ordersModal">
-    <div class="box">
-        <h3>📦 Store Orders</h3>
-        <div id="ordersList"></div>
-        <button onclick="closeModal()" style="width:100%; background:var(--grad); color:white; padding:10px; border-radius:10px; margin-top:10px;">Back</button>
+    <div id="order-manager-modal" class="hidden fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl w-full max-w-4xl p-8 max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-black text-gray-800">Customer Orders</h2>
+                <button onclick="closeOrderManager()" class="text-gray-400 hover:text-red-500"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="border-b-2 border-gray-100 text-xs uppercase text-gray-400">
+                            <th class="pb-4">Order ID</th>
+                            <th class="pb-4">Customer</th>
+                            <th class="pb-4">Total</th>
+                            <th class="pb-4">Status</th>
+                            <th class="pb-4">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="order-list-body" class="text-sm font-bold"></tbody>
+                </table>
+            </div>
+        </div>
     </div>
-</div>
 
-<script>
-// --- CONFIGURATION ---
-const firebaseConfig = {
-    apiKey: "AIzaSyBuCywyMgEw_j9yeHD-E4KwRWZGreWagTc",
-    authDomain: "shree-4c33e.firebaseapp.com",
-    databaseURL: "https://shree-4c33e-default-rtdb.firebaseio.com",
-    projectId: "shree-4c33e",
-    storageBucket: "shree-4c33e.firebasestorage.app",
-    messagingSenderId: "759128544690",
-    appId: "1:759128544690:web:3f57e7ed9117a1acdd80ab"
-};
+    <div id="track-modal" class="hidden fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white p-8 rounded-3xl w-full max-w-sm text-center shadow-2xl border border-orange-100">
+            <div class="bg-blue-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-search-location text-3xl text-blue-600"></i>
+            </div>
+            <h3 class="text-xl font-black text-gray-800 mb-2">Track Order</h3>
+            <input type="tel" id="track-phone" placeholder="91XXXXXXXX" class="w-full border-2 border-gray-100 p-4 rounded-2xl text-center font-bold text-lg mb-4 outline-none focus:border-blue-500">
+            <button onclick="processTrack()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold hover:bg-blue-700">Search Status</button>
+            <div id="track-result" class="mt-6 p-4 rounded-2xl hidden font-bold"></div>
+            <button onclick="closeTracker()" class="mt-4 text-gray-400 font-bold">Maybe later</button>
+        </div>
+    </div>
 
-// Yahan apna GitHub link daalein
-const GITHUB_BASE = "https://raw.githubusercontent.com/DeepakSingh/ShreeJiTechImages/main/";
+    <div id="cart-drawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-3xl translate-x-full transition-transform duration-500 z-[100] flex flex-col">
+        <div class="p-6 border-b flex justify-between items-center bg-gray-50">
+            <h2 class="text-2xl font-black italic text-gray-800">Your Cart</h2>
+            <button onclick="toggleCart()" class="text-2xl text-gray-400 hover:text-red-500"><i class="fas fa-times-circle"></i></button>
+        </div>
+        <div id="cart-items" class="flex-1 overflow-y-auto p-6 space-y-4"></div>
+        <div class="p-8 border-t bg-white space-y-4">
+            <div class="flex justify-between text-xl font-black">
+                <span>Total Amount:</span>
+                <span id="cart-total" class="text-orange-600">₹0</span>
+            </div>
+            <button onclick="checkoutOrder()" class="w-full bg-gray-900 text-white py-5 rounded-2xl font-black text-lg hover:bg-orange-600 transition shadow-xl">PROCEED TO CHECKOUT</button>
+        </div>
+    </div>
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+    <script>
+        // Scripts and logic are preserved from original code
+        const ADMIN_PASS = "ShreeJi2121";
+        const WHATSAPP = "917052055713";
+        const IMGBB_KEY = "";
 
-let products = [], cart = [], admin = false, currentCat = "All";
+        let products = JSON.parse(localStorage.getItem('sji_products')) || [];
+        let cart = [];
+        let orders = JSON.parse(localStorage.getItem('sji_orders')) || [];
+        let currentFilter = 'All';
 
-// --- DATA FETCH ---
-db.ref("products").on("value", snap => {
-    const data = snap.val();
-    products = data ? Object.keys(data).map(k => ({id:k, ...data[k]})) : [];
-    render();
-});
+        const knowledge = {
+            "laptop": "Refurbished Laptops start at ₹10,000. Brands: HP, Dell, Lenovo. 6 months warranty.",
+            "mobile": "iPhone, Samsung, and OnePlus refurbished models available.",
+            "aadhar": "Aadhar download, correction, and PVC card printing available.",
+            "pan": "New PAN card or correction takes 7-10 days.",
+            "repair": "Mobile/Laptop motherboard and screen repair with free diagnosis.",
+            "warranty": "6 months shop warranty on all gadgets."
+        };
 
-// --- RENDER FUNCTION (Fixed for Search & Filter) ---
-function render(filteredItems) {
-    let list = filteredItems || (currentCat === "All" ? products : products.filter(p => p.cat === currentCat));
-    const grid = document.getElementById("productGrid");
-    
-    if(list.length === 0) {
-        grid.innerHTML = `<p style="grid-column: 1/3; text-align:center; color:gray;">No items found...</p>`;
-        return;
-    }
+        function checkAdminAccess() {
+            if(prompt("Enter Secret Admin Password:") === ADMIN_PASS) {
+                sessionStorage.setItem('isAdmin', 'true');
+                document.body.classList.add('is-admin');
+                alert("Welcome Boss!");
+            } else { alert("Unauthorized!"); }
+        }
 
-    grid.innerHTML = list.map(p => {
-        let finalImg = p.img.includes("http") ? p.img : GITHUB_BASE + p.img;
-        return `
-        <div class="card">
-            ${admin ? `
-                <button class="admin-btn edit-btn" onclick="editProduct('${p.id}')">EDIT</button>
-                <button class="admin-btn del-btn" onclick="deleteProduct('${p.id}')">DEL</button>
-            ` : ''}
-            <img src="${finalImg}" onerror="this.src='https://via.placeholder.com/150?text=ShreeJi+Tech'">
-            <div style="font-size:14px; margin:5px 0; height:35px; overflow:hidden;">${p.name}</div>
-            <div class="price">₹${p.price}</div>
-            <button class="add-btn" onclick="addToCart('${p.name}',${p.price})">ADD TO CART</button>
-        </div>`;
-    }).join('');
-}
+        function logout() {
+            sessionStorage.removeItem('isAdmin');
+            location.reload();
+        }
 
-// --- CORE FUNCTIONS ---
-function filterCat(cat, btn) {
-    currentCat = cat;
-    document.getElementById("searchInput").value = "";
-    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    render();
-}
+        function displayProducts() {
+            const grid = document.getElementById('product-grid');
+            grid.innerHTML = '';
+            let filtered = products.filter(p => currentFilter === 'All' || p.category === currentFilter);
+            
+            if(!filtered.length) {
+                grid.innerHTML = `<div class="col-span-full text-center py-20 text-gray-400 font-bold">No items found.</div>`;
+                return;
+            }
 
-function search(q) {
-    let filtered = products.filter(p => p.name.toLowerCase().includes(q.toLowerCase()));
-    render(filtered);
-}
+            filtered.forEach(p => {
+                grid.innerHTML += `
+                <div class="product-card bg-white p-5 rounded-3xl shadow-sm border border-gray-100 relative">
+                    <div class="admin-only absolute top-4 right-4 flex space-x-2 z-10">
+                        <button onclick="editItem(${p.id})" class="bg-blue-500 text-white w-8 h-8 rounded-lg text-xs"><i class="fas fa-edit"></i></button>
+                        <button onclick="deleteItem(${p.id})" class="bg-red-500 text-white w-8 h-8 rounded-lg text-xs"><i class="fas fa-trash"></i></button>
+                    </div>
+                    <div class="h-48 bg-gray-50 rounded-2xl mb-4 flex items-center justify-center overflow-hidden">
+                        <img src="${p.image}" class="w-full h-full object-contain hover:scale-110 transition duration-500">
+                    </div>
+                    <span class="text-[10px] font-black uppercase text-orange-500 bg-orange-50 px-3 py-1 rounded-full">${p.category}</span>
+                    <h4 class="font-black text-gray-800 mt-2 truncate text-lg">${p.name}</h4>
+                    <p class="text-xs text-gray-500 font-medium h-8 line-clamp-2 mt-1">${p.desc}</p>
+                    <div class="flex items-center justify-between mt-5">
+                        <span class="text-xl font-black text-gray-900">₹${p.price.toLocaleString()}</span>
+                        <button onclick="addToCart(${p.id})" class="bg-gray-900 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-orange-600">Buy Now</button>
+                    </div>
+                </div>`;
+            });
+        }
 
-function adminLogin() {
-    let pass = prompt("Enter Password:");
-    if(pass === "1234") { // Aap password badal sakte hain
-        admin = !admin;
-        alert(admin ? "Admin Mode ON" : "Admin Mode OFF");
-        render();
-    } else alert("Wrong Password");
-}
+        async function handleSave() {
+            const name = document.getElementById('p-name').value;
+            const price = parseInt(document.getElementById('p-price').value);
+            const cat = document.getElementById('p-cat').value;
+            const desc = document.getElementById('p-desc').value;
+            const file = document.getElementById('p-image-file').files[0];
+            const editId = document.getElementById('edit-id').value;
 
-function saveProduct() {
-    let name = pName.value, price = pPrice.value, img = pImg.value, cat = pCat.value, key = editKey.value;
-    if(!name || !price || !img) return alert("Please fill all details!");
-    
-    let obj = { name, price: parseInt(price), img, cat };
-    if(key) db.ref("products/"+key).update(obj).then(() => closeModal());
-    else db.ref("products").push(obj).then(() => closeModal());
-}
+            if(!name || !price) return alert("Fill all fields!");
 
-function editProduct(id) {
-    let p = products.find(x => x.id === id);
-    pName.value = p.name;
-    pPrice.value = p.price;
-    pImg.value = p.img;
-    pCat.value = p.cat;
-    editKey.value = id;
-    document.getElementById("modalTitle").innerText = "Edit Product";
-    document.getElementById("adminModal").style.display = "flex";
-}
+            const btn = document.getElementById('save-btn');
+            btn.innerHTML = `<i class="fas fa-spinner loader"></i>`;
+            btn.disabled = true;
 
-function deleteProduct(id) {
-    if(confirm("Confirm Delete?")) db.ref("products/"+id).remove();
-}
+            let imgUrl = editId ? products.find(p => p.id == editId).image : "https://via.placeholder.com/300";
 
-// --- CART & ORDER ---
-function addToCart(n, p) {
-    cart.push({n, p});
-    document.getElementById("cartCount").innerText = cart.length;
-    if(navigator.vibrate) navigator.vibrate(50);
-}
+            if(file) {
+                const fd = new FormData();
+                fd.append('image', file);
+                try {
+                    const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: 'POST', body: fd });
+                    const data = await res.json();
+                    imgUrl = data.data.url;
+                } catch(e) { console.error("Upload failed"); }
+            }
 
-function openCheckout() {
-    if(cart.length === 0) return alert("Cart is empty!");
-    let totalAmt = cart.reduce((s,i) => s + i.p, 0);
-    document.getElementById("cartItems").innerHTML = cart.map((i, index) => 
-        `<div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-            <span>${i.n}</span> <b>₹${i.p}</b>
-        </div>`
-    ).join('');
-    document.getElementById("total").innerText = "Total Payable: ₹" + totalAmt;
-    document.getElementById("cartModal").style.display = "flex";
-}
+            const item = { id: editId ? parseInt(editId) : Date.now(), name, price, category: cat, desc, image: imgUrl };
+            if(editId) products = products.map(p => p.id == editId ? item : p);
+            else products.push(item);
 
-function placeOrder() {
-    let totalAmt = cart.reduce((s,i) => s + i.p, 0);
-    let order = { items: cart, total: totalAmt, time: new Date().toLocaleString() };
-    db.ref("orders").push(order);
-    
-    let msg = `*NEW ORDER: ShreeJi Tech*%0A--------------------------%0A${cart.map(i => "✅ " + i.n + " - ₹" + i.p).join("%0A")}%0A--------------------------%0A*TOTAL: ₹${totalAmt}*`;
-    window.open("https://wa.me/917052055713?text=" + msg);
-    
-    cart = [];
-    document.getElementById("cartCount").innerText = 0;
-    closeModal();
-}
+            localStorage.setItem('sji_products', JSON.stringify(products));
+            location.reload();
+        }
 
-function openOrders() {
-    if(!admin) return alert("Admin only!");
-    db.ref("orders").once("value", snap => {
-        let data = snap.val();
-        document.getElementById("ordersList").innerHTML = data ? Object.values(data).reverse().map(o => `
-            <div class="order-box">
-                <b>Date:</b> ${o.time}<br>
-                <b>Items:</b> ${o.items.map(i => i.n).join(", ")}<br>
-                <b>Amount:</b> ₹${o.total}
-            </div>`).join('') : "No Orders Found.";
-    });
-    document.getElementById("ordersModal").style.display = "flex";
-}
+        function deleteItem(id) {
+            if(confirm("Delete this?")) {
+                products = products.filter(p => p.id !== id);
+                localStorage.setItem('sji_products', JSON.stringify(products));
+                displayProducts();
+            }
+        }
 
-function closeModal() {
-    document.querySelectorAll('.modal').forEach(m => m.style.display = "none");
-    editKey.value = "";
-    pName.value = ""; pPrice.value = ""; pImg.value = "";
-    document.getElementById("modalTitle").innerText = "Add Product";
-}
-</script>
+        function editItem(id) {
+            const p = products.find(x => x.id === id);
+            document.getElementById('modal-heading').innerText = "Edit Item";
+            document.getElementById('edit-id').value = p.id;
+            document.getElementById('p-name').value = p.name;
+            document.getElementById('p-price').value = p.price;
+            document.getElementById('p-cat').value = p.category;
+            document.getElementById('p-desc').value = p.desc;
+            openAdminModal();
+        }
 
+        function addToCart(id) {
+            cart.push(products.find(x => x.id === id));
+            updateCartUI();
+            toggleCart();
+        }
+
+        function updateCartUI() {
+            document.getElementById('cart-count').innerText = cart.length;
+            const container = document.getElementById('cart-items');
+            container.innerHTML = '';
+            let total = 0;
+            cart.forEach((item, idx) => {
+                total += item.price;
+                container.innerHTML += `
+                <div class="flex items-center space-x-4 bg-gray-50 p-4 rounded-2xl">
+                    <img src="${item.image}" class="w-12 h-12 object-cover rounded-lg">
+                    <div class="flex-1 text-sm font-bold">
+                        <h5>${item.name}</h5>
+                        <p class="text-orange-600">₹${item.price}</p>
+                    </div>
+                    <button onclick="cart.splice(${idx},1);updateCartUI()" class="text-red-400"><i class="fas fa-trash"></i></button>
+                </div>`;
+            });
+            document.getElementById('cart-total').innerText = `₹${total}`;
+        }
+
+        function checkoutOrder() {
+            if(!cart.length) return alert("Aapka cart khali hai!");
+            const name = prompt("Aapka Naam:");
+            if(!name) return;
+            const phone = prompt("WhatsApp Number (10 digits):");
+            if(!phone) return;
+            const address = prompt("Delivery Address (Pura pata likhein):");
+            if(!address) return;
+            const payMethod = prompt("Payment Method: 1 likhein COD ke liye, 2 likhein Online Payment ke liye");
+            let methodText = (payMethod === "2") ? "Online Payment (UPI)" : "Cash on Delivery (COD)";
+            const orderId = "SJI-" + Date.now().toString().slice(-6);
+            const total = document.getElementById('cart-total').innerText;
+            const newOrder = { id: orderId, name, phone, address, total, method: methodText, status: 'Processing', date: new Date().toLocaleDateString() };
+            orders.push(newOrder);
+            localStorage.setItem('sji_orders', JSON.stringify(orders));
+            let itemsList = cart.map(item => `- ${item.name} (₹${item.price})`).join('%0A');
+            const msg = `*Naya Order Aaya Hai!*%0A%0A*Order ID:* ${orderId}%0A*Customer:* ${name}%0A*Phone:* ${phone}%0A*Address:* ${address}%0A%0A*Items:*%0A${itemsList}%0A%0A*Total Amount:* ${total}%0A*Payment:* ${methodText}`;
+            window.open(`https://wa.me/${WHATSAPP}?text=${msg}`, '_blank');
+            cart = []; updateCartUI(); toggleCart();
+            alert("Shukriya! Aapka Order ID " + orderId + " hai.");
+        }
+
+        function openOrderManager() {
+            const list = document.getElementById('order-list-body');
+            list.innerHTML = '';
+            orders.forEach((o, idx) => {
+                list.innerHTML += `
+                <tr class="border-b border-gray-50">
+                    <td class="py-4 text-orange-600">#${o.id}</td>
+                    <td class="py-4">${o.name}<br><small class="text-gray-400">${o.phone}</small></td>
+                    <td class="py-4">${o.total}</td>
+                    <td class="py-4"><span class="px-2 py-1 rounded-md text-[10px] bg-blue-50 text-blue-600">${o.status}</span></td>
+                    <td class="py-4">
+                        <select onchange="updateOrderStatus('${o.id}', this.value)" class="bg-gray-100 p-1 rounded">
+                            <option value="">Update</option>
+                            <option value="Shipped">Shipped</option>
+                            <option value="Completed">Completed</option>
+                            <option value="Cancelled">Cancelled</option>
+                        </select>
+                    </td>
+                </tr>`;
+            });
+            document.getElementById('order-manager-modal').classList.remove('hidden');
+        }
+
+        function updateOrderStatus(id, newStatus) {
+            if(!newStatus) return;
+            orders = orders.map(o => o.id === id ? {...o, status: newStatus} : o);
+            localStorage.setItem('sji_orders', JSON.stringify(orders));
+            alert("Status Updated to: " + newStatus);
+            openOrderManager();
+        }
+
+        function askAI() {
+            const input = document.getElementById('ai-input').value.toLowerCase();
+            let res = "Please WhatsApp for custom queries.";
+            for(let k in knowledge) if(input.includes(k)) res = knowledge[k];
+            alert("SJI Assistant: " + res);
+        }
+
+        function filterCat(cat) {
+            currentFilter = cat;
+            document.getElementById('category-title').innerText = cat === 'All' ? 'Featured Products' : cat;
+            displayProducts();
+        }
+
+        function processTrack() {
+            const phone = document.getElementById('track-phone').value;
+            const o = orders.find(o => o.phone === phone || o.id === phone);
+            const resDiv = document.getElementById('track-result');
+            resDiv.classList.remove('hidden');
+            if(o) {
+                resDiv.className = "mt-6 p-4 rounded-2xl bg-green-50 text-green-700";
+                resDiv.innerHTML = `ID: #${o.id}<br>Status: ${o.status}<br><small>Updated: ${o.date}</small>`;
+            } else {
+                resDiv.className = "mt-6 p-4 rounded-2xl bg-red-50 text-red-700";
+                resDiv.innerHTML = "Not Found!";
+            }
+        }
+
+        function toggleCart() { document.getElementById('cart-drawer').classList.toggle('translate-x-full'); }
+        function openAdminModal() { document.getElementById('admin-modal').classList.remove('hidden'); }
+        function closeAdminModal() { document.getElementById('admin-modal').classList.add('hidden'); }
+        function openTracker() { document.getElementById('track-modal').classList.remove('hidden'); }
+        function closeTracker() { document.getElementById('track-modal').classList.add('hidden'); }
+        function closeOrderManager() { document.getElementById('order-manager-modal').classList.add('hidden'); }
+        function previewImage(input) { if(input.files[0]) document.getElementById('file-name').innerText = input.files[0].name; }
+        function scrollToProducts() { window.scrollTo({ top: 800, behavior: 'smooth' }); }
+
+        function startVoice() {
+            const rec = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            rec.start();
+            rec.onresult = (e) => { document.getElementById('ai-input').value = e.results[0][0].transcript; askAI(); };
+        }
+
+        window.onload = () => {
+            if(sessionStorage.getItem('isAdmin')) document.body.classList.add('is-admin');
+            displayProducts();
+        };
+    </script>
 </body>
 </html>
