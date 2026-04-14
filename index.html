@@ -32,7 +32,6 @@
         .brand-logo { width: 45px; height: 45px; object-fit: cover; border-radius: 10px; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         
-        /* Ticker Animation */
         .ticker-wrapper { overflow: hidden; background: #fff7ed; border-bottom: 1px solid #ffedd5; }
         .ticker-content { display: inline-block; white-space: nowrap; animation: ticker 25s linear infinite; }
         @keyframes ticker { 
@@ -112,8 +111,18 @@
     <main class="container mx-auto px-4 py-8">
         <div class="flex justify-between items-end mb-6">
             <h3 id="category-title" class="text-xl font-black text-gray-800">Featured Products</h3>
+            <select onchange="sortByPrice(this.value)" class="text-[10px] font-bold bg-white border-none rounded-lg p-2 outline-none shadow-sm cursor-pointer">
+                <option value="none">SORT BY</option>
+                <option value="low">Low Price</option>
+                <option value="high">High Price</option>
+            </select>
         </div>
-        <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 p-2"></div>
+        <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 p-2">
+            <div class="col-span-full text-center py-20">
+                <i class="fas fa-spinner loader text-4xl text-orange-600"></i>
+                <p class="mt-4 font-bold text-gray-400">Suniye, products load ho rahe hain...</p>
+            </div>
+        </div>
     </main>
 
     <div class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-gray-100 flex justify-around items-center py-3 md:hidden z-[60] shadow-[0_-5px_20px_rgba(0,0,0,0.05)]">
@@ -137,47 +146,46 @@
 
     <div id="admin-modal" class="hidden fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl w-full max-w-xl p-6 max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-6 text-xl font-black">
-                <h2>Product Details</h2>
-                <button onclick="closeAdminModal()"><i class="fas fa-times text-gray-400"></i></button>
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-black" id="modal-heading">Add New Item</h2>
+                <button onclick="closeAdminModal()" class="text-gray-400"><i class="fas fa-times text-xl"></i></button>
             </div>
-            <form id="product-form" class="space-y-4">
+            <form id="product-form" class="space-y-4 text-sm">
                 <input type="hidden" id="edit-id">
-                <input type="text" id="p-name" placeholder="Name" class="w-full bg-gray-50 p-4 rounded-2xl outline-none font-bold border border-gray-100">
-                <input type="number" id="p-price" placeholder="Price (₹)" class="w-full bg-gray-50 p-4 rounded-2xl outline-none font-bold border border-gray-100">
-                <select id="p-cat" class="w-full bg-gray-50 p-4 rounded-2xl outline-none font-bold border border-gray-100">
-                    <option value="Jan Sewa">Jan Sewa</option>
-                    <option value="Mobiles">Mobiles</option>
-                    <option value="Laptops">Laptops</option>
-                    <option value="Accessories">Accessories</option>
-                    <option value="Repairing">Repairing</option>
-                </select>
-                <textarea id="p-desc" placeholder="Details" class="w-full bg-gray-50 p-4 rounded-2xl outline-none font-medium h-24 border border-gray-100"></textarea>
-                <input type="file" id="p-image-file" class="w-full text-xs" accept="image/*" onchange="previewImage(this)">
-                <p id="file-name" class="text-[10px] text-orange-500 font-bold"></p>
-                <button type="button" onclick="handleSave()" id="save-btn" class="w-full bg-orange-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest">Save Item</button>
+                <input type="text" id="p-name" placeholder="Product/Service Name" class="w-full bg-gray-50 p-4 rounded-2xl outline-none focus:ring-2 ring-orange-500 font-bold">
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="number" id="p-price" placeholder="Price (₹)" class="bg-gray-50 p-4 rounded-2xl outline-none font-bold">
+                    <select id="p-cat" class="bg-gray-50 p-4 rounded-2xl outline-none font-bold">
+                        <option value="Jan Sewa">Jan Sewa</option>
+                        <option value="Mobiles">Mobiles</option>
+                        <option value="Laptops">Laptops</option>
+                        <option value="Accessories">Accessories</option>
+                        <option value="Repairing">Repairing</option>
+                    </select>
+                </div>
+                <textarea id="p-desc" placeholder="Details..." class="w-full bg-gray-50 p-4 rounded-2xl outline-none font-medium h-24"></textarea>
+                <div class="border-2 border-dashed border-gray-100 p-8 rounded-2xl text-center">
+                    <input type="file" id="p-image-file" class="hidden" accept="image/*" onchange="previewImage(this)">
+                    <label for="p-image-file" class="cursor-pointer block">
+                        <i class="fas fa-image text-3xl text-orange-300 mb-2"></i>
+                        <p id="file-name" class="text-[10px] font-bold text-gray-400">TAP TO UPLOAD IMAGE</p>
+                    </label>
+                </div>
+                <button type="button" onclick="handleSave()" id="save-btn" class="w-full bg-orange-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest active:scale-95 transition">Save Product</button>
             </form>
         </div>
     </div>
 
     <div id="track-modal" class="hidden fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white p-8 rounded-[2.5rem] w-full max-w-sm text-center">
-            <h3 class="text-xl font-black mb-4">Track Order</h3>
-            <input type="tel" id="track-phone" placeholder="Phone / Order ID" class="w-full bg-gray-50 p-4 rounded-2xl text-center font-bold mb-4 outline-none border border-gray-100">
-            <button onclick="processTrack()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-lg">Track Now</button>
-            <div id="track-result" class="mt-4 p-4 rounded-2xl hidden font-bold text-sm"></div>
-            <button onclick="closeTracker()" class="mt-4 text-xs font-bold text-gray-400">CLOSE</button>
-        </div>
-    </div>
-
-    <div id="order-manager-modal" class="hidden fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-6 text-xl font-black border-b pb-4">
-                <h2><i class="fas fa-shopping-basket mr-2 text-orange-600"></i>Received Orders</h2>
-                <button onclick="closeOrderManager()"><i class="fas fa-times text-gray-400"></i></button>
+        <div class="bg-white p-8 rounded-[2.5rem] w-full max-w-sm text-center shadow-2xl">
+            <div class="bg-blue-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-location-crosshairs text-2xl text-blue-600"></i>
             </div>
-            <div id="order-list-body" class="space-y-4">
-                </div>
+            <h3 class="text-xl font-black mb-4">Track Your Order</h3>
+            <input type="tel" id="track-phone" placeholder="Phone Number / Order ID" class="w-full bg-gray-50 p-4 rounded-2xl text-center font-bold text-lg mb-4 outline-none border-2 border-transparent focus:border-blue-500">
+            <button onclick="processTrack()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-lg active:scale-95 transition">Track Now</button>
+            <div id="track-result" class="mt-4 p-4 rounded-2xl hidden font-bold text-sm"></div>
+            <button onclick="closeTracker()" class="mt-4 text-xs font-bold text-gray-400 uppercase tracking-widest">Close</button>
         </div>
     </div>
 
@@ -192,7 +200,7 @@
                 <span>Total:</span>
                 <span id="cart-total" class="text-orange-600">₹0</span>
             </div>
-            <button onclick="checkoutOrder()" class="w-full bg-gray-900 text-white py-4 rounded-2xl font-black">CHECKOUT VIA WHATSAPP</button>
+            <button onclick="checkoutOrder()" class="w-full bg-gray-900 text-white py-4 rounded-2xl font-black active:scale-95 transition">CHECKOUT VIA WHATSAPP</button>
         </div>
     </div>
 
@@ -227,20 +235,19 @@
         let orders = [];
         let currentFilter = 'All';
 
-        // Realtime Data Fetching
+        // Realtime Sync
         function syncData() {
-            db.collection("products").orderBy("updatedAt", "desc").onSnapshot((snapshot) => {
+            db.collection("products").onSnapshot((snapshot) => {
                 products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 displayProducts();
             });
-
             db.collection("orders").orderBy("createdAt", "desc").onSnapshot((snapshot) => {
                 orders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             });
         }
         syncData();
 
-        // Admin Access
+        // Admin Auth
         if(sessionStorage.getItem('isAdmin')) document.body.classList.add('is-admin');
 
         function checkAdminAccess() {
@@ -259,97 +266,154 @@
             location.reload();
         }
 
-        // Display Logic
+        // --- FIXED CRUD FUNCTIONS ---
+
+        // Edit Item Functionality
+        function editItem(id) {
+            const p = products.find(x => x.id === id);
+            if(!p) return;
+
+            // Form ko fill karein
+            document.getElementById('edit-id').value = p.id;
+            document.getElementById('p-name').value = p.name;
+            document.getElementById('p-price').value = p.price;
+            document.getElementById('p-cat').value = p.category;
+            document.getElementById('p-desc').value = p.desc || '';
+            document.getElementById('file-name').innerText = "PURANI IMAGE BARKARAAR HAI";
+            
+            // Modal labels update karein
+            document.getElementById('modal-heading').innerText = "Edit Product Details";
+            document.getElementById('save-btn').innerText = "Update Product";
+            
+            openAdminModal();
+        }
+
+        // Delete Item Functionality
+        async function deleteItem(id) {
+            if(confirm("Suniye, kya aap sach mein ye item delete karna chahte hain?")) {
+                try {
+                    await db.collection("products").doc(id).delete();
+                } catch(e) {
+                    alert("Delete karne mein error aaya!");
+                }
+            }
+        }
+
+        // Save/Update Handler
+        async function handleSave() {
+            const name = document.getElementById('p-name').value;
+            const price = parseInt(document.getElementById('p-price').value);
+            const cat = document.getElementById('p-cat').value;
+            const desc = document.getElementById('p-desc').value;
+            const file = document.getElementById('p-image-file').files[0];
+            const editId = document.getElementById('edit-id').value;
+
+            if(!name || !price) return alert("Suniye, details bharna zaroori hai!");
+            
+            const btn = document.getElementById('save-btn');
+            btn.innerHTML = `<i class="fas fa-spinner loader"></i> Processing...`;
+            btn.disabled = true;
+
+            // Purani image backup rakhein agar naya upload nahi ho raha
+            let imgUrl = editId ? products.find(p => p.id == editId).image : "https://via.placeholder.com/300";
+
+            if(file) {
+                const fd = new FormData();
+                fd.append('image', file);
+                try {
+                    const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: 'POST', body: fd });
+                    const data = await res.json();
+                    imgUrl = data.data.url;
+                } catch(e) { console.error("Upload failed"); }
+            }
+
+            const itemData = { 
+                name, 
+                price, 
+                category: cat, 
+                desc, 
+                image: imgUrl, 
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp() 
+            };
+
+            try {
+                if(editId) { 
+                    await db.collection("products").doc(editId).update(itemData); 
+                } else { 
+                    await db.collection("products").add(itemData); 
+                }
+                closeAdminModal();
+            } catch(e) { alert("Data save karne mein error aaya!"); }
+
+            btn.innerHTML = `Save Product`;
+            btn.disabled = false;
+        }
+
+        // UI & Filtering
         function displayProducts(filteredData = null) {
             const grid = document.getElementById('product-grid');
+            if (!grid) return;
             grid.innerHTML = '';
-            let data = filteredData || products.filter(p => currentFilter === 'All' || p.category === currentFilter);
             
-            data.forEach(p => {
-                const actionBtn = p.category === 'Repairing' 
-                    ? `<button onclick="window.open('https://wa.me/${WHATSAPP}?text=Suniye, mujhe ${p.name} ki repairing karwani hai.')" class="bg-blue-600 text-white px-3 py-2 rounded-xl text-[10px] font-black">INQUIRE</button>`
-                    : `<button onclick="addToCart('${p.id}')" class="bg-gray-900 text-white w-9 h-9 rounded-xl flex items-center justify-center"><i class="fas fa-plus text-xs"></i></button>`;
+            let dataToDisplay = filteredData || products.filter(p => currentFilter === 'All' || p.category === currentFilter);
+            
+            if(!dataToDisplay.length) {
+                grid.innerHTML = `<div class="col-span-full text-center py-20 text-gray-400 font-bold">Suniye, koi item nahi mila.</div>`;
+                return;
+            }
+
+            dataToDisplay.forEach(p => {
+                const isRepairing = p.category === 'Repairing';
+                const actionButton = isRepairing 
+                    ? `<button onclick="window.open('https://wa.me/${WHATSAPP}?text=Suniye, mujhe ${p.name} ki repairing ke baare mein poochna hai.')" class="bg-blue-600 text-white px-3 py-2 rounded-xl text-[10px] font-black uppercase">INQUIRE</button>`
+                    : `<button onclick="addToCart('${p.id}')" class="bg-gray-900 text-white w-9 h-9 rounded-xl flex items-center justify-center active:scale-90 transition"><i class="fas fa-plus text-xs"></i></button>`;
 
                 grid.innerHTML += `
-                <div class="product-card bg-white p-3 rounded-3xl shadow-sm border border-orange-50 relative group">
+                <div class="product-card bg-white p-3 rounded-3xl shadow-sm border border-orange-50 relative group overflow-hidden">
                     <div class="admin-only absolute top-2 right-2 flex space-x-1 z-10">
+                        <button onclick="editItem('${p.id}')" class="bg-blue-500 text-white w-7 h-7 rounded-lg text-[10px]"><i class="fas fa-pen"></i></button>
                         <button onclick="deleteItem('${p.id}')" class="bg-red-500 text-white w-7 h-7 rounded-lg text-[10px]"><i class="fas fa-trash"></i></button>
                     </div>
                     <div class="h-32 bg-gray-50 rounded-2xl mb-3 flex items-center justify-center overflow-hidden">
-                        <img src="${p.image}" class="w-full h-full object-contain">
+                        <img src="${p.image}" class="w-full h-full object-contain" onerror="this.src='https://via.placeholder.com/150'">
                     </div>
                     <span class="text-[8px] font-black uppercase text-orange-500 bg-orange-50 px-2 py-1 rounded-md">${p.category}</span>
                     <h4 class="font-black text-gray-800 mt-2 truncate text-sm">${p.name}</h4>
                     <div class="flex items-center justify-between mt-3">
-                        <span class="text-base font-black text-gray-900">₹${p.price}</span>
-                        ${actionBtn}
+                        <span class="text-base font-black text-gray-900">₹${Number(p.price || 0).toLocaleString()}</span>
+                        ${actionButton}
                     </div>
                 </div>`;
             });
         }
 
-        // --- ADMIN ORDER MANAGEMENT LOGIC ---
-        function openOrderManager() {
-            const list = document.getElementById('order-list-body');
-            list.innerHTML = '';
-            
-            if (orders.length === 0) {
-                list.innerHTML = `<div class="text-center py-10 text-gray-400 font-bold">Suniye, abhi tak koi order nahi mila hai.</div>`;
-            } else {
-                orders.forEach((o) => {
-                    const itemsText = o.items ? o.items.join(", ") : "No items";
-                    const date = o.createdAt ? new Date(o.createdAt.seconds * 1000).toLocaleString() : "Recently";
-                    
-                    list.innerHTML += `
-                    <div class="bg-gray-50 p-4 rounded-3xl border border-gray-100 shadow-sm mb-4">
-                        <div class="flex justify-between items-start mb-2">
-                            <div>
-                                <span class="bg-orange-600 text-white text-[9px] px-2 py-1 rounded-full font-black uppercase">#${o.orderId}</span>
-                                <p class="text-[10px] text-gray-400 mt-1">${date}</p>
-                            </div>
-                            <span class="text-orange-600 font-black">₹${o.total}</span>
-                        </div>
-                        <div class="space-y-1 mb-3">
-                            <p class="text-xs font-black text-gray-800"><i class="fas fa-user mr-2 opacity-30"></i>${o.name}</p>
-                            <p class="text-xs font-bold text-gray-600"><i class="fas fa-phone mr-2 opacity-30"></i>${o.phone}</p>
-                            <p class="text-[11px] text-gray-500 italic"><i class="fas fa-map-marker-alt mr-2 opacity-30"></i>${o.address}</p>
-                        </div>
-                        <div class="bg-white p-3 rounded-2xl border border-dashed border-orange-200 mb-3">
-                            <p class="text-[9px] font-black text-orange-500 uppercase mb-1">Items Ordered:</p>
-                            <p class="text-[11px] font-bold text-gray-700">${itemsText}</p>
-                        </div>
-                        <div class="flex gap-2">
-                            <select onchange="updateOrderStatus('${o.id}', this.value)" class="flex-1 bg-white border p-2 rounded-xl text-[10px] font-bold outline-none">
-                                <option value="" disabled selected>Status: ${o.status}</option>
-                                <option value="Processing">Processing</option>
-                                <option value="Shipped">Shipped</option>
-                                <option value="Completed">Completed</option>
-                                <option value="Cancelled">Cancelled</option>
-                            </select>
-                            <button onclick="deleteOrder('${o.id}')" class="bg-red-50 text-red-500 px-3 rounded-xl"><i class="fas fa-trash-alt text-xs"></i></button>
-                        </div>
-                    </div>`;
-                });
-            }
-            document.getElementById('order-manager-modal').classList.remove('hidden');
+        // Other Helpers
+        function handleSearch(query) {
+            const term = query.toLowerCase().trim();
+            if (term === "") { displayProducts(); return; }
+            const filtered = products.filter(p => 
+                (p.name && p.name.toLowerCase().includes(term)) || 
+                (p.category && p.category.toLowerCase().includes(term)) ||
+                (p.desc && p.desc.toLowerCase().includes(term))
+            );
+            displayProducts(filtered);
         }
 
-        async function updateOrderStatus(id, newStatus) {
-            await db.collection("orders").doc(id).update({ status: newStatus });
-            alert("Order status updated!");
+        function filterCat(cat) {
+            currentFilter = cat;
+            document.getElementById('category-title').innerText = cat === 'All' ? 'Featured Products' : cat;
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('text-orange-600', 'border-b-2', 'border-orange-600');
+                if(btn.innerText.trim() === cat) btn.classList.add('text-orange-600', 'border-b-2', 'border-orange-600');
+            });
+            displayProducts();
         }
 
-        async function deleteOrder(id) {
-            if(confirm("Suniye, kya aap is order ko delete karna chahte hain?")) {
-                await db.collection("orders").doc(id).delete();
-            }
-        }
-
-        // Cart & Checkout
         function addToCart(id) {
-            const p = products.find(x => x.id === id);
-            cart.push(p);
+            const item = products.find(x => x.id === id);
+            cart.push(item);
             updateCartUI();
+            toggleCart();
         }
 
         function updateCartUI() {
@@ -358,9 +422,9 @@
             container.innerHTML = '';
             let total = 0;
             cart.forEach((item, idx) => {
-                total += Number(item.price);
+                total += Number(item.price || 0);
                 container.innerHTML += `
-                <div class="flex items-center space-x-3 bg-gray-50 p-3 rounded-2xl">
+                <div class="flex items-center space-x-3 bg-gray-50 p-3 rounded-2xl border border-gray-100">
                     <img src="${item.image}" class="w-10 h-10 object-cover rounded-lg">
                     <div class="flex-1 text-xs font-bold">
                         <h5 class="truncate w-32">${item.name}</h5>
@@ -377,88 +441,50 @@
             const name = prompt("Aapka naam?");
             const phone = prompt("WhatsApp number?");
             const address = prompt("Address?");
-            if(!name || !phone || !address) return alert("Suniye, details dena zaroori hai!");
+            if(!name || !phone || !address) return;
 
             const orderId = "SJI-" + Math.floor(1000 + Math.random() * 9000);
-            const total = document.getElementById('cart-total').innerText.replace('₹', '');
+            const total = document.getElementById('cart-total').innerText;
             
-            const newOrder = { 
-                orderId, name, phone, address, total, 
-                status: 'Processing', 
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(), 
-                items: cart.map(i => i.name) 
-            };
+            const newOrder = { orderId, name, phone, address, total, status: 'Processing', createdAt: firebase.firestore.FieldValue.serverTimestamp(), items: cart.map(i => i.name) };
             
             await db.collection("orders").add(newOrder);
-            const msg = `*Naya Order (Shree Ji)*%0A*ID:* ${orderId}%0A*Naam:* ${name}%0A*Items:* ${cart.map(i => i.name).join(", ")}%0A*Total:* ₹${total}`;
+            const msg = `*Naya Order (Shree Ji)*%0A*ID:* ${orderId}%0A*Naam:* ${name}%0A*Total:* ${total}`;
             window.open(`https://wa.me/${WHATSAPP}?text=${msg}`, '_blank');
             cart = []; updateCartUI(); toggleCart();
-            alert(`Suniye ${name}, order place ho gaya! ID: ${orderId}`);
-        }
-
-        // Helpers
-        async function handleSave() {
-            const name = document.getElementById('p-name').value;
-            const price = document.getElementById('p-price').value;
-            const cat = document.getElementById('p-cat').value;
-            const desc = document.getElementById('p-desc').value;
-            const file = document.getElementById('p-image-file').files[0];
-
-            if(!name || !price || !file) return alert("Suniye, photo aur details dono chahiye!");
-
-            const btn = document.getElementById('save-btn');
-            btn.innerHTML = "Uploading..."; btn.disabled = true;
-
-            const fd = new FormData();
-            fd.append('image', file);
-            const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: 'POST', body: fd });
-            const data = await res.json();
-
-            await db.collection("products").add({
-                name, price, category: cat, desc, image: data.data.url, updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-
-            btn.innerHTML = "Save Item"; btn.disabled = false;
-            closeAdminModal();
+            alert(`Suniye ${name}, order ho gaya! ID: ${orderId}`);
         }
 
         function processTrack() {
-            const val = document.getElementById('track-phone').value;
-            const o = orders.find(x => x.phone === val || x.orderId === val || x.orderId === "SJI-"+val);
-            const res = document.getElementById('track-result');
-            res.classList.remove('hidden');
+            const phone = document.getElementById('track-phone').value;
+            const o = orders.find(o => o.phone === phone || o.orderId === phone || o.orderId === "SJI-"+phone);
+            const resDiv = document.getElementById('track-result');
+            resDiv.classList.remove('hidden');
             if(o) {
-                res.innerHTML = `ORDER: #${o.orderId}<br>STATUS: ${o.status}`;
-                res.className = "mt-4 p-4 rounded-2xl bg-green-50 text-green-700 block text-xs";
+                resDiv.className = "mt-4 p-4 rounded-2xl bg-green-50 text-green-700 block";
+                resDiv.innerHTML = `Order #${o.orderId}<br>Status: ${o.status}`;
             } else {
-                res.innerHTML = "Order nahi mila!";
-                res.className = "mt-4 p-4 rounded-2xl bg-red-50 text-red-700 block text-xs";
+                resDiv.className = "mt-4 p-4 rounded-2xl bg-red-50 text-red-700 block";
+                resDiv.innerHTML = "Humein koi order nahi mila.";
             }
         }
 
-        function filterCat(cat) {
-            currentFilter = cat;
-            document.getElementById('category-title').innerText = cat;
-            displayProducts();
-        }
-
-        async function deleteItem(id) {
-            if(confirm("Suniye, kya aap ise delete karna chahte hain?")) await db.collection("products").doc(id).delete();
-        }
-
-        function handleSearch(q) {
-            const term = q.toLowerCase();
-            const filtered = products.filter(p => p.name.toLowerCase().includes(term) || p.category.toLowerCase().includes(term));
-            displayProducts(filtered);
-        }
-
+        // Modal Controls
         function toggleCart() { document.getElementById('cart-drawer').classList.toggle('translate-x-full'); }
-        function openAdminModal() { document.getElementById('admin-modal').classList.remove('hidden'); }
-        function closeAdminModal() { document.getElementById('admin-modal').classList.add('hidden'); }
+        function openAdminModal() { 
+            document.getElementById('admin-modal').classList.remove('hidden'); 
+        }
+        function closeAdminModal() { 
+            document.getElementById('admin-modal').classList.add('hidden');
+            document.getElementById('product-form').reset();
+            document.getElementById('edit-id').value = '';
+            document.getElementById('modal-heading').innerText = "Add New Item";
+            document.getElementById('save-btn').innerText = "Save Product";
+            document.getElementById('file-name').innerText = "TAP TO UPLOAD IMAGE";
+        }
         function openTracker() { document.getElementById('track-modal').classList.remove('hidden'); }
         function closeTracker() { document.getElementById('track-modal').classList.add('hidden'); }
-        function closeOrderManager() { document.getElementById('order-manager-modal').classList.add('hidden'); }
-        function previewImage(i) { if(i.files[0]) document.getElementById('file-name').innerText = i.files[0].name; }
+        function previewImage(input) { if(input.files[0]) document.getElementById('file-name').innerText = input.files[0].name; }
     </script>
     <footer class="bg-gray-900 text-white pt-12 pb-24 md:pb-12 mt-12">
         <div class="container mx-auto px-6">
