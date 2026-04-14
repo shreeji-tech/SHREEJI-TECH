@@ -32,9 +32,9 @@
         .brand-logo { width: 45px; height: 45px; object-fit: cover; border-radius: 10px; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         
-        /* New Styles for Ticker */
+        /* Ticker Animation */
         .ticker-wrapper { overflow: hidden; background: #fff7ed; border-bottom: 1px solid #ffedd5; }
-        .ticker-content { display: inline-block; white-space: nowrap; animation: ticker 20s linear infinite; }
+        .ticker-content { display: inline-block; white-space: nowrap; animation: ticker 25s linear infinite; }
         @keyframes ticker { 
             0% { transform: translateX(100%); } 
             100% { transform: translateX(-100%); } 
@@ -70,7 +70,6 @@
                 </div>
             </div>
             <div class="flex items-center space-x-4">
-                <button onclick="startVoice()" class="text-gray-500 hover:text-orange-600 p-2"><i class="fas fa-microphone text-lg"></i></button>
                 <div class="relative cursor-pointer group" onclick="toggleCart()">
                     <i class="fas fa-shopping-bag text-xl text-gray-700"></i>
                     <span id="cart-count" class="absolute -top-1 -right-1 bg-orange-600 text-white text-[9px] rounded-full w-4 h-4 flex items-center justify-center font-bold">0</span>
@@ -80,14 +79,14 @@
         </div>
         <div class="px-4 pb-3">
             <div class="relative">
-                <input type="text" id="ai-input-mobile" onkeyup="handleSearch(this.value)" placeholder="Suniye, kya dhoondh rahe hain aap?..." class="w-full bg-gray-100 border-none p-3 rounded-xl outline-none text-sm pl-10 focus:ring-2 ring-orange-200">
+                <input type="text" id="ai-input-mobile" oninput="handleSearch(this.value)" placeholder="Suniye, kya dhoondh rahe hain aap?..." class="w-full bg-gray-100 border-none p-3 rounded-xl outline-none text-sm pl-10 focus:ring-2 ring-orange-200">
                 <i class="fas fa-search absolute left-3 top-3.5 text-gray-400 text-sm"></i>
             </div>
         </div>
     </header>
 
     <section class="container mx-auto px-4 my-4">
-        <div class="bg-gradient-to-br from-orange-600 to-orange-50 rounded-3xl p-6 text-white shadow-lg relative overflow-hidden" style="background: linear-gradient(135deg, #ea580c 0%, #f97316 100%);">
+        <div class="bg-gradient-to-br from-orange-600 to-orange-50 rounded-3xl p-6 text-white shadow-lg relative overflow-hidden">
             <div class="relative z-10">
                 <h2 class="text-xl font-black">Shree Ji Official App</h2>
                 <p class="text-xs opacity-90 mb-4">Behtar experience ke liye app install karein.</p>
@@ -217,41 +216,9 @@
     </div>
 
     <footer class="bg-gray-900 text-white pt-12 pb-24 md:pb-12 mt-12">
-        <div class="container mx-auto px-6">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-8">
-                <div class="space-y-4">
-                    <h2 class="text-2xl font-black tracking-tighter italic">SHREE JI</h2>
-                    <p class="text-gray-400 text-sm leading-relaxed">Aapki apni digital shop. Best quality refurbished laptops aur Jan Sewa services Gorakhpur mein.</p>
-                    <div class="flex space-x-4 pt-2">
-                        <a href="https://www.instagram.com/shreeradhejansewakendra" target="_blank" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-orange-600 transition shadow-lg">
-                            <i class="fab fa-instagram"></i>
-                        </a>
-                        <a href="https://wa.me/917052055713" target="_blank" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-green-600 transition shadow-lg">
-                            <i class="fab fa-whatsapp"></i>
-                        </a>
-                    </div>
-                </div>
-                <div>
-                    <h4 class="text-lg font-bold mb-6 border-b border-gray-800 pb-2 inline-block text-orange-500">Popular Services</h4>
-                    <ul class="space-y-3 text-gray-400 text-sm">
-                        <li><a href="#" class="hover:text-white transition">Jan Sewa Kendra</a></li>
-                        <li><a href="#" class="hover:text-white transition">Laptop Repairing</a></li>
-                        <li><a href="#" class="hover:text-white transition">Mobile Accessories</a></li>
-                        <li><a href="#" class="hover:text-white transition">PVC Aadhar Card</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="text-lg font-bold mb-6 border-b border-gray-800 pb-2 inline-block text-orange-500">Locate Us</h4>
-                    <div class="rounded-2xl overflow-hidden h-32 mb-4 grayscale">
-                        <iframe 
-                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3562.6841205364415!2d83.3985012!3d26.754865!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3991440f3b79318d%3A0xc3991440f3b79318d!2sBichhiya%2C%20Gorakhpur%2C%20Uttar%20Pradesh!5e0!3m2!1sen!2sin!4v1713110000000" 
-                            width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
-                    </div>
-                    <p class="text-gray-400 text-[10px]"><i class="fas fa-map-marker-alt mr-2"></i> Adarsh Nagar, Bichhiya, Gorakhpur, UP</p>
-                </div>
-            </div>
-            <div class="text-center pt-8 border-t border-gray-800 text-[10px] text-gray-500 font-bold tracking-widest uppercase">
-                &copy; 2026 SHREE JI JAN SEWA. Designed for Aap.
+        <div class="container mx-auto px-6 text-center">
+            <div class="text-[10px] text-gray-500 font-bold tracking-widest uppercase">
+                © 2026 SHREE JI JAN SEWA • Gorakhpur, UP
             </div>
         </div>
     </footer>
@@ -289,16 +256,19 @@
                 orders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             });
         }
+        syncData();
 
-        // Admin Access
+        // Admin Auth Check
+        if(sessionStorage.getItem('isAdmin')) document.body.classList.add('is-admin');
+
         function checkAdminAccess() {
             let p = prompt("Suniye, Secret Key enter karein:");
             if(p === ADMIN_PASS) {
                 sessionStorage.setItem('isAdmin', 'true');
                 document.body.classList.add('is-admin');
-                alert("Radhe Radhe! Aapko admin access mil gaya hai.");
+                alert("Radhe Radhe! Admin access mil gaya.");
             } else if(p !== null) {
-                alert("Suniye, galat password hai!");
+                alert("Galat password!");
             }
         }
 
@@ -307,48 +277,16 @@
             location.reload();
         }
 
-        // Display Logic
-        function displayProducts(filteredData = null) {
-            const grid = document.getElementById('product-grid');
-            grid.innerHTML = '';
-            let dataToDisplay = filteredData || products.filter(p => currentFilter === 'All' || p.category === currentFilter);
-            
-            if(!dataToDisplay.length) {
-                grid.innerHTML = `<div class="col-span-full text-center py-20 text-gray-400 font-bold">Suniye, koi item nahi mila.</div>`;
+        // Search Logic Fix
+        function handleSearch(query) {
+            const term = query.toLowerCase().trim();
+            if (term === "") {
+                displayProducts();
                 return;
             }
-
-            dataToDisplay.forEach(p => {
-                const isRepairing = p.category === 'Repairing';
-                const actionButton = isRepairing 
-                    ? `<button onclick="window.open('https://wa.me/${WHATSAPP}?text=Suniye, mujhe ${p.name} ki repairing ke baare mein poochna hai.')" class="bg-blue-600 text-white px-3 py-2 rounded-xl text-[10px] font-black shadow-md">INQUIRE</button>`
-                    : `<button onclick="addToCart('${p.id}')" class="bg-gray-900 text-white w-9 h-9 rounded-xl flex items-center justify-center shadow-md hover:bg-orange-600 transition"><i class="fas fa-plus text-xs"></i></button>`;
-
-                grid.innerHTML += `
-                <div class="product-card bg-white p-3 rounded-3xl shadow-sm border border-orange-50 relative group overflow-hidden">
-                    <div class="admin-only absolute top-2 right-2 flex space-x-1 z-10">
-                        <button onclick="editItem('${p.id}')" class="bg-blue-500 text-white w-7 h-7 rounded-lg text-[10px]"><i class="fas fa-pen"></i></button>
-                        <button onclick="deleteItem('${p.id}')" class="bg-red-500 text-white w-7 h-7 rounded-lg text-[10px]"><i class="fas fa-trash"></i></button>
-                    </div>
-                    <div class="h-32 bg-gray-50 rounded-2xl mb-3 flex items-center justify-center overflow-hidden">
-                        <img src="${p.image}" class="w-full h-full object-contain group-hover:scale-110 transition duration-500" onerror="this.src='https://via.placeholder.com/150'">
-                    </div>
-                    <span class="text-[8px] font-black uppercase text-orange-500 bg-orange-50 px-2 py-1 rounded-md tracking-wider">${p.category}</span>
-                    <h4 class="font-black text-gray-800 mt-2 truncate text-sm">${p.name}</h4>
-                    <div class="flex items-center justify-between mt-3">
-                        <span class="text-base font-black text-gray-900">₹${Number(p.price || 0).toLocaleString()}</span>
-                        ${actionButton}
-                    </div>
-                </div>`;
-            });
-        }
-
-        // Search & Filter
-        function handleSearch(query) {
-            const term = query.toLowerCase();
             const filtered = products.filter(p => 
-                p.name.toLowerCase().includes(term) || 
-                p.category.toLowerCase().includes(term) ||
+                (p.name && p.name.toLowerCase().includes(term)) || 
+                (p.category && p.category.toLowerCase().includes(term)) ||
                 (p.desc && p.desc.toLowerCase().includes(term))
             );
             displayProducts(filtered);
@@ -364,13 +302,44 @@
             displayProducts();
         }
 
-        function sortByPrice(val) {
-            if(val === 'low') products.sort((a,b) => a.price - b.price);
-            if(val === 'high') products.sort((a,b) => b.price - a.price);
-            displayProducts();
+        function displayProducts(filteredData = null) {
+            const grid = document.getElementById('product-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+            
+            let dataToDisplay = filteredData || products.filter(p => currentFilter === 'All' || p.category === currentFilter);
+            
+            if(!dataToDisplay.length) {
+                grid.innerHTML = `<div class="col-span-full text-center py-20 text-gray-400 font-bold">Suniye, koi item nahi mila.</div>`;
+                return;
+            }
+
+            dataToDisplay.forEach(p => {
+                const isRepairing = p.category === 'Repairing';
+                const actionButton = isRepairing 
+                    ? `<button onclick="window.open('https://wa.me/${WHATSAPP}?text=Suniye, mujhe ${p.name} ki repairing ke baare mein poochna hai.')" class="bg-blue-600 text-white px-3 py-2 rounded-xl text-[10px] font-black">INQUIRE</button>`
+                    : `<button onclick="addToCart('${p.id}')" class="bg-gray-900 text-white w-9 h-9 rounded-xl flex items-center justify-center"><i class="fas fa-plus text-xs"></i></button>`;
+
+                grid.innerHTML += `
+                <div class="product-card bg-white p-3 rounded-3xl shadow-sm border border-orange-50 relative group overflow-hidden">
+                    <div class="admin-only absolute top-2 right-2 flex space-x-1 z-10">
+                        <button onclick="editItem('${p.id}')" class="bg-blue-500 text-white w-7 h-7 rounded-lg text-[10px]"><i class="fas fa-pen"></i></button>
+                        <button onclick="deleteItem('${p.id}')" class="bg-red-500 text-white w-7 h-7 rounded-lg text-[10px]"><i class="fas fa-trash"></i></button>
+                    </div>
+                    <div class="h-32 bg-gray-50 rounded-2xl mb-3 flex items-center justify-center overflow-hidden">
+                        <img src="${p.image}" class="w-full h-full object-contain" onerror="this.src='https://via.placeholder.com/150'">
+                    </div>
+                    <span class="text-[8px] font-black uppercase text-orange-500 bg-orange-50 px-2 py-1 rounded-md">${p.category}</span>
+                    <h4 class="font-black text-gray-800 mt-2 truncate text-sm">${p.name}</h4>
+                    <div class="flex items-center justify-between mt-3">
+                        <span class="text-base font-black text-gray-900">₹${Number(p.price || 0).toLocaleString()}</span>
+                        ${actionButton}
+                    </div>
+                </div>`;
+            });
         }
 
-        // CRUD Operations
+        // CRUD & Other Helpers
         async function handleSave() {
             const name = document.getElementById('p-name').value;
             const price = parseInt(document.getElementById('p-price').value);
@@ -397,39 +366,18 @@
                 } catch(e) { console.error("Upload failed"); }
             }
 
-            const itemData = { 
-                name, price, category: cat, desc, image: imgUrl, 
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp() 
-            };
+            const itemData = { name, price, category: cat, desc, image: imgUrl, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
 
             try {
                 if(editId) { await db.collection("products").doc(editId).update(itemData); } 
                 else { await db.collection("products").add(itemData); }
                 closeAdminModal();
-            } catch(e) { alert("Suniye, error aa gaya!"); }
+            } catch(e) { alert("Error aa gaya!"); }
 
             btn.innerHTML = `Save Product`;
             btn.disabled = false;
         }
 
-        async function deleteItem(id) {
-            if(confirm("Suniye, kya aap sach mein ise delete karna chahte hain?")) {
-                await db.collection("products").doc(id).delete();
-            }
-        }
-
-        function editItem(id) {
-            const p = products.find(x => x.id === id);
-            document.getElementById('modal-heading').innerText = "Edit Item";
-            document.getElementById('edit-id').value = p.id;
-            document.getElementById('p-name').value = p.name;
-            document.getElementById('p-price').value = p.price;
-            document.getElementById('p-cat').value = p.category;
-            document.getElementById('p-desc').value = p.desc;
-            openAdminModal();
-        }
-
-        // Cart & Checkout
         function addToCart(id) {
             cart.push(products.find(x => x.id === id));
             updateCartUI();
@@ -457,30 +405,24 @@
         }
 
         async function checkoutOrder() {
-            if(!cart.length) return alert("Suniye, aapka cart khali hai!");
-            const name = prompt("Suniye, aapka naam kya hai?");
-            const phone = prompt("Aapka WhatsApp number?");
-            const address = prompt("Delivery address?");
-            if(!name || !phone || !address) return alert("Suniye, saari details dena zaroori hai!");
+            if(!cart.length) return alert("Cart khali hai!");
+            const name = prompt("Aapka naam?");
+            const phone = prompt("WhatsApp number?");
+            const address = prompt("Address?");
+            if(!name || !phone || !address) return;
 
             const orderId = "SJI-" + Math.floor(1000 + Math.random() * 9000);
             const total = document.getElementById('cart-total').innerText;
             
-            const newOrder = { 
-                orderId, name, phone, address, total, 
-                status: 'Processing', 
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                items: cart.map(i => i.name)
-            };
+            const newOrder = { orderId, name, phone, address, total, status: 'Processing', createdAt: firebase.firestore.FieldValue.serverTimestamp(), items: cart.map(i => i.name) };
             
             await db.collection("orders").add(newOrder);
-            const msg = `*Naya Order (Shree Ji)*%0A%0A*ID:* ${orderId}%0A*Naam:* ${name}%0A*Mobile:* ${phone}%0A*Items:* ${cart.map(i => i.name).join(', ')}%0A*Total:* ${total}`;
+            const msg = `*Naya Order (Shree Ji)*%0A*ID:* ${orderId}%0A*Naam:* ${name}%0A*Total:* ${total}`;
             window.open(`https://wa.me/${WHATSAPP}?text=${msg}`, '_blank');
             cart = []; updateCartUI(); toggleCart();
-            alert(`Suniye ${name}, aapka order place ho gaya hai! ID: ${orderId}`);
+            alert(`Suniye ${name}, order ho gaya! ID: ${orderId}`);
         }
 
-        // Tracker Logic
         function processTrack() {
             const phone = document.getElementById('track-phone').value;
             const o = orders.find(o => o.phone === phone || o.orderId === phone || o.orderId === "SJI-"+phone);
@@ -488,79 +430,20 @@
             resDiv.classList.remove('hidden');
             if(o) {
                 resDiv.className = "mt-4 p-4 rounded-2xl bg-green-50 text-green-700 block";
-                resDiv.innerHTML = `Order #${o.orderId}<br>Status: <span class='font-black'>${o.status}</span>`;
+                resDiv.innerHTML = `Order #${o.orderId}<br>Status: ${o.status}`;
             } else {
                 resDiv.className = "mt-4 p-4 rounded-2xl bg-red-50 text-red-700 block";
-                resDiv.innerHTML = "Suniye, humein is ID se koi order nahi mila.";
+                resDiv.innerHTML = "Humein koi order nahi mila.";
             }
         }
 
-        // Order Management for Admin
-        function openOrderManager() {
-            const list = document.getElementById('order-list-body');
-            list.innerHTML = '';
-            orders.forEach((o) => {
-                list.innerHTML += `
-                <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100 text-xs font-bold relative">
-                    <span class="absolute top-4 right-4 bg-orange-100 text-orange-600 px-2 py-1 rounded">#${o.orderId}</span>
-                    <p class="text-gray-800 text-sm mb-1">${o.name} (${o.phone})</p>
-                    <p class="text-gray-500 mb-1">${o.address}</p>
-                    <p class="text-orange-600 mb-3">${o.total}</p>
-                    <div class="flex space-x-2">
-                        <select onchange="updateOrderStatus('${o.id}', this.value)" class="bg-white border p-2 rounded-lg outline-none">
-                            <option value="">Status: ${o.status}</option>
-                            <option value="Shipped">Shipped</option>
-                            <option value="Completed">Completed</option>
-                            <option value="Cancelled">Cancelled</option>
-                        </select>
-                        <button onclick="deleteOrder('${o.id}')" class="text-red-500 p-2">Delete</button>
-                    </div>
-                </div>`;
-            });
-            document.getElementById('order-manager-modal').classList.remove('hidden');
-        }
-
-        async function updateOrderStatus(id, status) {
-            if(!status) return;
-            await db.collection("orders").doc(id).update({ status });
-        }
-
-        async function deleteOrder(id) {
-            if(confirm("Suniye, kya aap is order ko delete karna chahte hain?")) {
-                await db.collection("orders").doc(id).delete();
-                openOrderManager();
-            }
-        }
-
-        // Helper Functions
         function toggleCart() { document.getElementById('cart-drawer').classList.toggle('translate-x-full'); }
-        function openAdminModal() { 
-            document.getElementById('modal-heading').innerText = "Add New Item";
-            document.getElementById('edit-id').value = "";
-            document.getElementById('product-form').reset();
-            document.getElementById('admin-modal').classList.remove('hidden'); 
-        }
+        function openAdminModal() { document.getElementById('admin-modal').classList.remove('hidden'); }
         function closeAdminModal() { document.getElementById('admin-modal').classList.add('hidden'); }
         function openTracker() { document.getElementById('track-modal').classList.remove('hidden'); }
         function closeTracker() { document.getElementById('track-modal').classList.add('hidden'); }
         function closeOrderManager() { document.getElementById('order-manager-modal').classList.add('hidden'); }
         function previewImage(input) { if(input.files[0]) document.getElementById('file-name').innerText = input.files[0].name; }
-
-        function startVoice() {
-            const rec = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-            rec.lang = 'hi-IN';
-            rec.start();
-            rec.onresult = (e) => { 
-                const text = e.results[0][0].transcript;
-                document.getElementById('ai-input-mobile').value = text;
-                handleSearch(text);
-            };
-        }
-
-        window.onload = () => {
-            if(sessionStorage.getItem('isAdmin')) document.body.classList.add('is-admin');
-            syncData();
-        };
     </script>
     <footer class="bg-gray-900 text-white pt-12 pb-24 md:pb-12 mt-12">
         <div class="container mx-auto px-6">
