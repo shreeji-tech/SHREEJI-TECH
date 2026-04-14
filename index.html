@@ -204,8 +204,8 @@
         </div>
     </div>
 
-    <footer class="bg-gray-900 text-white pt-12 pb-24 md:pb-12 mt-12">
-        <div class="container mx-auto px-6 text-center">
+    <footer class="bg-gray-900 text-white pt-12 pb-24 md:pb-12 mt-12 text-center">
+        <div class="container mx-auto px-6">
             <div class="text-[10px] text-gray-500 font-bold tracking-widest uppercase">
                 © 2026 SHREE JI JAN SEWA • Gorakhpur, UP
             </div>
@@ -235,7 +235,7 @@
         let orders = [];
         let currentFilter = 'All';
 
-        // Realtime Sync
+        // Realtime Data Sync
         function syncData() {
             db.collection("products").onSnapshot((snapshot) => {
                 products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -247,7 +247,7 @@
         }
         syncData();
 
-        // Admin Auth
+        // Admin Access
         if(sessionStorage.getItem('isAdmin')) document.body.classList.add('is-admin');
 
         function checkAdminAccess() {
@@ -256,50 +256,13 @@
                 sessionStorage.setItem('isAdmin', 'true');
                 document.body.classList.add('is-admin');
                 alert("Radhe Radhe! Admin access mil gaya.");
-            } else if(p !== null) {
-                alert("Galat password!");
-            }
+            } else if(p !== null) { alert("Galat password!"); }
         }
 
-        function logout() {
-            sessionStorage.removeItem('isAdmin');
-            location.reload();
-        }
+        function logout() { sessionStorage.removeItem('isAdmin'); location.reload(); }
 
-        // --- FIXED CRUD FUNCTIONS ---
+        // --- CRUD LOGIC ---
 
-        // Edit Item Functionality
-        function editItem(id) {
-            const p = products.find(x => x.id === id);
-            if(!p) return;
-
-            // Form ko fill karein
-            document.getElementById('edit-id').value = p.id;
-            document.getElementById('p-name').value = p.name;
-            document.getElementById('p-price').value = p.price;
-            document.getElementById('p-cat').value = p.category;
-            document.getElementById('p-desc').value = p.desc || '';
-            document.getElementById('file-name').innerText = "PURANI IMAGE BARKARAAR HAI";
-            
-            // Modal labels update karein
-            document.getElementById('modal-heading').innerText = "Edit Product Details";
-            document.getElementById('save-btn').innerText = "Update Product";
-            
-            openAdminModal();
-        }
-
-        // Delete Item Functionality
-        async function deleteItem(id) {
-            if(confirm("Suniye, kya aap sach mein ye item delete karna chahte hain?")) {
-                try {
-                    await db.collection("products").doc(id).delete();
-                } catch(e) {
-                    alert("Delete karne mein error aaya!");
-                }
-            }
-        }
-
-        // Save/Update Handler
         async function handleSave() {
             const name = document.getElementById('p-name').value;
             const price = parseInt(document.getElementById('p-price').value);
@@ -308,13 +271,12 @@
             const file = document.getElementById('p-image-file').files[0];
             const editId = document.getElementById('edit-id').value;
 
-            if(!name || !price) return alert("Suniye, details bharna zaroori hai!");
+            if(!name || !price) return alert("Details bharna zaroori hai!");
             
             const btn = document.getElementById('save-btn');
             btn.innerHTML = `<i class="fas fa-spinner loader"></i> Processing...`;
             btn.disabled = true;
 
-            // Purani image backup rakhein agar naya upload nahi ho raha
             let imgUrl = editId ? products.find(p => p.id == editId).image : "https://via.placeholder.com/300";
 
             if(file) {
@@ -327,49 +289,58 @@
                 } catch(e) { console.error("Upload failed"); }
             }
 
-            const itemData = { 
-                name, 
-                price, 
-                category: cat, 
-                desc, 
-                image: imgUrl, 
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp() 
-            };
+            const itemData = { name, price, category: cat, desc, image: imgUrl, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
 
             try {
-                if(editId) { 
-                    await db.collection("products").doc(editId).update(itemData); 
-                } else { 
-                    await db.collection("products").add(itemData); 
-                }
+                if(editId) { await db.collection("products").doc(editId).update(itemData); } 
+                else { await db.collection("products").add(itemData); }
                 closeAdminModal();
-            } catch(e) { alert("Data save karne mein error aaya!"); }
+            } catch(e) { alert("Error saving data."); }
 
             btn.innerHTML = `Save Product`;
             btn.disabled = false;
         }
 
-        // UI & Filtering
+        function editItem(id) {
+            const p = products.find(x => x.id === id);
+            if(!p) return;
+            document.getElementById('edit-id').value = p.id;
+            document.getElementById('p-name').value = p.name;
+            document.getElementById('p-price').value = p.price;
+            document.getElementById('p-cat').value = p.category;
+            document.getElementById('p-desc').value = p.desc || '';
+            document.getElementById('modal-heading').innerText = "Edit Item";
+            document.getElementById('save-btn').innerText = "Update Product";
+            openAdminModal();
+        }
+
+        async function deleteItem(id) {
+            if(confirm("Suniye, kya aap ise delete karna chahte hain?")) {
+                await db.collection("products").doc(id).delete();
+            }
+        }
+
+        // --- DISPLAY & SEARCH ---
+
         function displayProducts(filteredData = null) {
             const grid = document.getElementById('product-grid');
             if (!grid) return;
             grid.innerHTML = '';
+            let data = filteredData || products.filter(p => currentFilter === 'All' || p.category === currentFilter);
             
-            let dataToDisplay = filteredData || products.filter(p => currentFilter === 'All' || p.category === currentFilter);
-            
-            if(!dataToDisplay.length) {
-                grid.innerHTML = `<div class="col-span-full text-center py-20 text-gray-400 font-bold">Suniye, koi item nahi mila.</div>`;
+            if(!data.length) {
+                grid.innerHTML = `<div class="col-span-full text-center py-20 font-bold text-gray-400">Koi item nahi mila.</div>`;
                 return;
             }
 
-            dataToDisplay.forEach(p => {
-                const isRepairing = p.category === 'Repairing';
-                const actionButton = isRepairing 
-                    ? `<button onclick="window.open('https://wa.me/${WHATSAPP}?text=Suniye, mujhe ${p.name} ki repairing ke baare mein poochna hai.')" class="bg-blue-600 text-white px-3 py-2 rounded-xl text-[10px] font-black uppercase">INQUIRE</button>`
+            data.forEach(p => {
+                const isRep = p.category === 'Repairing';
+                const actionBtn = isRep 
+                    ? `<button onclick="window.open('https://wa.me/${WHATSAPP}?text=Suniye, mujhe ${p.name} ke baare mein poochna hai.')" class="bg-blue-600 text-white px-3 py-2 rounded-xl text-[10px] font-black uppercase">INQUIRE</button>`
                     : `<button onclick="addToCart('${p.id}')" class="bg-gray-900 text-white w-9 h-9 rounded-xl flex items-center justify-center active:scale-90 transition"><i class="fas fa-plus text-xs"></i></button>`;
 
                 grid.innerHTML += `
-                <div class="product-card bg-white p-3 rounded-3xl shadow-sm border border-orange-50 relative group overflow-hidden">
+                <div class="product-card bg-white p-3 rounded-3xl shadow-sm border border-orange-50 relative group">
                     <div class="admin-only absolute top-2 right-2 flex space-x-1 z-10">
                         <button onclick="editItem('${p.id}')" class="bg-blue-500 text-white w-7 h-7 rounded-lg text-[10px]"><i class="fas fa-pen"></i></button>
                         <button onclick="deleteItem('${p.id}')" class="bg-red-500 text-white w-7 h-7 rounded-lg text-[10px]"><i class="fas fa-trash"></i></button>
@@ -381,20 +352,17 @@
                     <h4 class="font-black text-gray-800 mt-2 truncate text-sm">${p.name}</h4>
                     <div class="flex items-center justify-between mt-3">
                         <span class="text-base font-black text-gray-900">₹${Number(p.price || 0).toLocaleString()}</span>
-                        ${actionButton}
+                        ${actionBtn}
                     </div>
                 </div>`;
             });
         }
 
-        // Other Helpers
         function handleSearch(query) {
             const term = query.toLowerCase().trim();
             if (term === "") { displayProducts(); return; }
             const filtered = products.filter(p => 
-                (p.name && p.name.toLowerCase().includes(term)) || 
-                (p.category && p.category.toLowerCase().includes(term)) ||
-                (p.desc && p.desc.toLowerCase().includes(term))
+                p.name.toLowerCase().includes(term) || (p.desc && p.desc.toLowerCase().includes(term))
             );
             displayProducts(filtered);
         }
@@ -409,9 +377,10 @@
             displayProducts();
         }
 
+        // --- CART & WHATSAPP CHECKOUT ---
+
         function addToCart(id) {
-            const item = products.find(x => x.id === id);
-            cart.push(item);
+            cart.push(products.find(x => x.id === id));
             updateCartUI();
             toggleCart();
         }
@@ -438,49 +407,49 @@
 
         async function checkoutOrder() {
             if(!cart.length) return alert("Cart khali hai!");
-            const name = prompt("Aapka naam?");
-            const phone = prompt("WhatsApp number?");
-            const address = prompt("Address?");
+            const name = prompt("Aapka Naam?");
+            const phone = prompt("WhatsApp Number?");
+            const address = prompt("Address Pin Code?");
             if(!name || !phone || !address) return;
 
             const orderId = "SJI-" + Math.floor(1000 + Math.random() * 9000);
             const total = document.getElementById('cart-total').innerText;
+            const itemsMsg = cart.map((it, idx) => `${idx+1}. ${it.name} - ₹${it.price}`).join('%0A');
             
             const newOrder = { orderId, name, phone, address, total, status: 'Processing', createdAt: firebase.firestore.FieldValue.serverTimestamp(), items: cart.map(i => i.name) };
             
-            await db.collection("orders").add(newOrder);
-            const msg = `*Naya Order (Shree Ji)*%0A*ID:* ${orderId}%0A*Naam:* ${name}%0A*Total:* ${total}`;
-            window.open(`https://wa.me/${WHATSAPP}?text=${msg}`, '_blank');
-            cart = []; updateCartUI(); toggleCart();
-            alert(`Suniye ${name}, order ho gaya! ID: ${orderId}`);
+            try {
+                await db.collection("orders").add(newOrder);
+                const msg = `*📦 NAYA ORDER (SHREE JI)*%0A%0A*ID:* ${orderId}%0A*Naam:* ${name}%0A*Phone:* ${phone}%0A*Address:* ${address}%0A%0A*--- ITEMS ---*%0A${itemsMsg}%0A%0A*Total:* ${total}`;
+                window.open(`https://wa.me/${WHATSAPP}?text=${msg}`, '_blank');
+                cart = []; updateCartUI(); toggleCart();
+                alert(`Suniye ${name}, order confirm ho gaya!`);
+            } catch(e) { alert("Order failed."); }
         }
 
         function processTrack() {
-            const phone = document.getElementById('track-phone').value;
-            const o = orders.find(o => o.phone === phone || o.orderId === phone || o.orderId === "SJI-"+phone);
-            const resDiv = document.getElementById('track-result');
-            resDiv.classList.remove('hidden');
+            const val = document.getElementById('track-phone').value;
+            const o = orders.find(x => x.phone === val || x.orderId === val || x.orderId === "SJI-"+val);
+            const res = document.getElementById('track-result');
+            res.classList.remove('hidden');
             if(o) {
-                resDiv.className = "mt-4 p-4 rounded-2xl bg-green-50 text-green-700 block";
-                resDiv.innerHTML = `Order #${o.orderId}<br>Status: ${o.status}`;
+                res.className = "mt-4 p-4 rounded-2xl bg-green-50 text-green-700 block text-xs";
+                res.innerHTML = `Order #${o.orderId} status: *${o.status}*`;
             } else {
-                resDiv.className = "mt-4 p-4 rounded-2xl bg-red-50 text-red-700 block";
-                resDiv.innerHTML = "Humein koi order nahi mila.";
+                res.className = "mt-4 p-4 rounded-2xl bg-red-50 text-red-700 block text-xs";
+                res.innerHTML = "Humein koi order nahi mila.";
             }
         }
 
-        // Modal Controls
+        // --- UI CONTROLS ---
         function toggleCart() { document.getElementById('cart-drawer').classList.toggle('translate-x-full'); }
-        function openAdminModal() { 
-            document.getElementById('admin-modal').classList.remove('hidden'); 
-        }
+        function openAdminModal() { document.getElementById('admin-modal').classList.remove('hidden'); }
         function closeAdminModal() { 
             document.getElementById('admin-modal').classList.add('hidden');
             document.getElementById('product-form').reset();
             document.getElementById('edit-id').value = '';
             document.getElementById('modal-heading').innerText = "Add New Item";
             document.getElementById('save-btn').innerText = "Save Product";
-            document.getElementById('file-name').innerText = "TAP TO UPLOAD IMAGE";
         }
         function openTracker() { document.getElementById('track-modal').classList.remove('hidden'); }
         function closeTracker() { document.getElementById('track-modal').classList.add('hidden'); }
