@@ -65,7 +65,7 @@
         </div>
         <div class="px-4 pb-3">
             <div class="relative">
-                <input type="text" id="ai-input-mobile" onkeyup="handleSearch(this.value)" placeholder="Search products..." 
+                <input type="text" id="ai-input-mobile" onkeyup="handleSearch(this.value)" placeholder="Search products..." class="w-full bg-gray-100 border-none p-3 rounded-xl outline-none text-sm pl-10">
                 <i class="fas fa-search absolute left-3 top-3.5 text-gray-400 text-sm"></i>
             </div>
         </div>
@@ -197,20 +197,7 @@
     </div>
 
     <script>
-        function handleSearch(query) {
-    const term = query.toLowerCase();
-    const products = document.querySelectorAll('#product-grid > div');
-    
-    products.forEach(product => {
-        const title = product.querySelector('h3').innerText.toLowerCase();
-        if(title.includes(term)) {
-            product.style.display = "block";
-        } else {
-            product.style.display = "none";
-        }
-    });
-}
-        // --- FIREBASE CONFIGURATION (Applied from Screenshot) ---
+     // --- FIREBASE CONFIGURATION (Applied from Screenshot) ---
         const firebaseConfig = {
             apiKey: "AIzaSyBuCywyMgEw_j9yeHD-E4KwRWZGreWagTc",
             authDomain: "shree-4c33e.firebaseapp.com",
@@ -514,6 +501,18 @@
             if(sessionStorage.getItem('isAdmin')) document.body.classList.add('is-admin');
             syncData();
         };
+         function handleSearch(query) {
+    const term = query.toLowerCase();
+    const products = document.querySelectorAll('#product-grid > div');
+    
+    products.forEach(product => {
+        const title = product.querySelector('h3').innerText.toLowerCase();
+        if(title.includes(term)) {
+            product.style.display = "block";
+        } else {
+            product.style.display = "none";
+        }
+    });
     </script>
 
     <footer class="bg-gray-900 text-white pt-12 pb-24 md:pb-12 mt-12">
