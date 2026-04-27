@@ -10,36 +10,49 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: #f8fafc; 
-            -webkit-tap-highlight-color: transparent;
-            padding-bottom: 70px; 
-        }
-        .admin-only { display: none !important; }
-        .is-admin .admin-only { display: block !important; }
-        .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
-        .product-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .product-card:hover { transform: translateY(-5px); }
-        .product-card:active { transform: scale(0.96); }
-        .loader { border-top-color: #ea580c; animation: spinner 1.5s linear infinite; }
-        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        html { scroll-behavior: smooth; }
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-thumb { background: #ea580c; border-radius: 10px; }
-        .brand-logo { width: 45px; height: 45px; object-fit: cover; border-radius: 10px; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        
-        .ticker-wrapper { overflow: hidden; background: #fff7ed; border-bottom: 1px solid #ffedd5; }
-        .ticker-content { display: inline-block; white-space: nowrap; animation: ticker 25s linear infinite; }
-        @keyframes ticker { 
-            0% { transform: translateX(100%); } 
-            100% { transform: translateX(-100%); } 
-        }
-        .hidden { display: none !important; }
-    </style>
+   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+    body { 
+        font-family: 'Plus Jakarta Sans', sans-serif; 
+        background-color: #f1f5f9; /* Soft Slate Background */
+        color: #1e293b;
+    }
+    /* Modern Glass Effect */
+    .glass { 
+        background: rgba(255, 255, 255, 0.8); 
+        backdrop-filter: blur(12px); 
+        border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+    }
+    /* Product Cards with subtle shadow */
+    .product-card { 
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .product-card:hover { 
+        transform: translateY(-8px); 
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
+        border-color: #6366f1;
+    }
+    /* Brand Colors Override */
+    .bg-orange-600 { background-color: #6366f1 !important; } /* Indigo Primary */
+    .text-orange-600 { color: #6366f1 !important; }
+    .ring-orange-200 { --tw-ring-color: rgba(99, 102, 241, 0.2) !important; }
+    
+    /* Category Buttons Modern Style */
+    .category-btn {
+        padding: 8px 16px;
+        border-radius: 12px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        transition: 0.3s;
+    }
+    .category-btn.active-cat {
+        background: #6366f1;
+        color: white !important;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+</style>
 </head>
 <body class="text-gray-900">
 
