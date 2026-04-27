@@ -3,438 +3,219 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Shree Ji | Jan Sewa & Digital Store</title>
+    <title>Shree Ji Digital</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background: #fdfcfb;
-            -webkit-tap-highlight-color: transparent;
-            padding-bottom: 70px; 
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        
+        :root { --primary: #fb923c; --dark: #0f172a; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f8fafc; padding-bottom: 90px; }
+
+        /* Glossy Card Design */
+        .premium-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 28px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
         }
+        .premium-card:hover { transform: translateY(-8px); box-shadow: 0 20px 30px -10px rgba(251, 146, 60, 0.2); }
+
+        /* Luxury Gradient */
+        .royal-bg { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); }
+        .accent-gradient { background: linear-gradient(135deg, #fb923c 0%, #f97316 100%); }
+
+        /* Floating Animation for Cart Badge */
+        @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.4); } 100% { transform: scale(1); } }
+        .cart-pop { animation: pop 0.3s ease-out; }
+
+        /* Hide scrollbars */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
         .admin-only { display: none !important; }
         .is-admin .admin-only { display: block !important; }
-        
-        /* Premium Glossy Glass */
-        .glass { 
-            background: rgba(255, 255, 255, 0.7); 
-            backdrop-filter: blur(15px); 
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.05);
-        }
-        .product-card { 
-            background: white;
-            border-radius: 24px;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid #f3f4f6;
-        }
-        .product-card:hover { 
-            transform: translateY(-5px); 
-            box-shadow: 0 20px 40px rgba(234, 88, 12, 0.1);
-            border-color: #ffedd5;
-        }
-        
-        .premium-gradient {
-            background: linear-gradient(135deg, #ea580c, #f97316);
-            box-shadow: 0 10px 20px rgba(234, 88, 12, 0.2);
-        }
-
-        .loader { border-top-color: #ea580c; animation: spinner 1.5s linear infinite; }
-        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
-        .ticker-wrapper { overflow: hidden; background: #fff7ed; border-bottom: 1px solid #ffedd5; }
-        .ticker-content { display: inline-block; white-space: nowrap; animation: ticker 25s linear infinite; }
-        @keyframes ticker { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
-        
-        .hidden { display: none !important; }
     </style>
 </head>
-<body class="text-gray-900">
+<body>
 
-    <div id="admin-bar" class="admin-only bg-gray-900 text-white py-2 px-4 sticky top-0 z-[70]">
-        <div class="container mx-auto flex justify-between items-center text-[10px] font-bold uppercase tracking-widest">
-            <span><i class="fas fa-user-shield mr-2"></i> Admin Mode</span>
-            <div class="flex space-x-3">
-                <button onclick="openAdminModal()" class="bg-orange-600 px-3 py-1 rounded-full">Add Item</button>
-                <button onclick="openOrderManager()" class="bg-blue-600 px-3 py-1 rounded-full">Orders</button>
-                <button onclick="logout()" class="text-red-400">Exit</button>
+    <header class="sticky top-0 z-50 bg-white/70 backdrop-blur-md border-b border-gray-100">
+        <div class="container mx-auto px-5 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <img src="https://raw.githubusercontent.com/shreeji-tech/SHREEJI-TECH/main/logo.jpg" class="w-11 h-11 rounded-2xl shadow-lg border-2 border-white">
+                <div>
+                    <h1 class="text-xl font-800 tracking-tight text-gray-900 leading-none">SHREE JI</h1>
+                    <span class="text-[9px] font-bold text-orange-500 uppercase tracking-[0.2em]">Digital Hub</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-5">
+                <div class="relative cursor-pointer group" onclick="toggleCart()">
+                    <div id="cart-icon-bg" class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 group-hover:bg-orange-100 transition-colors">
+                        <i class="fas fa-shopping-bag text-gray-700 group-hover:text-orange-600"></i>
+                    </div>
+                    <span id="cart-count" class="absolute -top-1 -right-1 bg-orange-600 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white">0</span>
+                </div>
+                <button onclick="checkAdminAccess()" class="text-gray-300 hover:text-orange-500"><i class="fas fa-shield-halved"></i></button>
             </div>
         </div>
-    </div>
-
-    <div class="ticker-wrapper py-2">
-        <div class="ticker-content text-[10px] font-bold text-orange-600 uppercase tracking-widest">
-            Suniye! Humare yahan naye Refurbished Laptops ka stock aa gaya hai • Aadhar aur PAN card ki suvidha • Mobile Repairing in Gorakhpur
-        </div>
-    </div>
+    </header>
 
     <div id="adminPanel">
-        <header class="bg-white/80 sticky top-0 z-50 glass">
-            <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-                <div class="flex items-center space-x-2 cursor-pointer" onclick="location.reload()">
-                    <img src="https://raw.githubusercontent.com/shreeji-tech/SHREEJI-TECH/main/logo.jpg" alt="Logo" class="w-10 h-10 rounded-lg shadow-sm">
-                    <div>
-                        <h1 class="text-xl font-black text-gray-800 leading-none">SHREE JI</h1>
-                        <p class="text-[8px] font-bold text-orange-600 tracking-widest uppercase">Digital & Jan Sewa</p>
-                    </div>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <div class="relative cursor-pointer" onclick="toggleCart()">
-                        <i class="fas fa-shopping-bag text-xl"></i>
-                        <span id="cart-count" class="absolute -top-1 -right-1 bg-orange-600 text-white text-[9px] rounded-full w-4 h-4 flex items-center justify-center font-bold">0</span>
-                    </div>
-                    <button onclick="checkAdminAccess()" class="text-gray-300"><i class="fas fa-fingerprint"></i></button>
-                </div>
-            </div>
-            <div class="px-4 pb-3">
-                <div class="relative">
-                    <input type="text" oninput="handleSearch(this.value)" placeholder="Suniye, kya dhoondh rahe hain?..." class="w-full bg-gray-100 p-3 rounded-2xl outline-none text-sm pl-10 focus:ring-2 ring-orange-200">
-                    <i class="fas fa-search absolute left-3 top-3.5 text-gray-400 text-sm"></i>
-                </div>
-            </div>
-        </header>
-
-        <section class="container mx-auto px-4 my-4">
-            <div class="premium-gradient rounded-[2rem] p-6 text-white relative overflow-hidden shadow-xl">
+        <div class="px-5 mt-6">
+            <div class="royal-bg rounded-[2.5rem] p-8 relative overflow-hidden shadow-2xl">
                 <div class="relative z-10">
-                    <h2 class="text-xl font-black italic">Shree Ji App</h2>
-                    <p class="text-xs opacity-90 mb-4">Behtar experience ke liye app install karein.</p>
-                    <a href="app-release.apk" download class="inline-flex items-center bg-white text-orange-600 px-6 py-2.5 rounded-full font-black text-xs active:scale-95 transition">
-                        <i class="fab fa-android mr-2"></i> DOWNLOAD APK
-                    </a>
+                    <span class="bg-orange-500/20 text-orange-400 text-[10px] font-bold px-3 py-1 rounded-full uppercase mb-3 inline-block">Refurbished Stock</span>
+                    <h2 class="text-3xl font-800 text-white leading-tight">Premium Laptops <br>& Services</h2>
+                    <button class="mt-5 accent-gradient text-white px-8 py-3 rounded-2xl font-bold text-sm shadow-lg shadow-orange-500/30">Explore Store</button>
                 </div>
-                <i class="fab fa-android absolute -right-4 -bottom-4 text-8xl opacity-10"></i>
+                <i class="fas fa-laptop absolute -right-10 -bottom-10 text-[12rem] text-white/5 rotate-12"></i>
             </div>
-        </section>
+        </div>
 
-        <nav class="bg-white/50 sticky top-[115px] z-40 overflow-x-auto no-scrollbar border-b border-gray-100">
-            <div class="container mx-auto px-4 flex space-x-6 py-4 text-[10px] font-black text-gray-400 whitespace-nowrap uppercase">
-                <button onclick="filterCat('All')" class="category-btn text-orange-600 border-b-2 border-orange-600">All</button>
-                <button onclick="filterCat('Jan Sewa')" class="category-btn">Jan Sewa</button>
-                <button onclick="filterCat('Mobiles')" class="category-btn">Mobiles</button>
-                <button onclick="filterCat('Laptops')" class="category-btn">Laptops</button>
-                <button onclick="filterCat('Accessories')" class="category-btn">Accessories</button>
-                <button onclick="filterCat('Repairing')" class="category-btn">Repairing</button>
+        <div class="flex gap-4 overflow-x-auto px-5 py-6 no-scrollbar">
+            <button onclick="filterCat('All')" class="cat-pill bg-dark text-white px-6 py-3 rounded-2xl font-bold text-xs whitespace-nowrap">All Items</button>
+            <button onclick="filterCat('Jan Sewa')" class="cat-pill bg-white text-gray-500 px-6 py-3 rounded-2xl font-bold text-xs whitespace-nowrap shadow-sm border">Jan Sewa</button>
+            <button onclick="filterCat('Mobiles')" class="cat-pill bg-white text-gray-500 px-6 py-3 rounded-2xl font-bold text-xs whitespace-nowrap shadow-sm border">Mobiles</button>
+            <button onclick="filterCat('Laptops')" class="cat-pill bg-white text-gray-500 px-6 py-3 rounded-2xl font-bold text-xs whitespace-nowrap shadow-sm border">Laptops</button>
+        </div>
+
+        <div id="product-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4 px-5 pb-10">
             </div>
-        </nav>
-
-        <main class="container mx-auto px-4 py-8">
-            <div class="flex justify-between items-end mb-6">
-                <h3 id="category-title" class="text-xl font-black text-gray-800">Featured Products</h3>
-                <select onchange="sortByPrice(this.value)" class="text-[10px] font-bold bg-white glass rounded-lg p-2 outline-none">
-                    <option value="none">SORT BY</option>
-                    <option value="low">Low Price</option>
-                    <option value="high">High Price</option>
-                </select>
-            </div>
-            <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
-        </main>
-    </div>
-    <div id="orderManager" class="hidden container mx-auto px-4 py-8">
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-black italic text-gray-800">Orders List</h2>
-            <button onclick="location.reload()" class="bg-gray-200 px-4 py-2 rounded-full font-bold text-xs">Back Home</button>
-        </div>
-        <div id="orders-list" class="space-y-4"></div>
     </div>
 
-    <div id="admin-modal" class="hidden fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4">
-        <div class="bg-white rounded-[2.5rem] w-full max-w-xl p-8 glass">
-            <h2 class="text-xl font-black mb-6" id="modal-heading">Add New Item</h2>
-            <form id="product-form" class="space-y-4">
-                <input type="hidden" id="edit-id">
-                <input type="text" id="p-name" placeholder="Item Name" class="w-full bg-gray-50 p-4 rounded-2xl outline-none border focus:border-orange-500 font-bold">
-                <div class="grid grid-cols-2 gap-4">
-                    <input type="number" id="p-price" placeholder="Price (₹)" class="bg-gray-50 p-4 rounded-2xl outline-none font-bold">
-                    <select id="p-cat" class="bg-gray-50 p-4 rounded-2xl outline-none font-bold">
-                        <option value="Jan Sewa">Jan Sewa</option>
-                        <option value="Mobiles">Mobiles</option>
-                        <option value="Laptops">Laptops</option>
-                        <option value="Accessories">Accessories</option>
-                        <option value="Repairing">Repairing</option>
-                    </select>
-                </div>
-                <textarea id="p-desc" placeholder="Details..." class="w-full bg-gray-50 p-4 rounded-2xl outline-none h-24 font-medium"></textarea>
-                <input type="file" id="p-image-file" class="hidden" accept="image/*" onchange="previewImage(this)">
-                <label for="p-image-file" class="block bg-orange-50 border-2 border-dashed border-orange-200 p-6 rounded-2xl text-center cursor-pointer">
-                    <i class="fas fa-image text-2xl text-orange-400 mb-2"></i>
-                    <p id="file-name" class="text-[10px] font-bold text-gray-400">TAP TO UPLOAD IMAGE</p>
-                </label>
-                <button type="button" onclick="handleSave()" id="save-btn" class="w-full premium-gradient text-white py-4 rounded-2xl font-black uppercase tracking-widest active:scale-95 transition">Save Item</button>
-                <button type="button" onclick="closeAdminModal()" class="w-full text-gray-400 text-xs font-bold uppercase">Cancel</button>
-            </form>
-        </div>
-    </div>
+    <nav class="fixed bottom-6 left-5 right-5 h-20 bg-dark/90 backdrop-blur-2xl rounded-[2.5rem] flex items-center justify-around px-6 shadow-2xl border border-white/10 z-[60]">
+        <button onclick="location.reload()" class="text-orange-500 flex flex-col items-center gap-1">
+            <i class="fas fa-grid-2 text-xl"></i>
+            <span class="text-[9px] font-bold uppercase tracking-widest">Home</span>
+        </button>
+        <button onclick="openTracker()" class="text-gray-400 flex flex-col items-center gap-1">
+            <i class="fas fa-map-location-dot text-xl"></i>
+            <span class="text-[9px] font-bold uppercase">Track</span>
+        </button>
+        <button onclick="window.open('https://wa.me/917052055713')" class="text-gray-400 flex flex-col items-center gap-1">
+            <i class="fab fa-whatsapp text-xl"></i>
+            <span class="text-[9px] font-bold uppercase">Help</span>
+        </button>
+    </nav>
 
-    <div id="track-modal" class="hidden fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white p-8 rounded-[2.5rem] w-full max-w-sm text-center">
-            <h3 class="text-xl font-black mb-4">Track Order</h3>
-            <input type="tel" id="track-phone" placeholder="Order ID / Phone" class="w-full bg-gray-50 p-4 rounded-2xl text-center font-bold mb-4 outline-none">
-            <button onclick="processTrack()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-lg">Track Now</button>
-            <div id="track-result" class="mt-4 p-4 rounded-2xl hidden"></div>
-            <button onclick="closeTracker()" class="mt-4 text-xs font-bold text-gray-400">CLOSE</button>
-        </div>
-    </div>
-
-    <div id="cart-drawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-3xl translate-x-full transition-transform duration-500 z-[100] flex flex-col glass">
+    <div id="cart-drawer" class="fixed inset-y-0 right-0 w-full max-w-sm bg-white z-[100] translate-x-full transition-transform duration-500 shadow-[-20px_0_50px_rgba(0,0,0,0.1)] flex flex-col">
         <div class="p-6 border-b flex justify-between items-center">
-            <h2 class="text-xl font-black">My Cart</h2>
-            <button onclick="toggleCart()" class="text-xl text-gray-400"><i class="fas fa-times"></i></button>
+            <h3 class="text-xl font-800">Your Basket</h3>
+            <button onclick="toggleCart()" class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center"><i class="fas fa-times text-gray-400"></i></button>
         </div>
-        <div id="cart-items" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
-        <div class="p-6 border-t bg-white">
-            <div class="flex justify-between text-lg font-black mb-4">
-                <span>Total:</span>
-                <span id="cart-total" class="text-orange-600">₹0</span>
+        <div id="cart-items" class="flex-1 overflow-y-auto p-6 space-y-4"></div>
+        <div class="p-8 border-t bg-gray-50/50">
+            <div class="flex justify-between items-center mb-6">
+                <span class="text-gray-500 font-bold">Total Amount</span>
+                <span id="cart-total" class="text-2xl font-800 text-gray-900">₹0</span>
             </div>
-            <button onclick="checkoutOrder()" class="w-full bg-gray-900 text-white py-4 rounded-2xl font-black">WHATSAPP CHECKOUT</button>
+            <button onclick="checkoutOrder()" class="w-full accent-gradient text-white py-5 rounded-[1.5rem] font-bold shadow-xl shadow-orange-500/20 active:scale-95 transition">Secure Checkout</button>
         </div>
-    </div>
-
-    <div class="fixed bottom-4 left-4 right-4 bg-gray-900/90 backdrop-blur-xl rounded-[2rem] flex justify-around items-center py-4 md:hidden z-[60] shadow-2xl border border-white/10">
-        <button onclick="location.reload()" class="flex flex-col items-center text-orange-500">
-            <i class="fas fa-home text-lg"></i>
-            <span class="text-[8px] font-black mt-1 uppercase tracking-tighter">Home</span>
-        </button>
-        <button onclick="openTracker()" class="flex flex-col items-center text-gray-400">
-            <i class="fas fa-truck-fast text-lg"></i>
-            <span class="text-[8px] font-black mt-1 uppercase">Track</span>
-        </button>
-        <button onclick="toggleCart()" class="flex flex-col items-center text-gray-400">
-            <i class="fas fa-shopping-bag text-lg"></i>
-            <span class="text-[8px] font-black mt-1 uppercase">Cart</span>
-        </button>
-        <button onclick="window.open('https://wa.me/917052055713')" class="flex flex-col items-center text-gray-400">
-            <i class="fab fa-whatsapp text-lg"></i>
-            <span class="text-[8px] font-black mt-1 uppercase">Chat</span>
-        </button>
     </div>
 
     <script>
-        // --- FIREBASE CONFIG ---
+        // --- Same Firebase Config as before ---
         const firebaseConfig = {
             apiKey: "AIzaSyBuCywyMgEw_j9yeHD-E4KwRWZGreWagTc",
             authDomain: "shree-4c33e.firebaseapp.com",
             projectId: "shree-4c33e",
             storageBucket: "shree-4c33e.firebasestorage.app",
             messagingSenderId: "759128544690",
-            appId: "1:759128544690:web:3f57e7ed9117a1acdd80ab",
-            measurementId: "G-NP1D792NVF"
+            appId: "1:759128544690:web:3f57e7ed9117a1acdd80ab"
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        const ADMIN_PASS = "ShreeJi2121";
-        const WHATSAPP = "917052055713";
-        const IMGBB_KEY = "893d6b612e41b4f52cd9626cf9cc21ee";
-
         let products = [];
         let cart = [];
-        let orders = [];
-        let currentFilter = 'All';
 
-        // --- REALTIME SYNC ---
-        function syncData() {
-            db.collection("products").onSnapshot((snapshot) => {
-                products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                displayProducts();
-            });
-            db.collection("orders").orderBy("createdAt", "desc").onSnapshot((snapshot) => {
-                orders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                if(!document.getElementById('orderManager').classList.contains('hidden')) displayOrders();
-            });
-        }
-        syncData();
+        // Realtime Fetch
+        db.collection("products").onSnapshot(snap => {
+            products = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            renderProducts();
+        });
 
-        // --- ADMIN ACCESS ---
-        if(sessionStorage.getItem('isAdmin')) document.body.classList.add('is-admin');
-        function checkAdminAccess() {
-            let p = prompt("Enter Secret Key:");
-            if(p === ADMIN_PASS) {
-                sessionStorage.setItem('isAdmin', 'true');
-                document.body.classList.add('is-admin');
-                alert("Radhe Radhe! Admin Mode On.");
-            } else if(p !== null) alert("Galat password!");
-        }
-        function logout() { sessionStorage.removeItem('isAdmin'); location.reload(); }
-
-        // --- CORE FUNCTIONS ---
-        window.openOrderManager = function() {
-            document.getElementById('adminPanel').classList.add('hidden');
-            document.getElementById('orderManager').classList.remove('hidden');
-            displayOrders();
-        };
-
-        function displayOrders() {
-            const list = document.getElementById('orders-list');
-            list.innerHTML = '';
-            if(orders.length === 0) { list.innerHTML = `<p class="text-center py-10 font-bold text-gray-400">Koi order nahi mila.</p>`; return; }
-            orders.forEach(o => {
-                list.innerHTML += `
-                <div class="glass p-5 rounded-3xl mb-4">
-                    <div class="flex justify-between items-start mb-3">
-                        <h4 class="font-black text-orange-600 uppercase">ID: ${o.orderId}</h4>
-                        <span class="bg-orange-100 text-orange-600 px-3 py-1 rounded-full text-[9px] font-black">${o.status}</span>
-                    </div>
-                    <div class="text-sm font-bold text-gray-700">
-                        <p>${o.name} | ${o.phone}</p>
-                        <p class="text-xs text-gray-400 mt-1">${o.address}</p>
-                    </div>
-                    <div class="mt-4 pt-3 border-t border-dashed">
-                        <p class="text-[9px] font-black text-gray-400 mb-2 uppercase">Items:</p>
-                        <ul class="text-xs font-bold text-gray-600 mb-4">${o.items.map(i => `<li>• ${i}</li>`).join('')}</ul>
-                        <div class="flex justify-between items-center">
-                            <span class="text-lg font-black">${o.total}</span>
-                            <select onchange="updateStatus('${o.id}', this.value)" class="text-[10px] font-bold bg-gray-100 rounded-lg p-2 outline-none">
-                                <option value="Processing" ${o.status === 'Processing' ? 'selected' : ''}>Processing</option>
-                                <option value="Shipped" ${o.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
-                                <option value="Delivered" ${o.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>`;
-            });
-        }
-
-        async function updateStatus(id, newStatus) {
-            await db.collection("orders").doc(id).update({ status: newStatus });
-        }
-
-        async function handleSave() {
-            const name = document.getElementById('p-name').value;
-            const price = parseInt(document.getElementById('p-price').value);
-            const cat = document.getElementById('p-cat').value;
-            const desc = document.getElementById('p-desc').value;
-            const file = document.getElementById('p-image-file').files[0];
-            const editId = document.getElementById('edit-id').value;
-
-            if(!name || !price) return alert("Details bharna zaroori hai!");
-            const btn = document.getElementById('save-btn');
-            btn.innerHTML = `Processing...`; btn.disabled = true;
-
-            let imgUrl = editId ? products.find(p => p.id == editId).image : "https://via.placeholder.com/300";
-            if(file) {
-                const fd = new FormData(); fd.append('image', file);
-                try {
-                    const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: 'POST', body: fd });
-                    const data = await res.json(); imgUrl = data.data.url;
-                } catch(e) { console.error("Upload failed"); }
-            }
-
-            const itemData = { name, price, category: cat, desc, image: imgUrl, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
-            try {
-                if(editId) { await db.collection("products").doc(editId).update(itemData); } 
-                else { await db.collection("products").add(itemData); }
-                closeAdminModal();
-            } catch(e) { alert("Error saving data."); }
-            btn.innerHTML = `Save Item`; btn.disabled = false;
-        }
-
-        function displayProducts(filteredData = null) {
+        function renderProducts() {
             const grid = document.getElementById('product-grid');
-            if (!grid) return;
-            grid.innerHTML = '';
-            let data = filteredData || products.filter(p => currentFilter === 'All' || p.category === currentFilter);
+            grid.innerHTML = products.map(p => `
+                <div class="premium-card p-4 flex flex-col">
+                    <div class="relative h-36 mb-4 rounded-3xl overflow-hidden bg-white">
+                        <img src="${p.image}" class="w-full h-full object-contain">
+                        <span class="absolute top-2 left-2 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-[8px] font-800 text-orange-600 uppercase border border-orange-100">${p.category}</span>
+                    </div>
+                    <h4 class="font-bold text-gray-800 text-sm truncate">${p.name}</h4>
+                    <p class="text-[10px] text-gray-400 mt-1 line-clamp-1">${p.desc || 'Best quality service'}</p>
+                    <div class="mt-4 flex justify-between items-center">
+                        <span class="text-lg font-800 text-gray-900">₹${p.price}</span>
+                        <button onclick="addToCart('${p.id}')" class="w-10 h-10 accent-gradient text-white rounded-2xl flex items-center justify-center shadow-lg active:scale-90 transition">
+                            <i class="fas fa-plus text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // --- FIXED CART LOGIC ---
+        function addToCart(id) {
+            const item = products.find(x => x.id === id);
+            cart.push(item);
             
-            if(!data.length) { grid.innerHTML = `<p class="col-span-full text-center py-20 font-bold text-gray-400">No items found.</p>`; return; }
+            // Animation for Badge
+            const badge = document.getElementById('cart-count');
+            badge.innerText = cart.length;
+            badge.classList.add('cart-pop');
+            setTimeout(() => badge.classList.remove('cart-pop'), 300);
 
-            data.forEach(p => {
-                const isRep = p.category === 'Repairing';
-                grid.innerHTML += `
-                <div class="product-card p-3 relative flex flex-col h-full">
-                    <div class="admin-only absolute top-2 right-2 flex space-x-1 z-10">
-                        <button onclick="editItem('${p.id}')" class="bg-blue-500 text-white w-7 h-7 rounded-lg"><i class="fas fa-pen text-[10px]"></i></button>
-                        <button onclick="deleteItem('${p.id}')" class="bg-red-500 text-white w-7 h-7 rounded-lg"><i class="fas fa-trash text-[10px]"></i></button>
-                    </div>
-                    <div class="h-32 bg-gray-50 rounded-2xl mb-3 flex items-center justify-center overflow-hidden">
-                        <img src="${p.image}" class="w-full h-full object-contain" onerror="this.src='https://via.placeholder.com/150'">
-                    </div>
-                    <span class="text-[8px] font-black uppercase text-orange-500 bg-orange-50 px-2 py-1 rounded-md self-start">${p.category}</span>
-                    <h4 class="font-black text-gray-800 mt-2 truncate text-sm">${p.name}</h4>
-                    <div class="flex items-center justify-between mt-auto pt-3">
-                        <span class="text-base font-black text-gray-900">₹${Number(p.price || 0).toLocaleString()}</span>
-                        ${isRep ? `<button onclick="window.open('https://wa.me/${WHATSAPP}')" class="bg-blue-600 text-white px-3 py-2 rounded-xl text-[9px] font-black">CHAT</button>` : 
-                        `<button onclick="addToCart('${p.id}')" class="bg-gray-900 text-white w-9 h-9 rounded-xl flex items-center justify-center"><i class="fas fa-plus text-xs"></i></button>`}
-                    </div>
-                </div>`;
-            });
+            // Icon Highlight
+            const icon = document.getElementById('cart-icon-bg');
+            icon.classList.replace('bg-gray-100', 'bg-orange-500');
+            icon.querySelector('i').classList.replace('text-gray-700', 'text-white');
+            setTimeout(() => {
+                icon.classList.replace('bg-orange-500', 'bg-gray-100');
+                icon.querySelector('i').classList.replace('text-white', 'text-gray-700');
+            }, 800);
+
+            updateCartUI();
+            // toggleCart(); <-- Yeh line remove kar di hai taaki cart baar baar na khule
         }
 
-        // --- HELPER UI FUNCTIONS ---
-        function filterCat(cat) {
-            currentFilter = cat;
-            document.getElementById('category-title').innerText = cat;
-            document.querySelectorAll('.category-btn').forEach(btn => {
-                btn.className = "category-btn hover:text-orange-600 transition-all";
-                if(btn.innerText === cat) btn.className = "category-btn text-orange-600 border-b-2 border-orange-600";
-            });
-            displayProducts();
-        }
-
-        function addToCart(id) { cart.push(products.find(x => x.id === id)); updateCartUI(); toggleCart(); }
         function updateCartUI() {
-            document.getElementById('cart-count').innerText = cart.length;
             const container = document.getElementById('cart-items');
-            container.innerHTML = ''; let total = 0;
-            cart.forEach((item, idx) => {
-                total += Number(item.price || 0);
-                container.innerHTML += `
-                <div class="flex items-center space-x-3 bg-gray-50 p-3 rounded-2xl">
-                    <img src="${item.image}" class="w-10 h-10 object-cover rounded-lg">
-                    <div class="flex-1 text-xs font-bold">
-                        <h5 class="truncate w-32">${item.name}</h5>
-                        <p class="text-orange-600">₹${item.price}</p>
+            let total = 0;
+            container.innerHTML = cart.map((it, idx) => {
+                total += Number(it.price);
+                return `
+                <div class="flex items-center gap-4 bg-gray-50 p-4 rounded-[1.5rem]">
+                    <img src="${it.image}" class="w-12 h-12 rounded-xl object-cover bg-white">
+                    <div class="flex-1">
+                        <h5 class="text-xs font-bold text-gray-800">${it.name}</h5>
+                        <p class="text-orange-600 font-bold text-xs">₹${it.price}</p>
                     </div>
-                    <button onclick="cart.splice(${idx},1);updateCartUI()" class="text-red-400 p-2"><i class="fas fa-trash"></i></button>
+                    <button onclick="removeFromCart(${idx})" class="text-red-300 hover:text-red-500"><i class="fas fa-trash-can"></i></button>
                 </div>`;
-            });
+            }).join('');
             document.getElementById('cart-total').innerText = `₹${total}`;
         }
 
-        async function checkoutOrder() {
-            if(!cart.length) return alert("Cart khali hai!");
-            const name = prompt("Naam?"); const phone = prompt("Phone?"); const address = prompt("Address?");
-            if(!name || !phone || !address) return;
-            const orderId = "SJI-" + Math.floor(1000 + Math.random() * 9000);
-            const total = document.getElementById('cart-total').innerText;
-            const itemsMsg = cart.map((it, idx) => `${idx+1}. ${it.name} - ₹${it.price}`).join('%0A');
-            const newOrder = { orderId, name, phone, address, total, status: 'Processing', createdAt: firebase.firestore.FieldValue.serverTimestamp(), items: cart.map(i => i.name) };
-            try {
-                await db.collection("orders").add(newOrder);
-                window.open(`https://wa.me/${WHATSAPP}?text=📦*NAYA ORDER* ID:${orderId}%0AName:${name}%0AItems:${itemsMsg}%0ATotal:${total}`);
-                cart = []; updateCartUI(); toggleCart(); alert("Radhe Radhe! Order sent.");
-            } catch(e) { alert("Error."); }
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            document.getElementById('cart-count').innerText = cart.length;
+            updateCartUI();
         }
 
-        function handleSearch(query) {
-            const term = query.toLowerCase().trim();
-            const filtered = products.filter(p => p.name.toLowerCase().includes(term));
-            displayProducts(filtered);
+        function toggleCart() {
+            document.getElementById('cart-drawer').classList.toggle('translate-x-full');
         }
 
-        function toggleCart() { document.getElementById('cart-drawer').classList.toggle('translate-x-full'); }
-        function openAdminModal() { document.getElementById('admin-modal').classList.remove('hidden'); }
-        function closeAdminModal() { document.getElementById('admin-modal').classList.add('hidden'); document.getElementById('product-form').reset(); }
-        function openTracker() { document.getElementById('track-modal').classList.remove('hidden'); }
-        function closeTracker() { document.getElementById('track-modal').classList.add('hidden'); }
-        function previewImage(input) { if(input.files[0]) document.getElementById('file-name').innerText = input.files[0].name; }
-        
-        async function deleteItem(id) { if(confirm("Suniye, delete karein?")) await db.collection("products").doc(id).delete(); }
-        function editItem(id) {
-            const p = products.find(x => x.id === id); if(!p) return;
-            document.getElementById('edit-id').value = p.id;
-            document.getElementById('p-name').value = p.name;
-            document.getElementById('p-price').value = p.price;
-            document.getElementById('p-cat').value = p.category;
-            document.getElementById('p-desc').value = p.desc || '';
-            document.getElementById('modal-heading').innerText = "Edit Item";
-            openAdminModal();
+        function checkAdminAccess() {
+            const pass = prompt("Suniye, admin key batayiye:");
+            if(pass === "ShreeJi2121") {
+                document.body.classList.add('is-admin');
+                alert("Welcome Boss!");
+            }
         }
     </script>
 </body>
