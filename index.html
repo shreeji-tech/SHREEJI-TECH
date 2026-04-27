@@ -454,6 +454,13 @@
         function openTracker() { document.getElementById('track-modal').classList.remove('hidden'); }
         function closeTracker() { document.getElementById('track-modal').classList.add('hidden'); }
         function previewImage(input) { if(input.files[0]) document.getElementById('file-name').innerText = input.files[0].name; }
+  window.openOrderManager = function() {
+    document.getElementById('adminPanel').classList.add('hidden');
+    document.getElementById('orderManager').classList.remove('hidden');
+    if (typeof displayOrders === "function") {
+        displayOrders(); 
+    }
+};
     </script>
     <footer class="bg-gray-900 text-white pt-12 pb-24 md:pb-12 mt-12">
         <div class="container mx-auto px-6">
