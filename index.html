@@ -4,16 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shree Ji Tech | Premium Digital Store</title>
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-
     <style>
-        body { background-color: #020617; color: #cbd5e1; font-family: sans-serif; }
+        body { background-color: #020617; color: #cbd5e1; }
         .admin-only { display: none !important; }
         .is-admin .admin-only { display: block !important; }
         .is-admin .customer-only { display: none !important; }
@@ -24,15 +21,33 @@
 
     <header class="glass sticky top-0 p-4 border-b border-slate-800 z-50">
         <div class="flex justify-between items-center">
-            <h1 class="text-xl font-black text-white">SHREE JI TECH</h1>
-            <button onclick="checkAdminAccess()" class="text-orange-500"><i class="fas fa-fingerprint text-xl"></i></button>
+            <div class="flex items-center gap-2">
+                <img src="https://raw.githubusercontent.com/shreeji-tech/SHREEJI-TECH/main/logo.jpg" class="w-8 h-8 rounded-lg">
+                <h1 class="text-xl font-black text-white">SHREE JI TECH</h1>
+            </div>
+            <div class="flex gap-4">
+                <button onclick="toggleCart()" class="customer-only text-slate-400"><i class="fas fa-shopping-bag"></i></button>
+                <button onclick="checkAdminAccess()" class="text-orange-500"><i class="fas fa-fingerprint text-xl"></i></button>
+            </div>
         </div>
         <input type="search" id="search" autocomplete="new-password" oninput="handleSearch(this.value)" placeholder="Search products..." class="w-full mt-4 bg-slate-900 border border-slate-700 p-3 rounded-xl text-white">
     </header>
 
     <main class="p-4 grid grid-cols-2 gap-4" id="product-grid"></main>
 
-    <div id="admin-modal" class="hidden fixed inset-0 bg-black/90 p-6 flex items-center justify-center">
+    <div id="cart-drawer" class="fixed inset-0 bg-black/95 p-6 hidden z-[200]">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-white font-bold text-lg">Your Cart</h2>
+            <button onclick="toggleCart()" class="text-white"><i class="fas fa-times"></i></button>
+        </div>
+        <div id="cart-items" class="space-y-4"></div>
+        <div class="mt-6 border-t border-slate-800 pt-4">
+            <p class="text-white font-bold text-lg">Total: ₹<span id="cart-total">0</span></p>
+            <button onclick="checkout()" class="w-full bg-green-600 text-white py-3 rounded-xl mt-4 font-bold">WhatsApp Order</button>
+        </div>
+    </div>
+
+    <div id="admin-modal" class="hidden fixed inset-0 bg-black/90 p-6 flex items-center justify-center z-[100]">
         <div class="bg-slate-900 p-6 rounded-3xl w-full max-w-sm">
             <h2 class="text-white font-bold mb-4">Add Item</h2>
             <input type="text" id="p-name" placeholder="Name" class="w-full bg-slate-800 p-3 mb-2 rounded-lg text-white">
@@ -44,51 +59,50 @@
     </div>
 
     <script>
-        // Firebase Config
         const firebaseConfig = { apiKey: "AIzaSyBuCywyMgEw_j9yeHD-E4KwRWZGreWagTc", authDomain: "shree-4c33e.firebaseapp.com", projectId: "shree-4c33e", storageBucket: "shree-4c33e.firebasestorage.app", messagingSenderId: "759128544690", appId: "1:759128544690:web:3f57e7ed9117a1acdd80ab" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const auth = firebase.auth();
 
-        let allProducts = [];
+        let allProducts = [], cart = [];
 
-        // Auth Logic
         auth.onAuthStateChanged(user => document.body.classList.toggle("is-admin", !!user));
 
-        function checkAdminAccess() {
-            if(auth.currentUser) document.getElementById('admin-modal').classList.remove('hidden');
-            else alert("Login Required");
-        }
-
-        // Data Management
-        db.collection("products").onSnapshot(snapshot => {
-            allProducts = snapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
+        db.collection("products").onSnapshot(s => {
+            allProducts = s.docs.map(d => ({id: d.id, ...d.data()}));
             render(allProducts);
         });
 
         function render(data) {
-            const grid = document.getElementById('product-grid');
-            grid.innerHTML = data.map(p => `
+            document.getElementById('product-grid').innerHTML = data.map(p => `
                 <div class="bg-slate-900 p-3 rounded-2xl border border-slate-800">
                     <img src="${p.image}" class="w-full h-32 object-cover rounded-lg mb-2">
                     <h4 class="text-white font-bold text-sm">${p.name}</h4>
                     <p class="text-orange-500 font-bold">₹${p.price}</p>
-                    <button onclick="deleteProduct('${p.id}')" class="admin-only text-red-500 text-xs mt-2">Delete</button>
+                    <button onclick="addToCart('${p.id}')" class="customer-only bg-orange-600 text-white w-full mt-2 rounded-lg py-1 text-xs">Add to Cart</button>
+                    <button onclick="deleteProduct('${p.id}')" class="admin-only text-red-500 text-xs mt-2 w-full border border-red-900 p-1 rounded">Delete</button>
                 </div>
             `).join('');
         }
 
-        async function saveProduct() {
-            const name = document.getElementById('p-name').value;
-            const price = document.getElementById('p-price').value;
-            const image = document.getElementById('p-image').value;
-            await db.collection("products").add({name, price, image});
-            closeModal();
+        function addToCart(id) {
+            cart.push(allProducts.find(p => p.id === id));
+            updateCartUI();
+            alert("Added to cart!");
         }
 
+        function updateCartUI() {
+            document.getElementById('cart-items').innerHTML = cart.map(p => `<p class="text-sm">${p.name} - ₹${p.price}</p>`).join('');
+            document.getElementById('cart-total').innerText = cart.reduce((sum, p) => sum + Number(p.price), 0);
+        }
+
+        function toggleCart() { document.getElementById('cart-drawer').classList.toggle('hidden'); }
+        function checkAdminAccess() { auth.currentUser ? document.getElementById('admin-modal').classList.remove('hidden') : alert("Admin Access Required"); }
+        async function saveProduct() { await db.collection("products").add({name: document.getElementById('p-name').value, price: document.getElementById('p-price').value, image: document.getElementById('p-image').value}); closeModal(); }
         async function deleteProduct(id) { await db.collection("products").doc(id).delete(); }
         function closeModal() { document.getElementById('admin-modal').classList.add('hidden'); }
         function handleSearch(q) { render(allProducts.filter(p => p.name.toLowerCase().includes(q.toLowerCase()))); }
+        function checkout() { window.open(`https://wa.me/917052055713?text=Order Items: ${cart.map(p => p.name).join(', ')}`); }
     </script>
 </body>
 </html>
