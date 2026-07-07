@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Shree Ji | Premium Digital Store</title>
+    <title>Shree Ji Tech | Premium Digital Store</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
-    <!-- Firebase Libraries (Firestore + Auth added) -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
@@ -23,14 +23,13 @@
             padding-bottom: 70px;
         }
         
-        /* Admin Visibility Logic */
+        /* Visibility Logic for Admin & Customer */
         .admin-only { display: none !important; }
         .is-admin .admin-only { display: block !important; }
         .is-admin .admin-flex { display: flex !important; }
-        
-        /* 🔥 BUG FIX: Hide Customer Features when Admin is Logged In */
         .is-admin .customer-only { display: none !important; }
 
+        /* Aesthetics */
         .glass { 
             background: rgba(2, 6, 23, 0.7); 
             backdrop-filter: blur(12px); 
@@ -47,6 +46,7 @@
             box-shadow: 0 10px 30px -10px rgba(234, 88, 12, 0.15);
         }
         .product-card:active { transform: scale(0.97); }
+        
         .loader {
             display: inline-block; width: 1.2em; height: 1.2em;
             border: 3px solid rgba(234, 88, 12, 0.15);
@@ -54,11 +54,15 @@
             animation: spinner 1s linear infinite;
         }
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: #020617; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #ea580c; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
+        
+        /* Ticker */
         .ticker-wrapper { overflow: hidden; background: rgba(234, 88, 12, 0.1); border-bottom: 1px solid rgba(234, 88, 12, 0.2); }
         .ticker-content { display: inline-block; white-space: nowrap; animation: ticker 25s linear infinite; }
         @keyframes ticker { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
@@ -73,7 +77,7 @@
 
     <div id="admin-bar" class="admin-only bg-orange-600 text-white py-2 px-4 sticky top-0 z-[70]">
         <div class="container mx-auto flex justify-between items-center text-[10px] font-bold uppercase tracking-widest">
-            <span><i class="fas fa-user-shield mr-2"></i> Admin Mode Activated</span>
+            <span><i class="fas fa-user-shield mr-2"></i> Admin Mode</span>
             <div class="flex space-x-3">
                 <button onclick="openAdminModal()" class="bg-black/20 hover:bg-black/40 transition px-3 py-1 rounded-lg">Add Item</button>
                 <button onclick="openOrderManager()" class="bg-black/20 hover:bg-black/40 transition px-3 py-1 rounded-lg">Orders</button>
@@ -84,7 +88,7 @@
 
     <div class="ticker-wrapper py-2">
         <div class="ticker-content text-[10px] font-bold text-orange-500 uppercase tracking-widest">
-            Welcome to Shree Ji! Fresh stock of Refurbished Laptops has arrived • Aadhaar & PAN Card services available • Best Mobile Repairing in Gorakhpur
+            Welcome to Shree Ji Tech! Fresh stock of Refurbished Laptops has arrived • Aadhaar & PAN Card services available • Best Mobile Repairing in Gorakhpur
         </div>
     </div>
 
@@ -95,31 +99,45 @@
                     <img src="https://raw.githubusercontent.com/shreeji-tech/SHREEJI-TECH/main/logo.jpg" alt="Logo" class="w-full h-full object-cover rounded-xl">
                 </div>
                 <div>
-                    <h1 class="text-xl font-black tracking-tight text-white leading-none">SHREE JI</h1>
+                    <h1 class="text-xl font-black tracking-tight text-white leading-none">SHREE JI TECH</h1>
                     <p class="text-[8px] font-bold text-orange-500 tracking-widest uppercase mt-0.5">Digital & Jan Sewa</p>
                 </div>
             </div>
             <div class="flex items-center space-x-5">
-                <!-- Customer Only Cart Icon -->
                 <div class="relative cursor-pointer group customer-only" onclick="toggleCart()">
                     <div class="w-10 h-10 rounded-full bg-slate-800/50 flex items-center justify-center border border-slate-700 hover:bg-slate-800 transition">
                         <i class="fas fa-shopping-bag text-slate-300 group-hover:text-orange-400 transition"></i>
                     </div>
                     <span id="cart-count" class="absolute -top-1 -right-1 bg-orange-500 text-white text-[9px] rounded-full w-5 h-5 flex items-center justify-center font-bold shadow-lg shadow-orange-500/30">0</span>
                 </div>
-                <!-- Admin Fingerprint -->
                 <button onclick="checkAdminAccess()" class="text-slate-600 hover:text-slate-400 transition" aria-label="Admin login">
                     <i class="fas fa-fingerprint text-lg"></i>
                 </button>
             </div>
         </div>
+        
         <div class="px-4 pb-4">
             <div class="relative group">
-                <input type="text" id="ai-input-mobile" autocomplete="off" name="search" oninput="handleSearch(this.value)" placeholder="Search for products, services..." class="w-full bg-slate-900/80 border border-slate-700 text-white p-3.5 rounded-2xl outline-none text-sm pl-11 focus:border-orange-500/50 focus:bg-slate-900 transition-all shadow-inner placeholder-slate-500">
+                <input type="search" id="ai-input-mobile" autocomplete="new-password" name="search-box" oninput="handleSearch(this.value)" placeholder="Search for products, services..." class="w-full bg-slate-900/80 border border-slate-700 text-white p-3.5 rounded-2xl outline-none text-sm pl-11 focus:border-orange-500/50 focus:bg-slate-900 transition-all shadow-inner placeholder-slate-500">
                 <i class="fas fa-search absolute left-4 top-4 text-slate-500 group-focus-within:text-orange-500 transition-colors"></i>
             </div>
         </div>
     </header>
+
+    <section class="container mx-auto px-4 my-6">
+        <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-[2rem] p-8 text-white border border-slate-700 shadow-2xl relative overflow-hidden group">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-orange-500/10 rounded-full blur-[80px] group-hover:bg-orange-500/20 transition-all duration-700"></div>
+            <div class="relative z-10">
+                <span class="inline-block px-3 py-1 bg-orange-500/10 text-orange-400 text-[10px] font-black uppercase tracking-widest rounded-full mb-3 border border-orange-500/20">New Update</span>
+                <h2 class="text-2xl font-black text-white mb-1">Shree Ji Tech App</h2>
+                <p class="text-sm text-slate-400 mb-6 max-w-[200px]">Install our official app for a seamless, premium experience.</p>
+                <a href="app-release.apk" download class="inline-flex items-center bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-xl font-bold text-sm shadow-[0_0_20px_rgba(234,88,12,0.3)] active:scale-95 transition-all">
+                    <i class="fab fa-android mr-2 text-lg"></i> Download APK
+                </a>
+            </div>
+            <i class="fab fa-android absolute -right-6 -bottom-6 text-9xl text-slate-800 opacity-50 rotate-12 group-hover:rotate-6 transition-transform duration-700"></i>
+        </div>
+    </section>
 
     <nav class="bg-[#020617] border-b border-slate-800/50 sticky top-[135px] md:top-[80px] z-40 overflow-x-auto no-scrollbar shadow-lg">
         <div class="container mx-auto px-4 flex space-x-6 py-4 text-[11px] font-bold text-slate-500 whitespace-nowrap uppercase tracking-widest">
@@ -149,13 +167,11 @@
         </div>
     </main>
 
-    <!-- Bottom Nav -->
     <div class="fixed bottom-0 left-0 right-0 glass border-t border-slate-800 flex justify-around items-center py-3 md:hidden z-[60]">
         <button onclick="location.reload()" class="flex flex-col items-center text-orange-500">
             <div class="w-8 h-8 rounded-full bg-orange-500/10 flex items-center justify-center mb-1"><i class="fas fa-home text-sm"></i></div>
             <span class="text-[9px] font-bold">Home</span>
         </button>
-        <!-- Track & Cart Only for Customers -->
         <button onclick="openTracker()" class="flex flex-col items-center text-slate-500 hover:text-slate-300 transition customer-only">
             <div class="w-8 h-8 flex items-center justify-center mb-1"><i class="fas fa-crosshairs text-sm"></i></div>
             <span class="text-[9px] font-bold">Track</span>
@@ -170,21 +186,18 @@
         </button>
     </div>
 
-    <!-- Firebase Auth Login Modal -->
     <div id="auth-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-[150] flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-sm p-6 shadow-2xl">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-xl font-black text-white">Admin Secure Login</h2>
                 <button onclick="closeAuthModal()" class="text-slate-400 hover:text-white"><i class="fas fa-times text-xl"></i></button>
             </div>
-            <input type="email" id="admin-email" placeholder="Admin Email" class="w-full bg-slate-800 text-white border border-slate-700 p-4 rounded-xl outline-none focus:border-orange-500 font-bold placeholder-slate-500 mb-4">
-            <input type="password" id="admin-pass" placeholder="Password" class="w-full bg-slate-800 text-white border border-slate-700 p-4 rounded-xl outline-none focus:border-orange-500 font-bold placeholder-slate-500 mb-4">
+            <input type="email" id="admin-email" autocomplete="new-password" placeholder="Admin Email" class="w-full bg-slate-800 text-white border border-slate-700 p-4 rounded-xl outline-none focus:border-orange-500 font-bold placeholder-slate-500 mb-4">
+            <input type="password" id="admin-pass" autocomplete="new-password" placeholder="Password" class="w-full bg-slate-800 text-white border border-slate-700 p-4 rounded-xl outline-none focus:border-orange-500 font-bold placeholder-slate-500 mb-4">
             <button onclick="processLogin()" class="w-full bg-orange-500 hover:bg-orange-600 text-white py-4 rounded-xl font-black uppercase tracking-widest active:scale-95 transition">Login</button>
         </div>
     </div>
 
-    <!-- Modals (Admin, Order Manager, Tracker, Cart Drawer remain same, keeping layout compact) -->
-    <!-- Admin Modal -->
     <div id="admin-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar">
             <div class="flex justify-between items-center mb-6">
@@ -217,7 +230,6 @@
         </div>
     </div>
 
-    <!-- Order Manager -->
     <div id="order-manager-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-3xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar">
             <div class="flex justify-between items-center mb-6">
@@ -228,7 +240,20 @@
         </div>
     </div>
 
-    <!-- Cart Drawer -->
+    <div id="track-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md z-[100] flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 p-8 rounded-[2rem] w-full max-w-sm text-center shadow-2xl relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-600 to-yellow-500"></div>
+            <div class="w-16 h-16 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center mx-auto mb-5 shadow-inner">
+                <i class="fas fa-location-crosshairs text-2xl text-orange-500"></i>
+            </div>
+            <h3 class="text-xl font-black text-white mb-6">Track Order</h3>
+            <input type="tel" id="track-phone" placeholder="Phone / Order ID" class="w-full bg-slate-800 text-white p-4 rounded-xl text-center font-bold text-sm mb-4 outline-none border border-slate-700 focus:border-orange-500 placeholder-slate-500">
+            <button onclick="processTrack()" class="w-full bg-orange-500 text-white py-3.5 rounded-xl font-bold shadow-lg active:scale-95 transition">Track Now</button>
+            <div id="track-result" class="mt-4 p-4 rounded-xl hidden font-bold text-sm border"></div>
+            <button onclick="closeTracker()" class="mt-6 text-xs font-bold text-slate-500 hover:text-white uppercase tracking-widest transition">Close Window</button>
+        </div>
+    </div>
+
     <div id="cart-drawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-[#020617] border-l border-slate-800 shadow-2xl translate-x-full transition-transform duration-500 z-[100] flex flex-col">
         <div class="p-6 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
             <h2 class="text-xl font-black text-white">Your Cart</h2>
@@ -247,6 +272,7 @@
     </div>
 
     <script>
+        // 1. Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyBuCywyMgEw_j9yeHD-E4KwRWZGreWagTc",
             authDomain: "shree-4c33e.firebaseapp.com",
@@ -257,13 +283,16 @@
             measurementId: "G-NP1D792NVF"
         };
 
+        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-        const auth = firebase.auth(); // Secure Firebase Auth Initialized
+        const auth = firebase.auth();
 
+        // App Constants
         const WHATSAPP = "917052055713";
         const IMGBB_KEY = "893d6b612e41b4f52cd9626cf9cc21ee";
 
+        // Global State Variables
         let products = [];
         let cart = [];
         let orders = [];
@@ -271,7 +300,7 @@
         let currentSort = "none";
         const CATEGORY_OPTIONS = ["Jan Sewa", "Mobiles", "Laptops", "Accessories", "Repairing"];
 
-        // State Listener for Secure Auth
+        // 2. Auth State Observer
         auth.onAuthStateChanged((user) => {
             if (user) {
                 document.body.classList.add("is-admin");
@@ -280,6 +309,7 @@
             }
         });
 
+        // 3. Helper Functions
         function showToast(msg) {
             const toast = document.getElementById("toast");
             document.getElementById("toast-msg").innerText = msg;
@@ -291,6 +321,19 @@
             }, 3000);
         }
 
+        function normalizeCategory(value) {
+            const raw = String(value || "").trim().toLowerCase();
+            const categoryMap = { 
+                "jan sewa": "Jan Sewa", "jansewa": "Jan Sewa", 
+                "mobile": "Mobiles", "mobiles": "Mobiles", 
+                "laptop": "Laptops", "laptops": "Laptops", 
+                "accessory": "Accessories", "accessories": "Accessories", 
+                "repair": "Repairing", "repairing": "Repairing" 
+            };
+            return categoryMap[raw] || "Jan Sewa";
+        }
+
+        // 4. Data Synchronization (Real-time updates)
         function syncData() {
             db.collection("products").onSnapshot((snapshot) => {
                 products = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
@@ -303,7 +346,7 @@
         }
         syncData();
 
-        // New Secure Login Logic
+        // 5. Authentication Logic
         function checkAdminAccess() {
             if(auth.currentUser) {
                 showToast("You are already logged in as Admin.");
@@ -311,12 +354,19 @@
                 document.getElementById("auth-modal").classList.remove("hidden");
             }
         }
-        function closeAuthModal() { document.getElementById("auth-modal").classList.add("hidden"); }
+
+        function closeAuthModal() { 
+            document.getElementById("auth-modal").classList.add("hidden"); 
+        }
         
         async function processLogin() {
             const email = document.getElementById("admin-email").value;
             const pass = document.getElementById("admin-pass").value;
-            if(!email || !pass) { alert("Please enter both email and password."); return; }
+            
+            if(!email || !pass) { 
+                alert("Please enter both email and password."); 
+                return; 
+            }
             
             try {
                 await auth.signInWithEmailAndPassword(email, pass);
@@ -333,12 +383,7 @@
             });
         }
 
-        function normalizeCategory(value) {
-            const raw = String(value || "").trim().toLowerCase();
-            const categoryMap = { "jan sewa": "Jan Sewa", "jansewa": "Jan Sewa", "mobile": "Mobiles", "mobiles": "Mobiles", "laptop": "Laptops", "laptops": "Laptops", "accessory": "Accessories", "accessories": "Accessories", "repair": "Repairing", "repairing": "Repairing" };
-            return categoryMap[raw] || "Jan Sewa";
-        }
-
+        // 6. Product Management (Admin)
         async function handleSave() {
             const name = document.getElementById("p-name").value.trim();
             const price = parseInt(document.getElementById("p-price").value, 10);
@@ -347,69 +392,105 @@
             const file = document.getElementById("p-image-file").files[0];
             const editId = document.getElementById("edit-id").value;
 
-            if (!name || Number.isNaN(price)) { alert("Fill required fields!"); return; }
+            if (!name || Number.isNaN(price)) { 
+                alert("Fill required fields!"); 
+                return; 
+            }
 
             const btn = document.getElementById("save-btn");
-            btn.innerHTML = '<span class="loader"></span>'; btn.disabled = true;
+            btn.innerHTML = '<span class="loader"></span>'; 
+            btn.disabled = true;
 
             const existingProduct = products.find((product) => product.id === editId);
             let imgUrl = existingProduct && existingProduct.image ? existingProduct.image : "https://images.unsplash.com/photo-1614113489855-66422ad300a4?w=400";
 
             if (file) {
-                const fd = new FormData(); fd.append("image", file);
+                const fd = new FormData(); 
+                fd.append("image", file);
                 try {
                     const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: "POST", body: fd });
                     const data = await res.json();
-                    if (data && data.data && data.data.url) imgUrl = data.data.url;
-                } catch (error) { console.error("Upload failed", error); }
+                    if (data && data.data && data.data.url) {
+                        imgUrl = data.data.url;
+                    }
+                } catch (error) { 
+                    console.error("Upload failed", error); 
+                }
             }
 
-            const itemData = { name, price, category: cat, desc, image: imgUrl, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+            const itemData = { 
+                name, price, category: cat, desc, image: imgUrl, 
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp() 
+            };
 
             try {
-                if (editId) { await db.collection("products").doc(editId).update(itemData); showToast("Updated!"); } 
-                else { await db.collection("products").add(itemData); showToast("Added!"); }
+                if (editId) { 
+                    await db.collection("products").doc(editId).update(itemData); 
+                    showToast("Updated!"); 
+                } else { 
+                    await db.collection("products").add(itemData); 
+                    showToast("Added!"); 
+                }
                 closeAdminModal();
-            } catch (error) { console.error(error); alert("Error saving."); } 
-            finally { btn.textContent = editId ? "Update Product" : "Save Product"; btn.disabled = false; }
+            } catch (error) { 
+                console.error(error); 
+                alert("Error saving."); 
+            } finally { 
+                btn.textContent = editId ? "Update Product" : "Save Product"; 
+                btn.disabled = false; 
+            }
         }
 
         function editItem(id) {
             const product = products.find((item) => item.id === id);
             if (!product) return;
+            
             document.getElementById("edit-id").value = product.id;
             document.getElementById("p-name").value = product.name || "";
             document.getElementById("p-price").value = product.price || "";
             document.getElementById("p-cat").value = CATEGORY_OPTIONS.includes(normalizeCategory(product.category)) ? normalizeCategory(product.category) : "Jan Sewa";
             document.getElementById("p-desc").value = product.desc || "";
             document.getElementById("modal-heading").innerText = "Edit Item";
+            
             openAdminModal();
         }
 
         async function deleteItem(id) {
             if (!confirm("Delete this item?")) return;
-            try { await db.collection("products").doc(id).delete(); showToast("Deleted!"); } catch (error) { alert("Failed to delete."); }
+            try { 
+                await db.collection("products").doc(id).delete(); 
+                showToast("Deleted!"); 
+            } catch (error) { 
+                alert("Failed to delete."); 
+            }
         }
 
+        // 7. Display and Filter Products
         function getVisibleProducts(filteredData = null) {
             let data = filteredData || products.filter((product) => currentFilter === "All" || normalizeCategory(product.category) === currentFilter);
-            if (currentSort === "low") data = [...data].sort((a, b) => Number(a.price || 0) - Number(b.price || 0));
-            else if (currentSort === "high") data = [...data].sort((a, b) => Number(b.price || 0) - Number(a.price || 0));
+            if (currentSort === "low") {
+                data = [...data].sort((a, b) => Number(a.price || 0) - Number(b.price || 0));
+            } else if (currentSort === "high") {
+                data = [...data].sort((a, b) => Number(b.price || 0) - Number(a.price || 0));
+            }
             return data;
         }
 
         function displayProducts(filteredData = null) {
             const grid = document.getElementById("product-grid");
             if (!grid) return;
+            
             const data = getVisibleProducts(filteredData);
             grid.innerHTML = "";
 
-            if (!data.length) { grid.innerHTML = '<div class="col-span-full text-center py-20 font-bold text-slate-500">No items found.</div>'; return; }
+            if (!data.length) { 
+                grid.innerHTML = '<div class="col-span-full text-center py-20 font-bold text-slate-500">No items found.</div>'; 
+                return; 
+            }
 
             data.forEach((product) => {
                 const normalizedCategory = normalizeCategory(product.category);
                 
-                // 🔥 BUG FIX: Added 'customer-only' class to action buttons
                 const actionBtn = normalizedCategory === "Repairing"
                     ? `<button onclick="window.open('https://wa.me/${WHATSAPP}?text=Hello, I would like to inquire about ${encodeURIComponent(product.name)}.')" class="customer-only bg-slate-800 border border-slate-700 text-white px-3 py-1.5 rounded-lg text-[9px] font-bold uppercase hover:bg-slate-700 transition">Inquire</button>`
                     : `<button onclick="addToCart('${product.id}')" class="customer-only bg-orange-500 text-white w-8 h-8 rounded-lg flex items-center justify-center hover:bg-orange-600 transition shadow-[0_0_10px_rgba(234,88,12,0.3)]"><i class="fas fa-plus text-xs"></i></button>`;
@@ -435,47 +516,84 @@
 
         function handleSearch(query) {
             const term = query.toLowerCase().trim();
-            if (!term) { displayProducts(); return; }
-            displayProducts(products.filter((product) => (product.name || "").toLowerCase().includes(term) || (product.desc || "").toLowerCase().includes(term)));
+            if (!term) { 
+                displayProducts(); 
+                return; 
+            }
+            const filtered = products.filter((product) => (product.name || "").toLowerCase().includes(term) || (product.desc || "").toLowerCase().includes(term));
+            displayProducts(filtered);
         }
 
         function filterCat(cat) {
             currentFilter = cat;
             document.getElementById("category-title").innerText = cat === "All" ? "Featured" : cat;
+            
             document.querySelectorAll(".category-btn").forEach((btn) => {
-                btn.classList.remove("text-orange-400", "border-orange-500"); btn.classList.add("border-transparent", "hover:text-slate-300");
-                if (btn.innerText.trim() === cat) { btn.classList.add("text-orange-400", "border-orange-500"); btn.classList.remove("border-transparent", "hover:text-slate-300"); }
+                btn.classList.remove("text-orange-400", "border-orange-500"); 
+                btn.classList.add("border-transparent", "hover:text-slate-300");
+                
+                if (btn.innerText.trim() === cat) { 
+                    btn.classList.add("text-orange-400", "border-orange-500"); 
+                    btn.classList.remove("border-transparent", "hover:text-slate-300"); 
+                }
             });
             displayProducts();
         }
 
-        function sortByPrice(value) { currentSort = value; displayProducts(); }
+        function sortByPrice(value) { 
+            currentSort = value; 
+            displayProducts(); 
+        }
 
+        // 8. Cart System
         function addToCart(id) {
-            const product = products.find((item) => item.id === id); if (!product) return;
+            const product = products.find((item) => item.id === id); 
+            if (!product) return;
+            
             const existingItem = cart.find(item => item.id === id);
-            if(existingItem) existingItem.qty = (existingItem.qty || 1) + 1; else cart.push({ ...product, qty: 1 });
-            updateCartUI(); showToast("Added to your aesthetic cart");
+            if(existingItem) {
+                existingItem.qty = (existingItem.qty || 1) + 1; 
+            } else {
+                cart.push({ ...product, qty: 1 });
+            }
+            
+            updateCartUI(); 
+            showToast("Added to your aesthetic cart");
         }
 
         function changeQty(index, change) {
-            if(cart[index].qty + change > 0) cart[index].qty += change; else cart.splice(index, 1);
+            if(cart[index].qty + change > 0) {
+                cart[index].qty += change; 
+            } else {
+                cart.splice(index, 1);
+            }
             updateCartUI();
         }
 
         function updateCartUI() {
-            let totalQty = 0; cart.forEach(item => totalQty += (item.qty || 1));
+            let totalQty = 0; 
+            cart.forEach(item => totalQty += (item.qty || 1));
             document.getElementById("cart-count").innerText = totalQty;
-            const container = document.getElementById("cart-items"); container.innerHTML = "";
-            if (!cart.length) { container.innerHTML = '<div class="text-center text-sm font-bold text-slate-600 py-20"><i class="fas fa-ghost text-4xl mb-3 opacity-20"></i><br>Your cart feels empty.</div>'; }
+            
+            const container = document.getElementById("cart-items"); 
+            container.innerHTML = "";
+            
+            if (!cart.length) { 
+                container.innerHTML = '<div class="text-center text-sm font-bold text-slate-600 py-20"><i class="fas fa-ghost text-4xl mb-3 opacity-20"></i><br>Your cart feels empty.</div>'; 
+            }
 
             let total = 0;
             cart.forEach((item, idx) => {
-                const itemQty = item.qty || 1; total += Number(item.price || 0) * itemQty;
+                const itemQty = item.qty || 1; 
+                total += Number(item.price || 0) * itemQty;
+                
                 container.innerHTML += `
                 <div class="flex items-center space-x-4 bg-slate-900/80 p-3 rounded-2xl border border-slate-800">
                     <img src="${item.image || "https://via.placeholder.com/100"}" class="w-12 h-12 rounded-xl object-cover border border-slate-700">
-                    <div class="flex-1 text-xs font-bold"><h5 class="truncate w-32 text-slate-200">${item.name}</h5><p class="text-orange-400 mt-1">₹${Number(item.price).toLocaleString('en-IN')}</p></div>
+                    <div class="flex-1 text-xs font-bold">
+                        <h5 class="truncate w-32 text-slate-200">${item.name}</h5>
+                        <p class="text-orange-400 mt-1">₹${Number(item.price).toLocaleString('en-IN')}</p>
+                    </div>
                     <div class="flex items-center space-x-2 bg-slate-950 rounded-lg p-1 border border-slate-800">
                         <button onclick="changeQty(${idx}, -1)" class="w-5 h-5 font-bold text-slate-400 hover:bg-slate-800 transition">-</button>
                         <span class="text-[10px] font-black w-3 text-center text-white">${itemQty}</span>
@@ -487,21 +605,50 @@
         }
 
         async function checkoutOrder() {
-            if (!cart.length) { alert("Cart is empty!"); return; }
-            const name = prompt("Enter your Full Name:"); const phone = prompt("Enter your WhatsApp Number:"); const address = prompt("Enter your Full Address with Pincode:");
+            if (!cart.length) { 
+                alert("Cart is empty!"); 
+                return; 
+            }
+            
+            const name = prompt("Enter your Full Name:"); 
+            const phone = prompt("Enter your WhatsApp Number:"); 
+            const address = prompt("Enter your Full Address with Pincode:");
+            
             if (!name || !phone || !address) return;
-            const orderId = "SJI-" + Math.floor(1000 + Math.random() * 9000); const total = document.getElementById("cart-total").innerText;
+            
+            const orderId = "SJI-" + Math.floor(1000 + Math.random() * 9000); 
+            const total = document.getElementById("cart-total").innerText;
             const itemsMsg = cart.map((item, idx) => `${idx + 1}. ${item.name} (Qty: ${item.qty || 1}) - ₹${item.price * (item.qty || 1)}`).join("%0A");
+            
             try {
-                await db.collection("orders").add({ orderId, name, phone, address, total, status: "Processing", createdAt: firebase.firestore.FieldValue.serverTimestamp(), items: cart.map((item) => `${item.name} (x${item.qty || 1})`) });
-                window.open(`https://wa.me/${WHATSAPP}?text=*NEW ORDER (SHREE JI)*%0A%0A*Order ID:* ${orderId}%0A*Name:* ${encodeURIComponent(name)}%0A*Phone:* ${encodeURIComponent(phone)}%0A*Address:* ${encodeURIComponent(address)}%0A%0A*--- ITEMS ---*%0A${itemsMsg}%0A%0A*Grand Total:* ${encodeURIComponent(total)}`, "_blank");
-                cart = []; updateCartUI(); toggleCart(); showToast(`Order processed securely, ${name}!`);
-            } catch (error) { alert("Failed to process order."); }
+                await db.collection("orders").add({ 
+                    orderId, name, phone, address, total, status: "Processing", 
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(), 
+                    items: cart.map((item) => `${item.name} (x${item.qty || 1})`) 
+                });
+                
+                const whatsappMsg = `*NEW ORDER (SHREE JI TECH)*%0A%0A*Order ID:* ${orderId}%0A*Name:* ${encodeURIComponent(name)}%0A*Phone:* ${encodeURIComponent(phone)}%0A*Address:* ${encodeURIComponent(address)}%0A%0A*--- ITEMS ---*%0A${itemsMsg}%0A%0A*Grand Total:* ${encodeURIComponent(total)}`;
+                window.open(`https://wa.me/${WHATSAPP}?text=${whatsappMsg}`, "_blank");
+                
+                cart = []; 
+                updateCartUI(); 
+                toggleCart(); 
+                showToast(`Order processed securely, ${name}!`);
+            } catch (error) { 
+                alert("Failed to process order."); 
+            }
         }
 
+        // 9. Order Management & Tracking
         function displayOrders() {
-            const list = document.getElementById("order-list"); if (!list) return;
-            if (!orders.length) { list.innerHTML = '<div class="text-sm font-bold text-slate-600 text-center py-10">System records empty.</div>'; return; }
+            const list = document.getElementById("order-list"); 
+            if (!list) return;
+            
+            if (!orders.length) { 
+                list.innerHTML = '<div class="text-sm font-bold text-slate-600 text-center py-10">System records empty.</div>'; 
+                return; 
+            }
+            
             list.innerHTML = orders.map((order) => `
                 <div class="border border-slate-700 rounded-2xl p-4 bg-slate-800/50 relative overflow-hidden">
                     <div class="absolute top-0 left-0 w-1 h-full bg-slate-700 ${order.status === 'Completed' ? 'bg-green-500' : ''}"></div>
@@ -520,14 +667,47 @@
                 </div>
             `).join("");
         }
+
+        function processTrack() {
+            const value = document.getElementById("track-phone").value.trim();
+            const order = orders.find((item) => item.phone === value || item.orderId === value || item.orderId === `SJI-${value}`);
+            const result = document.getElementById("track-result");
+            
+            result.classList.remove("hidden");
+            if (order) {
+                result.className = "mt-4 p-4 rounded-xl bg-orange-500/10 border border-orange-500/30 text-orange-400 block text-xs";
+                result.textContent = `Order #${order.orderId} status: ${order.status}`;
+            } else {
+                result.className = "mt-4 p-4 rounded-xl bg-slate-800 border border-slate-700 text-slate-400 block text-xs";
+                result.textContent = "Data not found in records.";
+            }
+        }
         
-        async function updateOrderStatus(id, status) { try { await db.collection("orders").doc(id).update({ status, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }); showToast("System updated!"); } catch (error) { alert("Update failed."); } }
+        async function updateOrderStatus(id, status) { 
+            try { 
+                await db.collection("orders").doc(id).update({ 
+                    status, updatedAt: firebase.firestore.FieldValue.serverTimestamp() 
+                }); 
+                showToast("System updated!"); 
+            } catch (error) { 
+                alert("Update failed."); 
+            } 
+        }
+
+        // 10. UI Toggles & Modals
         function toggleCart() { document.getElementById("cart-drawer").classList.toggle("translate-x-full"); }
         function openAdminModal() { document.getElementById("admin-modal").classList.remove("hidden"); }
-        function closeAdminModal() { document.getElementById("admin-modal").classList.add("hidden"); document.getElementById("product-form").reset(); document.getElementById("edit-id").value = ""; }
+        function closeAdminModal() { 
+            document.getElementById("admin-modal").classList.add("hidden"); 
+            document.getElementById("product-form").reset(); 
+            document.getElementById("edit-id").value = ""; 
+        }
         function openOrderManager() { document.getElementById("order-manager-modal").classList.remove("hidden"); displayOrders(); }
         function closeOrderManager() { document.getElementById("order-manager-modal").classList.add("hidden"); }
+        function openTracker() { document.getElementById("track-modal").classList.remove("hidden"); }
+        function closeTracker() { document.getElementById("track-modal").classList.add("hidden"); }
         function previewImage(input) { if (input.files[0]) document.getElementById("file-name").innerText = input.files[0].name; }
+        
     </script>
 </body>
 </html>
