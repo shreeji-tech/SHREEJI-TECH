@@ -49,6 +49,13 @@
     </style>
 </head>
 <body class="text-gray-900">
+
+    <!-- Naya Feature: Toast Notification System -->
+    <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-full shadow-2xl z-[200] transform -translate-y-24 transition-transform duration-300 font-bold text-sm whitespace-nowrap flex items-center gap-2">
+        <i class="fas fa-check-circle text-green-400"></i>
+        <span id="toast-msg">Message</span>
+    </div>
+
     <div id="admin-bar" class="admin-only bg-gray-900 text-white py-2 px-4 sticky top-0 z-[70]">
         <div class="container mx-auto flex justify-between items-center text-[10px] font-bold uppercase tracking-widest">
             <span><i class="fas fa-user-shield mr-2"></i> Admin Mode Activated</span>
@@ -288,6 +295,7 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
+        // ⚠️ WARNING: Frontend mein password rakhna secure nahi hai. Aage chal kar hum isko theek karenge.
         const ADMIN_PASS = "ShreeJi2121";
         const WHATSAPP = "917052055713";
         const IMGBB_KEY = "893d6b612e41b4f52cd9626cf9cc21ee";
@@ -301,6 +309,18 @@
 
         if (sessionStorage.getItem("isAdmin")) {
             document.body.classList.add("is-admin");
+        }
+
+        // Naya Function: Professional Toast Notification
+        function showToast(msg) {
+            const toast = document.getElementById("toast");
+            document.getElementById("toast-msg").innerText = msg;
+            toast.classList.remove("-translate-y-24");
+            toast.classList.add("translate-y-0");
+            setTimeout(() => {
+                toast.classList.remove("translate-y-0");
+                toast.classList.add("-translate-y-24");
+            }, 3000);
         }
 
         function syncData() {
@@ -322,7 +342,7 @@
             if (pass === ADMIN_PASS) {
                 sessionStorage.setItem("isAdmin", "true");
                 document.body.classList.add("is-admin");
-                alert("Radhe Radhe! Admin access mil gaya.");
+                showToast("Admin access mil gaya!");
             } else if (pass !== null) {
                 alert("Galat password!");
             }
@@ -348,7 +368,6 @@
                 "repair": "Repairing",
                 "repairing": "Repairing"
             };
-
             return categoryMap[raw] || "Jan Sewa";
         }
 
@@ -375,7 +394,6 @@
             if (file) {
                 const fd = new FormData();
                 fd.append("image", file);
-
                 try {
                     const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: "POST", body: fd });
                     const data = await res.json();
@@ -388,19 +406,17 @@
             }
 
             const itemData = {
-                name,
-                price,
-                category: cat,
-                desc,
-                image: imgUrl,
+                name, price, category: cat, desc, image: imgUrl,
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             };
 
             try {
                 if (editId) {
                     await db.collection("products").doc(editId).update(itemData);
+                    showToast("Item update ho gaya!");
                 } else {
                     await db.collection("products").add(itemData);
+                    showToast("Naya item add ho gaya!");
                 }
                 closeAdminModal();
             } catch (error) {
@@ -431,9 +447,9 @@
 
         async function deleteItem(id) {
             if (!confirm("Suniye, kya aap ise delete karna chahte hain?")) return;
-
             try {
                 await db.collection("products").doc(id).delete();
+                showToast("Item delete ho gaya!");
             } catch (error) {
                 console.error(error);
                 alert("Delete failed.");
@@ -442,13 +458,11 @@
 
         function getVisibleProducts(filteredData = null) {
             let data = filteredData || products.filter((product) => currentFilter === "All" || normalizeCategory(product.category) === currentFilter);
-
             if (currentSort === "low") {
                 data = [...data].sort((a, b) => Number(a.price || 0) - Number(b.price || 0));
             } else if (currentSort === "high") {
                 data = [...data].sort((a, b) => Number(b.price || 0) - Number(a.price || 0));
             }
-
             return data;
         }
 
@@ -483,7 +497,7 @@
                     <span class="text-[8px] font-black uppercase text-orange-500 bg-orange-50 px-2 py-1 rounded-md">${normalizedCategory}</span>
                     <h4 class="font-black text-gray-800 mt-2 truncate text-sm">${product.name || "Untitled Item"}</h4>
                     <div class="flex items-center justify-between mt-3">
-                        <span class="text-base font-black text-gray-900">₹${Number(product.price || 0).toLocaleString()}</span>
+                        <span class="text-base font-black text-gray-900">₹${Number(product.price || 0).toLocaleString('en-IN')}</span>
                         ${actionBtn}
                     </div>
                 </div>`;
@@ -496,7 +510,6 @@
                 displayProducts();
                 return;
             }
-
             const filtered = products.filter((product) =>
                 (product.name || "").toLowerCase().includes(term) ||
                 (product.desc || "").toLowerCase().includes(term)
@@ -521,16 +534,38 @@
             displayProducts();
         }
 
+        // 🛠️ Cart Add Logic Fix (Quantity System Added)
         function addToCart(id) {
             const product = products.find((item) => item.id === id);
             if (!product) return;
-            cart.push(product);
+            
+            const existingItem = cart.find(item => item.id === id);
+            if(existingItem) {
+                existingItem.qty = (existingItem.qty || 1) + 1;
+            } else {
+                cart.push({ ...product, qty: 1 });
+            }
+            
             updateCartUI();
-            toggleCart();
+            showToast("Item cart mein add ho gaya!");
         }
 
+        // 🛠️ Cart Change Quantity Logic 
+        function changeQty(index, change) {
+            if(cart[index].qty + change > 0) {
+                cart[index].qty += change;
+            } else {
+                cart.splice(index, 1);
+            }
+            updateCartUI();
+        }
+
+        // 🛠️ UI Update Fix
         function updateCartUI() {
-            document.getElementById("cart-count").innerText = cart.length;
+            let totalQty = 0;
+            cart.forEach(item => totalQty += (item.qty || 1));
+            document.getElementById("cart-count").innerText = totalQty;
+            
             const container = document.getElementById("cart-items");
             container.innerHTML = "";
 
@@ -540,19 +575,26 @@
 
             let total = 0;
             cart.forEach((item, idx) => {
-                total += Number(item.price || 0);
+                const itemQty = item.qty || 1;
+                total += Number(item.price || 0) * itemQty;
+                
                 container.innerHTML += `
                 <div class="flex items-center space-x-3 bg-gray-50 p-3 rounded-2xl border border-gray-100">
                     <img src="${item.image || "https://via.placeholder.com/100"}" class="w-10 h-10 object-cover rounded-lg">
                     <div class="flex-1 text-xs font-bold">
                         <h5 class="truncate w-32">${item.name}</h5>
-                        <p class="text-orange-600">₹${item.price}</p>
+                        <p class="text-orange-600">₹${Number(item.price).toLocaleString('en-IN')}</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="changeQty(${idx}, -1)" class="bg-gray-200 w-6 h-6 rounded-md flex items-center justify-center font-bold text-gray-600">-</button>
+                        <span class="text-xs font-bold w-4 text-center">${itemQty}</span>
+                        <button onclick="changeQty(${idx}, 1)" class="bg-gray-200 w-6 h-6 rounded-md flex items-center justify-center font-bold text-gray-600">+</button>
                     </div>
                     <button onclick="removeFromCart(${idx})" class="text-red-400 p-2"><i class="fas fa-trash"></i></button>
                 </div>`;
             });
 
-            document.getElementById("cart-total").innerText = `₹${total}`;
+            document.getElementById("cart-total").innerText = `₹${total.toLocaleString('en-IN')}`;
         }
 
         function removeFromCart(index) {
@@ -560,6 +602,7 @@
             updateCartUI();
         }
 
+        // 🛠️ Checkout Logic Fix (Quantity Message added)
         async function checkoutOrder() {
             if (!cart.length) {
                 alert("Cart khali hai!");
@@ -573,17 +616,14 @@
 
             const orderId = "SJI-" + Math.floor(1000 + Math.random() * 9000);
             const total = document.getElementById("cart-total").innerText;
-            const itemsMsg = cart.map((item, idx) => `${idx + 1}. ${item.name} - ₹${item.price}`).join("%0A");
+            
+            const itemsMsg = cart.map((item, idx) => `${idx + 1}. ${item.name} (Qty: ${item.qty || 1}) - ₹${item.price * (item.qty || 1)}`).join("%0A");
 
             const newOrder = {
-                orderId,
-                name,
-                phone,
-                address,
-                total,
+                orderId, name, phone, address, total,
                 status: "Processing",
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                items: cart.map((item) => item.name)
+                items: cart.map((item) => `${item.name} (x${item.qty || 1})`)
             };
 
             try {
@@ -593,7 +633,7 @@
                 cart = [];
                 updateCartUI();
                 toggleCart();
-                alert(`Suniye ${name}, order confirm ho gaya!`);
+                showToast(`Shukriya ${name}, order place ho gaya!`);
             } catch (error) {
                 console.error(error);
                 alert("Order failed.");
@@ -649,6 +689,7 @@
         async function updateOrderStatus(id, status) {
             try {
                 await db.collection("orders").doc(id).update({ status, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+                showToast("Order status update ho gaya!");
             } catch (error) {
                 console.error(error);
                 alert("Status update failed.");
