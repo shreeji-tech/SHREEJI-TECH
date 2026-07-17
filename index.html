@@ -1,700 +1,1386 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Shree Ji | Jan Sewa & Digital Store</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
-        html { scroll-behavior: smooth; }
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
-            -webkit-tap-highlight-color: transparent;
-            padding-bottom: 70px;
-        }
-        .admin-only { display: none !important; }
-        .is-admin .admin-only { display: block !important; }
-        .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
-        .product-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .product-card:hover { transform: translateY(-5px); }
-        .product-card:active { transform: scale(0.96); }
-        .loader {
-            display: inline-block;
-            width: 1em;
-            height: 1em;
-            border: 3px solid rgba(234, 88, 12, 0.15);
-            border-top-color: #ea580c;
-            border-radius: 9999px;
-            animation: spinner 1s linear infinite;
-        }
-        @keyframes spinner {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-thumb { background: #ea580c; border-radius: 10px; }
-        .brand-logo { width: 45px; height: 45px; object-fit: cover; border-radius: 10px; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .ticker-wrapper { overflow: hidden; background: #fff7ed; border-bottom: 1px solid #ffedd5; }
-        .ticker-content { display: inline-block; white-space: nowrap; animation: ticker 25s linear infinite; }
-        @keyframes ticker {
-            0% { transform: translateX(100%); }
-            100% { transform: translateX(-100%); }
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shree Ji Tech | Online Shopping Store</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+
+        :root {
+            --brand-blue: #2874f0;
+            --brand-yellow: #ffe500;
+            --page-bg: #f1f3f6;
+            --text-dark: #172337;
+            --muted: #878787;
+            --green: #388e3c;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            color-scheme: light;
+        }
+
+        body {
+            min-height: 100vh;
+            margin: 0;
+            font-family: "Inter", Arial, sans-serif;
+            background: var(--page-bg);
+            color: var(--text-dark);
+        }
+
+        .admin-only {
+            display: none !important;
+        }
+
+        .is-admin .admin-only {
+            display: inline-flex !important;
+        }
+
+        .is-admin .customer-only {
+            display: none !important;
+        }
+
+        .topbar {
+            background: var(--brand-blue);
+            color: #fff;
+            box-shadow: 0 1px 6px rgba(0, 0, 0, 0.18);
+        }
+
+        .brand-mark {
+            line-height: 1;
+            letter-spacing: -0.02em;
+        }
+
+        .brand-plus {
+            color: var(--brand-yellow);
+            font-size: 11px;
+            font-style: italic;
+            font-weight: 700;
+        }
+
+        .search-shell {
+            background: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.16);
+        }
+
+        .search-shell input {
+            color: #111827;
+        }
+
+        .search-shell button {
+            color: var(--brand-blue);
+        }
+
+        .nav-chip {
+            min-width: 88px;
+            color: #172337;
+            transition: color 0.2s ease, transform 0.2s ease;
+        }
+
+        .nav-chip:hover {
+            color: var(--brand-blue);
+            transform: translateY(-1px);
+        }
+
+        .hero-banner {
+            background:
+                linear-gradient(105deg, rgba(40, 116, 240, 0.94), rgba(21, 63, 166, 0.86)),
+                url("https://images.unsplash.com/photo-1550009158-9ebf69173e03?auto=format&fit=crop&w=1600&q=80");
+            background-position: center;
+            background-size: cover;
+        }
+
+        .product-card {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            transition: box-shadow 0.2s ease, transform 0.2s ease;
+        }
+
+        .product-card:hover {
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .rating-pill {
+            background: var(--green);
+            color: #fff;
+        }
+
+        .spec-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            border-top: 1px solid #eef2f7;
+            padding-top: 6px;
+            font-size: 11px;
+        }
+
+        .spec-label {
+            color: #6b7280;
+        }
+
+        .spec-value {
+            color: #111827;
+            font-weight: 700;
+            text-align: right;
+        }
+
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            overflow: hidden;
+        }
+
+        .modal-panel {
+            background: #fff;
+            color: var(--text-dark);
+        }
+
+        .modal-panel input {
+            border: 1px solid #d1d5db;
+            background: #fff;
+            color: #111827;
+        }
+
+        .modal-panel textarea {
+            border: 1px solid #d1d5db;
+            background: #fff;
+            color: #111827;
+            min-height: 96px;
+            resize: vertical;
+        }
+
+        .modal-panel input:focus {
+            border-color: var(--brand-blue);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(40, 116, 240, 0.14);
+        }
+
+        .modal-panel textarea:focus {
+            border-color: var(--brand-blue);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(40, 116, 240, 0.14);
+        }
+
+        .toast {
+            transform: translateY(120%);
+            transition: transform 0.25s ease;
+        }
+
+        .toast.is-visible {
+            transform: translateY(0);
+        }
+
+        .mobile-filter-overlay {
+            display: none;
+        }
+
+        .mobile-filter-overlay.is-open {
+            display: flex;
+        }
+
+        .filter-category-button.is-active {
+            color: var(--brand-blue);
+            font-weight: 800;
+        }
+
+        .cart-overlay {
+            display: none;
+        }
+
+        .cart-overlay.is-open {
+            display: flex;
+        }
+
+        .cart-panel {
+            max-height: 92vh;
+            overflow-y: auto;
+        }
+
+        .checkout-field input,
+        .checkout-field textarea,
+        .checkout-field select {
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .checkout-field.has-error input,
+        .checkout-field.has-error textarea,
+        .checkout-field.has-error select {
+            border-color: #dc2626;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+        }
+
+        .checkout-error {
+            display: none;
+            min-height: 16px;
+        }
+
+        .checkout-field.has-error .checkout-error {
+            display: block;
+        }
+
+        .checkout-button:disabled {
+            cursor: not-allowed;
+            opacity: 0.55;
+        }
+
+        .checkout-action-bar {
+            position: sticky;
+            bottom: 0;
+            background: #fff;
+            padding-top: 12px;
+            box-shadow: 0 -8px 14px rgba(255, 255, 255, 0.92);
+        }
+
+        .nav-chip {
+            height: 64px;
+            justify-content: center;
+        }
+
+        .nav-chip.is-active {
+            color: var(--brand-blue);
+        }
+
+        @media (max-width: 720px) {
+            .desktop-actions {
+                display: none;
+            }
+
+            .category-strip {
+                overflow-x: auto;
+                justify-content: flex-start;
+            }
+
+            .filter-panel {
+                display: none;
+            }
+
+            .mobile-filter-button {
+                display: inline-flex;
+            }
+        }
+
+        @media (min-width: 640px) {
+            .is-admin .mobile-admin-action,
+            .mobile-admin-action {
+                display: none !important;
+            }
+        }
+    </style>
 </head>
-<body class="text-gray-900">
-    <div id="admin-bar" class="admin-only bg-gray-900 text-white py-2 px-4 sticky top-0 z-[70]">
-        <div class="container mx-auto flex justify-between items-center text-[10px] font-bold uppercase tracking-widest">
-            <span><i class="fas fa-user-shield mr-2"></i> Admin Mode Activated</span>
-            <div class="flex space-x-3">
-                <button onclick="openAdminModal()" class="bg-orange-600 px-2 py-1 rounded">Add Item</button>
-                <button onclick="openOrderManager()" class="bg-blue-600 px-2 py-1 rounded">Orders</button>
-                <button onclick="logout()" class="text-red-400">Exit</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="ticker-wrapper py-1.5">
-        <div class="ticker-content text-[10px] font-bold text-orange-600 uppercase tracking-widest">
-            Suniye! Humare yahan naye Refurbished Laptops ka stock aa gaya hai • Aadhar aur PAN card ki suvidha uplabdha hai • Best Mobile Repairing in Gorakhpur
-        </div>
-    </div>
-
-    <header class="bg-white sticky top-0 z-50 glass border-b border-orange-100">
-        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center space-x-2 cursor-pointer" onclick="location.reload()">
-                <img src="https://raw.githubusercontent.com/shreeji-tech/SHREEJI-TECH/main/logo.jpg" alt="Logo" class="brand-logo shadow-sm border border-orange-50">
-                <div>
-                    <h1 class="text-xl font-black tracking-tighter text-gray-800 leading-none">SHREE JI</h1>
-                    <p class="text-[8px] font-bold text-orange-600 tracking-widest uppercase">Digital & Jan Sewa</p>
-                </div>
-            </div>
-            <div class="flex items-center space-x-4">
-                <div class="relative cursor-pointer group" onclick="toggleCart()">
-                    <i class="fas fa-shopping-bag text-xl text-gray-700"></i>
-                    <span id="cart-count" class="absolute -top-1 -right-1 bg-orange-600 text-white text-[9px] rounded-full w-4 h-4 flex items-center justify-center font-bold">0</span>
-                </div>
-                <button onclick="checkAdminAccess()" class="text-gray-300 p-1" aria-label="Admin login">
-                    <i class="fas fa-fingerprint"></i>
-                </button>
-            </div>
-        </div>
-        <div class="px-4 pb-3">
-            <div class="relative">
-                <input type="text" id="ai-input-mobile" oninput="handleSearch(this.value)" placeholder="Suniye, kya dhoondh rahe hain aap?..." class="w-full bg-gray-100 border-none p-3 rounded-xl outline-none text-sm pl-10 focus:ring-2 ring-orange-200">
-                <i class="fas fa-search absolute left-3 top-3.5 text-gray-400 text-sm"></i>
-            </div>
-        </div>
-    </header>
-
-    <section class="container mx-auto px-4 my-4">
-        <div class="bg-gradient-to-br from-orange-600 to-orange-50 rounded-3xl p-6 text-white shadow-lg relative overflow-hidden">
-            <div class="relative z-10">
-                <h2 class="text-xl font-black">Shree Ji Official App</h2>
-                <p class="text-xs opacity-90 mb-4">Behtar experience ke liye app install karein.</p>
-                <a href="app-release.apk" download class="inline-flex items-center bg-white text-orange-600 px-5 py-2.5 rounded-xl font-bold text-sm shadow-md active:scale-95 transition">
-                    <i class="fab fa-android mr-2 text-lg"></i> Download APK
-                </a>
-            </div>
-            <i class="fab fa-android absolute -right-4 -bottom-4 text-8xl opacity-10 rotate-12"></i>
-        </div>
-    </section>
-
-    <nav class="bg-white border-b border-gray-100 sticky top-[110px] md:top-[80px] z-40 overflow-x-auto no-scrollbar">
-        <div class="container mx-auto px-4 flex space-x-6 py-3 text-[11px] font-bold text-gray-500 whitespace-nowrap uppercase tracking-wider">
-            <button onclick="filterCat('All')" class="category-btn text-orange-600 border-b-2 border-orange-600 pb-1 transition-all">All</button>
-            <button onclick="filterCat('Jan Sewa')" class="category-btn hover:text-orange-600 transition-all">Jan Sewa</button>
-            <button onclick="filterCat('Mobiles')" class="category-btn hover:text-orange-600 transition-all">Mobiles</button>
-            <button onclick="filterCat('Laptops')" class="category-btn hover:text-orange-600 transition-all">Laptops</button>
-            <button onclick="filterCat('Accessories')" class="category-btn hover:text-orange-600 transition-all">Accessories</button>
-            <button onclick="filterCat('Repairing')" class="category-btn hover:text-orange-600 transition-all">Repairing</button>
-        </div>
-    </nav>
-
-    <main class="container mx-auto px-4 py-8">
-        <div class="flex justify-between items-end mb-6">
-            <h3 id="category-title" class="text-xl font-black text-gray-800">Featured Products</h3>
-            <select onchange="sortByPrice(this.value)" class="text-[10px] font-bold bg-white border-none rounded-lg p-2 outline-none shadow-sm cursor-pointer">
-                <option value="none">SORT BY</option>
-                <option value="low">Low Price</option>
-                <option value="high">High Price</option>
-            </select>
-        </div>
-        <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 p-2">
-            <div class="col-span-full text-center py-20">
-                <i class="loader text-orange-600"></i>
-                <p class="mt-4 font-bold text-gray-400">Suniye, products load ho rahe hain...</p>
-            </div>
-        </div>
-    </main>
-
-    <div class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-gray-100 flex justify-around items-center py-3 md:hidden z-[60] shadow-[0_-5px_20px_rgba(0,0,0,0.05)]">
-        <button onclick="location.reload()" class="flex flex-col items-center text-orange-600">
-            <i class="fas fa-home text-lg"></i>
-            <span class="text-[10px] font-bold mt-1">Home</span>
-        </button>
-        <button onclick="openTracker()" class="flex flex-col items-center text-gray-400">
-            <i class="fas fa-truck-fast text-lg"></i>
-            <span class="text-[10px] font-bold mt-1">Track</span>
-        </button>
-        <button onclick="toggleCart()" class="flex flex-col items-center text-gray-400">
-            <i class="fas fa-shopping-bag text-lg"></i>
-            <span class="text-[10px] font-bold mt-1">Cart</span>
-        </button>
-        <button onclick="window.open('https://wa.me/917052055713')" class="flex flex-col items-center text-gray-400">
-            <i class="fab fa-whatsapp text-lg"></i>
-            <span class="text-[10px] font-bold mt-1">Chat</span>
-        </button>
-    </div>
-
-    <div id="admin-modal" class="hidden fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl w-full max-w-xl p-6 max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-black" id="modal-heading">Add New Item</h2>
-                <button onclick="closeAdminModal()" class="text-gray-400"><i class="fas fa-times text-xl"></i></button>
-            </div>
-            <form id="product-form" class="space-y-4 text-sm">
-                <input type="hidden" id="edit-id">
-                <input type="text" id="p-name" placeholder="Product/Service Name" class="w-full bg-gray-50 p-4 rounded-2xl outline-none focus:ring-2 ring-orange-500 font-bold">
-                <div class="grid grid-cols-2 gap-4">
-                    <input type="number" id="p-price" placeholder="Price (₹)" class="bg-gray-50 p-4 rounded-2xl outline-none font-bold">
-                    <select id="p-cat" class="bg-gray-50 p-4 rounded-2xl outline-none font-bold">
-                        <option value="Jan Sewa">Jan Sewa</option>
-                        <option value="Mobiles">Mobiles</option>
-                        <option value="Laptops">Laptops</option>
-                        <option value="Accessories">Accessories</option>
-                        <option value="Repairing">Repairing</option>
-                    </select>
-                </div>
-                <textarea id="p-desc" placeholder="Details..." class="w-full bg-gray-50 p-4 rounded-2xl outline-none font-medium h-24"></textarea>
-                <div class="border-2 border-dashed border-gray-100 p-8 rounded-2xl text-center">
-                    <input type="file" id="p-image-file" class="hidden" accept="image/*" onchange="previewImage(this)">
-                    <label for="p-image-file" class="cursor-pointer block">
-                        <i class="fas fa-image text-3xl text-orange-300 mb-2"></i>
-                        <p id="file-name" class="text-[10px] font-bold text-gray-400">TAP TO UPLOAD IMAGE</p>
-                    </label>
-                </div>
-                <button type="button" onclick="handleSave()" id="save-btn" class="w-full bg-orange-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest active:scale-95 transition">Save Product</button>
-            </form>
-        </div>
-    </div>
-
-    <div id="order-manager-modal" class="hidden fixed inset-0 bg-black/70 z-[100] flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl w-full max-w-3xl p-6 max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-black">Order Manager</h2>
-                <button onclick="closeOrderManager()" class="text-gray-400"><i class="fas fa-times text-xl"></i></button>
-            </div>
-            <div id="order-list" class="space-y-3">
-                <div class="text-sm font-bold text-gray-400">No orders yet.</div>
-            </div>
-        </div>
-    </div>
-
-    <div id="track-modal" class="hidden fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white p-8 rounded-[2.5rem] w-full max-w-sm text-center shadow-2xl">
-            <div class="bg-blue-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i class="fas fa-location-crosshairs text-2xl text-blue-600"></i>
-            </div>
-            <h3 class="text-xl font-black mb-4">Track Your Order</h3>
-            <input type="tel" id="track-phone" placeholder="Phone Number / Order ID" class="w-full bg-gray-50 p-4 rounded-2xl text-center font-bold text-lg mb-4 outline-none border-2 border-transparent focus:border-blue-500">
-            <button onclick="processTrack()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-lg active:scale-95 transition">Track Now</button>
-            <div id="track-result" class="mt-4 p-4 rounded-2xl hidden font-bold text-sm"></div>
-            <button onclick="closeTracker()" class="mt-4 text-xs font-bold text-gray-400 uppercase tracking-widest">Close</button>
-        </div>
-    </div>
-
-    <div id="cart-drawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-3xl translate-x-full transition-transform duration-500 z-[100] flex flex-col">
-        <div class="p-6 border-b flex justify-between items-center bg-gray-50">
-            <h2 class="text-xl font-black italic">My Cart</h2>
-            <button onclick="toggleCart()" class="text-xl text-gray-400"><i class="fas fa-times"></i></button>
-        </div>
-        <div id="cart-items" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
-        <div class="p-6 border-t bg-white">
-            <div class="flex justify-between text-lg font-black mb-4">
-                <span>Total:</span>
-                <span id="cart-total" class="text-orange-600">₹0</span>
-            </div>
-            <button onclick="checkoutOrder()" class="w-full bg-gray-900 text-white py-4 rounded-2xl font-black active:scale-95 transition">CHECKOUT VIA WHATSAPP</button>
-        </div>
-    </div>
-
-    <footer class="bg-gray-900 text-white pt-12 pb-24 md:pb-12 mt-12">
-        <div class="container mx-auto px-6">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-8">
-                <div class="space-y-4">
-                    <h2 class="text-2xl font-black tracking-tighter italic">SHREE JI</h2>
-                    <p class="text-gray-400 text-sm leading-relaxed">Aapki apni digital shop. Best quality refurbished laptops aur Jan Sewa services.</p>
-                    <div class="flex space-x-4 pt-2">
-                        <a href="https://www.instagram.com/shreeradhejansewakendra?igsh=MWRjMm93aG1tYmx0Ng==" target="_blank" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-green-600 transition shadow-lg">
-                            <i class="fab fa-instagram text-sm"></i>
-                        </a>
-                        <a href="https://wa.me/917052055713" target="_blank" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-green-600 transition shadow-lg">
-                            <i class="fab fa-whatsapp text-sm"></i>
-                        </a>
-                    </div>
-                </div>
-                <div>
-                    <h4 class="text-lg font-bold mb-6 border-b border-gray-800 pb-2 inline-block">Suniye Services</h4>
-                    <ul class="space-y-3 text-gray-400 text-sm">
-                        <li><a href="javascript:void(0)" onclick="filterCat('Jan Sewa')" class="hover:text-orange-500 transition">Jan Sewa Kendra</a></li>
-                        <li><a href="javascript:void(0)" onclick="filterCat('Mobiles')" class="hover:text-orange-500 transition">Mobile Sales & Repair</a></li>
-                        <li><a href="javascript:void(0)" onclick="filterCat('Laptops')" class="hover:text-orange-500 transition">Refurbished Laptops</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="text-lg font-bold mb-6 border-b border-gray-800 pb-2 inline-block">Shop Address</h4>
-                    <ul class="space-y-4 text-gray-400 text-sm">
-                        <li class="flex items-start">
-                            <i class="fas fa-map-marker-alt mt-1 mr-3 text-orange-600"></i>
-                            <span>Adarsh Nagar, Bichhiya, Gorakhpur, UP</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="fas fa-phone-alt mr-3 text-orange-600"></i>
-                            <span>+91 7052055713</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="fas fa-envelope mr-3 text-orange-600"></i>
-                            <span class="break-all">shreeradhecommunication63@gmail.com</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            <div class="border-t border-gray-800 pt-8 text-center">
-                <p class="text-gray-500 text-[10px] uppercase tracking-[0.2em]">
-                    &copy; 2026 SHREE JI DIGITAL STORE. DESIGNED WITH LOVE FOR YOU.
-                </p>
-            </div>
-        </div>
-    </footer>
-
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyBuCywyMgEw_j9yeHD-E4KwRWZGreWagTc",
-            authDomain: "shree-4c33e.firebaseapp.com",
-            projectId: "shree-4c33e",
-            storageBucket: "shree-4c33e.firebasestorage.app",
-            messagingSenderId: "759128544690",
-            appId: "1:759128544690:web:3f57e7ed9117a1acdd80ab",
-            measurementId: "G-NP1D792NVF"
-        };
-
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-
-        const ADMIN_PASS = "ShreeJi2121";
-        const WHATSAPP = "917052055713";
-        const IMGBB_KEY = "893d6b612e41b4f52cd9626cf9cc21ee";
-
-        let products = [];
-        let cart = [];
-        let orders = [];
-        let currentFilter = "All";
-        let currentSort = "none";
-        const CATEGORY_OPTIONS = ["Jan Sewa", "Mobiles", "Laptops", "Accessories", "Repairing"];
-
-        if (sessionStorage.getItem("isAdmin")) {
-            document.body.classList.add("is-admin");
-        }
-
-        function syncData() {
-            db.collection("products").onSnapshot((snapshot) => {
-                products = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-                displayProducts();
-            });
-
-            db.collection("orders").orderBy("createdAt", "desc").onSnapshot((snapshot) => {
-                orders = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-                displayOrders();
-            });
-        }
-
-        syncData();
-
-        function checkAdminAccess() {
-            const pass = prompt("Suniye, Secret Key enter karein:");
-            if (pass === ADMIN_PASS) {
-                sessionStorage.setItem("isAdmin", "true");
-                document.body.classList.add("is-admin");
-                alert("Radhe Radhe! Admin access mil gaya.");
-            } else if (pass !== null) {
-                alert("Galat password!");
-            }
-        }
-
-        function logout() {
-            sessionStorage.removeItem("isAdmin");
-            location.reload();
-        }
-
-        function normalizeCategory(value) {
-            const raw = String(value || "").trim().toLowerCase();
-            const categoryMap = {
-                "jan sewa": "Jan Sewa",
-                "jansewa": "Jan Sewa",
-                "jan seva": "Jan Sewa",
-                "mobile": "Mobiles",
-                "mobiles": "Mobiles",
-                "laptop": "Laptops",
-                "laptops": "Laptops",
-                "accessory": "Accessories",
-                "accessories": "Accessories",
-                "repair": "Repairing",
-                "repairing": "Repairing"
-            };
-
-            return categoryMap[raw] || "Jan Sewa";
-        }
-
-        async function handleSave() {
-            const name = document.getElementById("p-name").value.trim();
-            const price = parseInt(document.getElementById("p-price").value, 10);
-            const cat = normalizeCategory(document.getElementById("p-cat").value);
-            const desc = document.getElementById("p-desc").value.trim();
-            const file = document.getElementById("p-image-file").files[0];
-            const editId = document.getElementById("edit-id").value;
-
-            if (!name || Number.isNaN(price)) {
-                alert("Details bharna zaroori hai!");
-                return;
-            }
-
-            const btn = document.getElementById("save-btn");
-            btn.innerHTML = '<span class="loader"></span> Processing...';
-            btn.disabled = true;
-
-            const existingProduct = products.find((product) => product.id === editId);
-            let imgUrl = existingProduct && existingProduct.image ? existingProduct.image : "https://via.placeholder.com/300";
-
-            if (file) {
-                const fd = new FormData();
-                fd.append("image", file);
-
-                try {
-                    const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: "POST", body: fd });
-                    const data = await res.json();
-                    if (data && data.data && data.data.url) {
-                        imgUrl = data.data.url;
-                    }
-                } catch (error) {
-                    console.error("Upload failed", error);
-                }
-            }
-
-            const itemData = {
-                name,
-                price,
-                category: cat,
-                desc,
-                image: imgUrl,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            };
-
-            try {
-                if (editId) {
-                    await db.collection("products").doc(editId).update(itemData);
-                } else {
-                    await db.collection("products").add(itemData);
-                }
-                closeAdminModal();
-            } catch (error) {
-                console.error(error);
-                alert("Error saving data.");
-            } finally {
-                btn.textContent = editId ? "Update Product" : "Save Product";
-                btn.disabled = false;
-            }
-        }
-
-        function editItem(id) {
-            const product = products.find((item) => item.id === id);
-            if (!product) return;
-            const categorySelect = document.getElementById("p-cat");
-            const normalizedCategory = normalizeCategory(product.category);
-
-            document.getElementById("edit-id").value = product.id;
-            document.getElementById("p-name").value = product.name || "";
-            document.getElementById("p-price").value = product.price || "";
-            categorySelect.value = CATEGORY_OPTIONS.includes(normalizedCategory) ? normalizedCategory : "Jan Sewa";
-            document.getElementById("p-desc").value = product.desc || "";
-            document.getElementById("file-name").innerText = product.image ? "CURRENT IMAGE SAVED" : "TAP TO UPLOAD IMAGE";
-            document.getElementById("modal-heading").innerText = "Edit Item";
-            document.getElementById("save-btn").innerText = "Update Product";
-            openAdminModal();
-        }
-
-        async function deleteItem(id) {
-            if (!confirm("Suniye, kya aap ise delete karna chahte hain?")) return;
-
-            try {
-                await db.collection("products").doc(id).delete();
-            } catch (error) {
-                console.error(error);
-                alert("Delete failed.");
-            }
-        }
-
-        function getVisibleProducts(filteredData = null) {
-            let data = filteredData || products.filter((product) => currentFilter === "All" || normalizeCategory(product.category) === currentFilter);
-
-            if (currentSort === "low") {
-                data = [...data].sort((a, b) => Number(a.price || 0) - Number(b.price || 0));
-            } else if (currentSort === "high") {
-                data = [...data].sort((a, b) => Number(b.price || 0) - Number(a.price || 0));
-            }
-
-            return data;
-        }
-
-        function displayProducts(filteredData = null) {
-            const grid = document.getElementById("product-grid");
-            if (!grid) return;
-
-            const data = getVisibleProducts(filteredData);
-            grid.innerHTML = "";
-
-            if (!data.length) {
-                grid.innerHTML = '<div class="col-span-full text-center py-20 font-bold text-gray-400">Koi item nahi mila.</div>';
-                return;
-            }
-
-            data.forEach((product) => {
-                const normalizedCategory = normalizeCategory(product.category);
-                const isRepairing = normalizedCategory === "Repairing";
-                const actionBtn = isRepairing
-                    ? `<button onclick="window.open('https://wa.me/${WHATSAPP}?text=Suniye, mujhe ${encodeURIComponent(product.name)} ke baare mein poochna hai.')" class="bg-blue-600 text-white px-3 py-2 rounded-xl text-[10px] font-black uppercase">INQUIRE</button>`
-                    : `<button onclick="addToCart('${product.id}')" class="bg-gray-900 text-white w-9 h-9 rounded-xl flex items-center justify-center active:scale-90 transition"><i class="fas fa-plus text-xs"></i></button>`;
-
-                grid.innerHTML += `
-                <div class="product-card bg-white p-3 rounded-3xl shadow-sm border border-orange-50 relative group">
-                    <div class="admin-only absolute top-2 right-2 flex space-x-1 z-10">
-                        <button onclick="editItem('${product.id}')" class="bg-blue-500 text-white w-7 h-7 rounded-lg text-[10px]"><i class="fas fa-pen"></i></button>
-                        <button onclick="deleteItem('${product.id}')" class="bg-red-500 text-white w-7 h-7 rounded-lg text-[10px]"><i class="fas fa-trash"></i></button>
-                    </div>
-                    <div class="h-32 bg-gray-50 rounded-2xl mb-3 flex items-center justify-center overflow-hidden">
-                        <img src="${product.image || "https://via.placeholder.com/150"}" class="w-full h-full object-contain" onerror="this.src='https://via.placeholder.com/150'">
-                    </div>
-                    <span class="text-[8px] font-black uppercase text-orange-500 bg-orange-50 px-2 py-1 rounded-md">${normalizedCategory}</span>
-                    <h4 class="font-black text-gray-800 mt-2 truncate text-sm">${product.name || "Untitled Item"}</h4>
-                    <div class="flex items-center justify-between mt-3">
-                        <span class="text-base font-black text-gray-900">₹${Number(product.price || 0).toLocaleString()}</span>
-                        ${actionBtn}
-                    </div>
-                </div>`;
-            });
-        }
-
-        function handleSearch(query) {
-            const term = query.toLowerCase().trim();
-            if (!term) {
-                displayProducts();
-                return;
-            }
-
-            const filtered = products.filter((product) =>
-                (product.name || "").toLowerCase().includes(term) ||
-                (product.desc || "").toLowerCase().includes(term)
-            );
-            displayProducts(filtered);
-        }
-
-        function filterCat(cat) {
-            currentFilter = cat;
-            document.getElementById("category-title").innerText = cat === "All" ? "Featured Products" : cat;
-            document.querySelectorAll(".category-btn").forEach((btn) => {
-                btn.classList.remove("text-orange-600", "border-b-2", "border-orange-600");
-                if (btn.innerText.trim() === cat) {
-                    btn.classList.add("text-orange-600", "border-b-2", "border-orange-600");
-                }
-            });
-            displayProducts();
-        }
-
-        function sortByPrice(value) {
-            currentSort = value;
-            displayProducts();
-        }
-
-        function addToCart(id) {
-            const product = products.find((item) => item.id === id);
-            if (!product) return;
-            cart.push(product);
-            updateCartUI();
-            toggleCart();
-        }
-
-        function updateCartUI() {
-            document.getElementById("cart-count").innerText = cart.length;
-            const container = document.getElementById("cart-items");
-            container.innerHTML = "";
-
-            if (!cart.length) {
-                container.innerHTML = '<div class="text-center text-sm font-bold text-gray-400 py-10">Cart abhi khali hai.</div>';
-            }
-
-            let total = 0;
-            cart.forEach((item, idx) => {
-                total += Number(item.price || 0);
-                container.innerHTML += `
-                <div class="flex items-center space-x-3 bg-gray-50 p-3 rounded-2xl border border-gray-100">
-                    <img src="${item.image || "https://via.placeholder.com/100"}" class="w-10 h-10 object-cover rounded-lg">
-                    <div class="flex-1 text-xs font-bold">
-                        <h5 class="truncate w-32">${item.name}</h5>
-                        <p class="text-orange-600">₹${item.price}</p>
-                    </div>
-                    <button onclick="removeFromCart(${idx})" class="text-red-400 p-2"><i class="fas fa-trash"></i></button>
-                </div>`;
-            });
-
-            document.getElementById("cart-total").innerText = `₹${total}`;
-        }
-
-        function removeFromCart(index) {
-            cart.splice(index, 1);
-            updateCartUI();
-        }
-
-        async function checkoutOrder() {
-            if (!cart.length) {
-                alert("Cart khali hai!");
-                return;
-            }
-
-            const name = prompt("Aapka Naam?");
-            const phone = prompt("WhatsApp Number?");
-            const address = prompt("Address Pin Code?");
-            if (!name || !phone || !address) return;
-
-            const orderId = "SJI-" + Math.floor(1000 + Math.random() * 9000);
-            const total = document.getElementById("cart-total").innerText;
-            const itemsMsg = cart.map((item, idx) => `${idx + 1}. ${item.name} - ₹${item.price}`).join("%0A");
-
-            const newOrder = {
-                orderId,
-                name,
-                phone,
-                address,
-                total,
-                status: "Processing",
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                items: cart.map((item) => item.name)
-            };
-
-            try {
-                await db.collection("orders").add(newOrder);
-                const msg = `*NAYA ORDER (SHREE JI)*%0A%0A*ID:* ${orderId}%0A*Naam:* ${encodeURIComponent(name)}%0A*Phone:* ${encodeURIComponent(phone)}%0A*Address:* ${encodeURIComponent(address)}%0A%0A*--- ITEMS ---*%0A${itemsMsg}%0A%0A*Total:* ${encodeURIComponent(total)}`;
-                window.open(`https://wa.me/${WHATSAPP}?text=${msg}`, "_blank");
-                cart = [];
-                updateCartUI();
-                toggleCart();
-                alert(`Suniye ${name}, order confirm ho gaya!`);
-            } catch (error) {
-                console.error(error);
-                alert("Order failed.");
-            }
-        }
-
-        function processTrack() {
-            const value = document.getElementById("track-phone").value.trim();
-            const order = orders.find((item) => item.phone === value || item.orderId === value || item.orderId === `SJI-${value}`);
-            const result = document.getElementById("track-result");
-
-            result.classList.remove("hidden");
-            if (order) {
-                result.className = "mt-4 p-4 rounded-2xl bg-green-50 text-green-700 block text-xs";
-                result.textContent = `Order #${order.orderId} status: ${order.status}`;
-            } else {
-                result.className = "mt-4 p-4 rounded-2xl bg-red-50 text-red-700 block text-xs";
-                result.textContent = "Humein koi order nahi mila.";
-            }
-        }
-
-        function displayOrders() {
-            const list = document.getElementById("order-list");
-            if (!list) return;
-
-            if (!orders.length) {
-                list.innerHTML = '<div class="text-sm font-bold text-gray-400">No orders yet.</div>';
-                return;
-            }
-
-            list.innerHTML = orders.map((order) => `
-                <div class="border border-gray-100 rounded-2xl p-4 bg-gray-50">
-                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                        <div>
-                            <p class="text-sm font-black text-gray-900">${order.orderId || "No ID"}</p>
-                            <p class="text-xs text-gray-500">${order.name || "Unknown"} • ${order.phone || "-"}</p>
-                            <p class="text-xs text-gray-500 mt-1">${order.address || "-"}</p>
-                            <p class="text-xs text-orange-600 font-bold mt-2">${order.total || "₹0"}</p>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <select onchange="updateOrderStatus('${order.id}', this.value)" class="bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs font-bold outline-none">
-                                <option value="Processing" ${order.status === "Processing" ? "selected" : ""}>Processing</option>
-                                <option value="Packed" ${order.status === "Packed" ? "selected" : ""}>Packed</option>
-                                <option value="Completed" ${order.status === "Completed" ? "selected" : ""}>Completed</option>
-                                <option value="Cancelled" ${order.status === "Cancelled" ? "selected" : ""}>Cancelled</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            `).join("");
-        }
-
-        async function updateOrderStatus(id, status) {
-            try {
-                await db.collection("orders").doc(id).update({ status, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
-            } catch (error) {
-                console.error(error);
-                alert("Status update failed.");
-            }
-        }
-
-        function toggleCart() {
-            document.getElementById("cart-drawer").classList.toggle("translate-x-full");
-        }
-
-        function openAdminModal() {
-            document.getElementById("admin-modal").classList.remove("hidden");
-        }
-
-        function closeAdminModal() {
-            document.getElementById("admin-modal").classList.add("hidden");
-            document.getElementById("product-form").reset();
-            document.getElementById("edit-id").value = "";
-            document.getElementById("file-name").innerText = "TAP TO UPLOAD IMAGE";
-            document.getElementById("modal-heading").innerText = "Add New Item";
-            document.getElementById("save-btn").innerText = "Save Product";
-            document.getElementById("save-btn").disabled = false;
-        }
-
-        function openOrderManager() {
-            document.getElementById("order-manager-modal").classList.remove("hidden");
-            displayOrders();
-        }
-
-        function closeOrderManager() {
-            document.getElementById("order-manager-modal").classList.add("hidden");
-        }
-
-        function openTracker() {
-            document.getElementById("track-modal").classList.remove("hidden");
-        }
-
-        function closeTracker() {
-            document.getElementById("track-modal").classList.add("hidden");
-        }
-
-        function previewImage(input) {
-            if (input.files[0]) {
-                document.getElementById("file-name").innerText = input.files[0].name;
-            }
-        }
-    </script>
+<body class="antialiased">
+    <header class="sticky top-0 z-50 topbar">
+        <div class="max-w-7xl mx-auto px-3 sm:px-4 py-2 flex items-center gap-3">
+            <div class="shrink-0">
+                <div class="brand-mark text-xl font-extrabold">ShreeJi</div>
+                <div class="brand-plus">Explore Plus <i class="fas fa-bolt text-[10px]"></i></div>
+            </div>
+
+            <div class="search-shell flex-1 h-10 rounded-sm flex items-center">
+                <input
+                    type="search"
+                    id="search-input"
+                    autocomplete="off"
+                    oninput="handleSearch(this.value)"
+                    placeholder="Search for products, brands and more"
+                    class="w-full h-full px-4 bg-transparent outline-none text-sm"
+                >
+                <button type="button" class="h-full px-4" title="Search">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+
+            <div class="desktop-actions flex items-center gap-3 text-sm font-semibold">
+                <button
+                    type="button"
+                    onclick="checkAdminAccess()"
+                    class="customer-only bg-white text-blue-600 px-7 py-2 rounded-sm font-bold"
+                >
+                    Login
+                </button>
+                <button
+                    type="button"
+                    onclick="openAdminModal()"
+                    class="admin-only items-center gap-2 bg-white text-blue-600 px-4 py-2 rounded-sm font-bold"
+                >
+                    <i class="fas fa-plus"></i>
+                    Add Item
+                </button>
+                <button
+                    type="button"
+                    onclick="logoutAdmin()"
+                    class="admin-only items-center gap-2 text-white px-2 py-2"
+                >
+                    <i class="fas fa-right-from-bracket"></i>
+                    Logout
+                </button>
+                <button type="button" onclick="openCart()" class="customer-only flex items-center gap-2">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Cart</span>
+                    <span id="cart-count" class="bg-yellow-300 text-blue-900 text-[11px] px-1.5 py-0.5 rounded-full">0</span>
+                </button>
+            </div>
+
+            <button
+                type="button"
+                onclick="openAdminModal()"
+                class="admin-only mobile-admin-action items-center justify-center bg-white text-blue-600 w-9 h-9 rounded-sm"
+                title="Add product"
+            >
+                <i class="fas fa-plus"></i>
+            </button>
+            <button
+                type="button"
+                onclick="logoutAdmin()"
+                class="admin-only mobile-admin-action items-center justify-center text-white w-9 h-9"
+                title="Logout"
+            >
+                <i class="fas fa-right-from-bracket"></i>
+            </button>
+            <button
+                type="button"
+                onclick="checkAdminAccess()"
+                class="customer-only sm:hidden text-white p-2"
+                title="Admin login"
+            >
+                <i class="fas fa-user"></i>
+            </button>
+        </div>
+    </header>
+
+    <nav class="bg-white shadow-sm">
+        <div class="category-strip max-w-7xl mx-auto px-3 py-3 flex justify-center gap-5 sm:gap-8 text-xs sm:text-sm font-semibold">
+            <button type="button" data-nav-category="Mobiles" onclick="setCategoryFilter('Mobiles')" class="nav-chip flex flex-col items-center gap-1">
+                <i class="fas fa-mobile-alt text-xl text-blue-600"></i>
+                Mobiles
+            </button>
+            <button type="button" data-nav-category="Electronics" onclick="setCategoryFilter('Electronics')" class="nav-chip flex flex-col items-center gap-1">
+                <i class="fas fa-laptop text-xl text-blue-600"></i>
+                Electronics
+            </button>
+            <button type="button" data-nav-category="Accessories" onclick="setCategoryFilter('Accessories')" class="nav-chip flex flex-col items-center gap-1">
+                <i class="fas fa-headphones text-xl text-blue-600"></i>
+                Accessories
+            </button>
+            <button type="button" data-nav-category="Gaming" onclick="setCategoryFilter('Gaming')" class="nav-chip flex flex-col items-center gap-1">
+                <i class="fas fa-gamepad text-xl text-blue-600"></i>
+                Gaming
+            </button>
+            <button type="button" onclick="clearFilters()" class="nav-chip flex flex-col items-center gap-1">
+                <i class="fas fa-tags text-xl text-blue-600"></i>
+                Deals
+            </button>
+            <button class="nav-chip flex flex-col items-center gap-1">
+                <i class="fas fa-truck-fast text-xl text-blue-600"></i>
+                Delivery
+            </button>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-3 sm:px-4 py-4">
+        <section class="hero-banner min-h-[170px] sm:min-h-[240px] text-white p-5 sm:p-8 flex items-center justify-between overflow-hidden">
+            <div class="max-w-xl">
+                <p class="text-sm sm:text-base font-semibold text-yellow-200 mb-2">Best deals on tech essentials</p>
+                <h1 class="text-2xl sm:text-5xl font-extrabold leading-tight">Shree Ji Tech Big Saving Days</h1>
+                <p class="mt-3 text-sm sm:text-lg text-blue-50">Shop mobiles, gadgets, accessories and more at simple everyday prices.</p>
+                <button type="button" onclick="document.getElementById('products-section').scrollIntoView({ behavior: 'smooth' })" class="mt-5 bg-white text-blue-700 px-5 py-2.5 rounded-sm font-bold shadow">
+                    Shop Now
+                </button>
+            </div>
+        </section>
+
+        <section class="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-4 mt-4">
+            <aside class="filter-panel bg-white border border-gray-200 p-4 h-fit">
+                <div class="flex items-center justify-between border-b pb-3">
+                    <h2 class="font-bold text-lg">Filters</h2>
+                    <button type="button" onclick="clearFilters()" class="text-xs text-blue-600 font-semibold">CLEAR ALL</button>
+                </div>
+                <div class="py-4 border-b">
+                    <p class="text-xs font-bold text-gray-500 uppercase mb-3">Categories</p>
+                    <button type="button" data-category="Electronics" onclick="setCategoryFilter('Electronics')" class="filter-category-button block text-sm font-semibold mb-2">Electronics</button>
+                    <button type="button" data-category="Mobiles" onclick="setCategoryFilter('Mobiles')" class="filter-category-button block text-sm text-gray-500 mb-2">Mobiles & Accessories</button>
+                    <button type="button" data-category="Accessories" onclick="setCategoryFilter('Accessories')" class="filter-category-button block text-sm text-gray-500 mb-2">Accessories</button>
+                    <button type="button" data-category="Gaming" onclick="setCategoryFilter('Gaming')" class="filter-category-button block text-sm text-gray-500">Gaming</button>
+                </div>
+                <div class="py-4 border-b">
+                    <p class="text-xs font-bold text-gray-500 uppercase mb-3">Price</p>
+                    <div class="h-1 bg-blue-600 rounded-full mb-3"></div>
+                    <div class="flex gap-2">
+                        <select id="min-price" onchange="applyFilters()" class="w-1/2 border text-sm p-2 bg-white">
+                            <option value="0">Min</option>
+                            <option value="500">Rs. 500</option>
+                            <option value="1000">Rs. 1000</option>
+                            <option value="5000">Rs. 5000</option>
+                            <option value="10000">Rs. 10000</option>
+                        </select>
+                        <select id="max-price" onchange="applyFilters()" class="w-1/2 border text-sm p-2 bg-white">
+                            <option value="">Max</option>
+                            <option value="5000">Rs. 5000</option>
+                            <option value="10000">Rs. 10000</option>
+                            <option value="25000">Rs. 25000</option>
+                            <option value="50000">Rs. 50000</option>
+                        </select>
+                    </div>
+                </div>
+            </aside>
+
+            <section id="products-section" class="bg-white border border-gray-200">
+                <div class="p-4 border-b flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                        <h2 class="text-lg font-bold">Latest Products</h2>
+                        <p id="result-count" class="text-xs text-gray-500 mt-1">Loading products...</p>
+                    </div>
+                    <button type="button" onclick="openMobileFilters()" class="mobile-filter-button hidden items-center gap-2 bg-blue-600 text-white px-3 py-2 rounded-sm text-sm font-bold">
+                        <i class="fas fa-filter"></i>
+                        Filters
+                    </button>
+                    <div class="flex items-center gap-3 text-xs sm:text-sm font-semibold">
+                        <span class="text-gray-500">Sort By</span>
+                        <button type="button" data-sort="relevance" onclick="setSort('relevance')" class="sort-button text-blue-600 border-b-2 border-blue-600 pb-1">Relevance</button>
+                        <button type="button" data-sort="price" onclick="setSort('price')" class="sort-button text-gray-700 pb-1">Price</button>
+                        <button type="button" data-sort="newest" onclick="setSort('newest')" class="sort-button text-gray-700 pb-1">Newest</button>
+                    </div>
+                </div>
+                <div id="status-message" class="text-center text-gray-500 py-12">Loading products...</div>
+                <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4"></div>
+            </section>
+        </section>
+    </main>
+
+    <div id="mobile-filter-overlay" class="mobile-filter-overlay fixed inset-0 bg-black/60 z-[120] items-end">
+        <div class="bg-white w-full rounded-t-lg p-4">
+            <div class="flex items-center justify-between border-b pb-3">
+                <h2 class="font-bold text-lg">Filters</h2>
+                <button type="button" onclick="closeMobileFilters()" class="text-gray-500 text-xl">
+                    <i class="fas fa-xmark"></i>
+                </button>
+            </div>
+            <div class="py-4 border-b">
+                <p class="text-xs font-bold text-gray-500 uppercase mb-3">Categories</p>
+                <div class="grid grid-cols-2 gap-2">
+                    <button type="button" onclick="setCategoryFilter('Electronics')" class="border p-2 rounded-sm text-sm">Electronics</button>
+                    <button type="button" onclick="setCategoryFilter('Mobiles')" class="border p-2 rounded-sm text-sm">Mobiles</button>
+                    <button type="button" onclick="setCategoryFilter('Accessories')" class="border p-2 rounded-sm text-sm">Accessories</button>
+                    <button type="button" onclick="setCategoryFilter('Gaming')" class="border p-2 rounded-sm text-sm">Gaming</button>
+                </div>
+            </div>
+            <div class="py-4 border-b">
+                <p class="text-xs font-bold text-gray-500 uppercase mb-3">Price</p>
+                <div class="flex gap-2">
+                    <select id="mobile-min-price" onchange="syncMobileFilters()" class="w-1/2 border text-sm p-2 bg-white">
+                        <option value="0">Min</option>
+                        <option value="500">Rs. 500</option>
+                        <option value="1000">Rs. 1000</option>
+                        <option value="5000">Rs. 5000</option>
+                        <option value="10000">Rs. 10000</option>
+                    </select>
+                    <select id="mobile-max-price" onchange="syncMobileFilters()" class="w-1/2 border text-sm p-2 bg-white">
+                        <option value="">Max</option>
+                        <option value="5000">Rs. 5000</option>
+                        <option value="10000">Rs. 10000</option>
+                        <option value="25000">Rs. 25000</option>
+                        <option value="50000">Rs. 50000</option>
+                    </select>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <button type="button" onclick="clearFilters()" class="border border-blue-600 text-blue-600 py-3 rounded-sm font-bold">Clear</button>
+                <button type="button" onclick="closeMobileFilters()" class="bg-blue-600 text-white py-3 rounded-sm font-bold">Apply</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="cart-overlay" class="cart-overlay fixed inset-0 bg-black/60 z-[130] items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="cart-panel bg-white w-full sm:max-w-md rounded-t-lg sm:rounded-md shadow-2xl">
+            <div class="flex items-center justify-between border-b p-4">
+                <h2 class="text-xl font-bold">Your Cart</h2>
+                <button type="button" onclick="closeCart()" class="text-gray-500 text-xl">
+                    <i class="fas fa-xmark"></i>
+                </button>
+            </div>
+            <div id="cart-items" class="p-4 space-y-3"></div>
+            <div class="border-t p-4">
+                <div class="flex items-center justify-between text-lg font-bold mb-4">
+                    <span>Total</span>
+                    <span id="cart-total">Rs. 0</span>
+                </div>
+                <div class="border-t pt-4">
+                    <h3 class="text-base font-bold mb-3">Checkout Details</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <label class="checkout-field block" data-field="customer-first-name">
+                            <span class="block text-xs font-bold text-gray-600 mb-1">First name *</span>
+                            <input id="customer-first-name" type="text" placeholder="Enter first name" autocomplete="given-name" class="w-full border p-3 rounded-sm">
+                            <span class="checkout-error text-xs text-red-600 mt-1"></span>
+                        </label>
+                        <label class="checkout-field block" data-field="customer-last-name">
+                            <span class="block text-xs font-bold text-gray-600 mb-1">Last name</span>
+                            <input id="customer-last-name" type="text" placeholder="Enter last name" autocomplete="family-name" class="w-full border p-3 rounded-sm">
+                            <span class="checkout-error text-xs text-red-600 mt-1"></span>
+                        </label>
+                    </div>
+                    <label class="checkout-field block mt-3" data-field="customer-phone">
+                        <span class="block text-xs font-bold text-gray-600 mb-1">Mobile number *</span>
+                        <input id="customer-phone" type="tel" placeholder="10 digit mobile number" autocomplete="tel" inputmode="tel" class="w-full border p-3 rounded-sm">
+                        <span class="checkout-error text-xs text-red-600 mt-1"></span>
+                    </label>
+                    <label class="checkout-field block mt-3" data-field="customer-address">
+                        <span class="block text-xs font-bold text-gray-600 mb-1">House no., street, area *</span>
+                        <textarea id="customer-address" placeholder="Enter full house and street address" autocomplete="street-address" class="w-full border p-3 rounded-sm min-h-[82px]"></textarea>
+                        <span class="checkout-error text-xs text-red-600 mt-1"></span>
+                    </label>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
+                        <label class="checkout-field block" data-field="customer-village">
+                            <span class="block text-xs font-bold text-gray-600 mb-1">Village / Locality *</span>
+                            <input id="customer-village" type="text" placeholder="Enter village or locality" class="w-full border p-3 rounded-sm">
+                            <span class="checkout-error text-xs text-red-600 mt-1"></span>
+                        </label>
+                        <label class="checkout-field block" data-field="customer-city">
+                            <span class="block text-xs font-bold text-gray-600 mb-1">City / Town *</span>
+                            <input id="customer-city" type="text" placeholder="Enter city or town" autocomplete="address-level2" class="w-full border p-3 rounded-sm">
+                            <span class="checkout-error text-xs text-red-600 mt-1"></span>
+                        </label>
+                        <label class="checkout-field block" data-field="customer-district">
+                            <span class="block text-xs font-bold text-gray-600 mb-1">District *</span>
+                            <input id="customer-district" type="text" placeholder="Enter district" class="w-full border p-3 rounded-sm">
+                            <span class="checkout-error text-xs text-red-600 mt-1"></span>
+                        </label>
+                        <label class="checkout-field block" data-field="customer-pin">
+                            <span class="block text-xs font-bold text-gray-600 mb-1">PIN code *</span>
+                            <input id="customer-pin" type="text" placeholder="6 digit PIN code" autocomplete="postal-code" inputmode="numeric" maxlength="6" class="w-full border p-3 rounded-sm">
+                            <span class="checkout-error text-xs text-red-600 mt-1"></span>
+                        </label>
+                        <label class="checkout-field block" data-field="customer-state">
+                            <span class="block text-xs font-bold text-gray-600 mb-1">State *</span>
+                            <input id="customer-state" type="text" placeholder="Enter state" autocomplete="address-level1" class="w-full border p-3 rounded-sm">
+                            <span class="checkout-error text-xs text-red-600 mt-1"></span>
+                        </label>
+                        <label class="checkout-field block" data-field="customer-country">
+                            <span class="block text-xs font-bold text-gray-600 mb-1">Country *</span>
+                            <input id="customer-country" type="text" placeholder="Enter country" autocomplete="country-name" value="India" class="w-full border p-3 rounded-sm">
+                            <span class="checkout-error text-xs text-red-600 mt-1"></span>
+                        </label>
+                    </div>
+                    <label class="checkout-field block mt-3" data-field="customer-landmark">
+                        <span class="block text-xs font-bold text-gray-600 mb-1">Landmark</span>
+                        <input id="customer-landmark" type="text" placeholder="Optional nearby landmark" class="w-full border p-3 rounded-sm">
+                        <span class="checkout-error text-xs text-red-600 mt-1"></span>
+                    </label>
+                    <label class="checkout-field block mt-3" data-field="customer-delivery-note">
+                        <span class="block text-xs font-bold text-gray-600 mb-1">Delivery note</span>
+                        <textarea id="customer-delivery-note" placeholder="Optional delivery time or instruction" class="w-full border p-3 rounded-sm min-h-[70px]"></textarea>
+                        <span class="checkout-error text-xs text-red-600 mt-1"></span>
+                    </label>
+                    <label class="checkout-field block mt-3 mb-3" data-field="payment-method">
+                        <span class="block text-xs font-bold text-gray-600 mb-1">Payment method *</span>
+                        <select id="payment-method" class="w-full border p-3 rounded-sm bg-white">
+                            <option value="UPI on delivery">UPI on delivery</option>
+                        </select>
+                        <span class="checkout-error text-xs text-red-600 mt-1"></span>
+                    </label>
+                    <div class="bg-gray-50 border rounded-sm p-3 mb-3 text-sm">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="text-gray-600">Product total</span>
+                            <span id="checkout-subtotal" class="font-bold">Rs. 0</span>
+                        </div>
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="text-gray-600">Delivery charge</span>
+                            <span id="checkout-delivery">Free</span>
+                        </div>
+                        <div class="flex items-center justify-between border-t pt-2 mt-2 text-base font-bold">
+                            <span>Final total</span>
+                            <span id="checkout-final-total">Rs. 0</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="checkout-action-bar">
+                    <button id="checkout-button" type="button" onclick="placeWhatsAppOrder()" class="checkout-button w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-sm font-bold">
+                        <i class="fab fa-whatsapp"></i>
+                        Place Order on WhatsApp
+                    </button>
+                    <p id="empty-cart-note" class="text-center text-xs text-gray-500 mt-2">Add an item to cart to place an order.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="admin-modal" class="hidden fixed inset-0 bg-black/60 z-[100] items-center justify-center p-4">
+        <div class="modal-panel p-6 rounded-md w-full max-w-sm shadow-2xl">
+            <h2 id="admin-modal-title" class="text-xl font-bold mb-4">Add New Product</h2>
+            <div class="border rounded-sm p-3 mb-4 bg-gray-50">
+                <div class="flex items-center justify-between gap-3">
+                    <div>
+                        <p class="text-sm font-bold">Cash on Delivery</p>
+                        <p id="cod-toggle-status" class="text-xs text-gray-500 mt-0.5">COD is on for customers.</p>
+                    </div>
+                    <label class="relative inline-flex cursor-pointer items-center">
+                        <input id="cod-toggle" type="checkbox" class="peer sr-only" checked onchange="saveCodSetting(this.checked)">
+                        <span class="relative h-6 w-11 rounded-full bg-gray-300 after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all peer-checked:bg-green-600 peer-checked:after:translate-x-5"></span>
+                    </label>
+                </div>
+            </div>
+            <input type="text" id="p-name" placeholder="Product name" class="w-full p-3 mb-3 rounded-sm">
+            <input type="number" id="p-price" placeholder="Selling price" min="0" class="w-full p-3 mb-3 rounded-sm">
+            <input type="url" id="p-image-url" placeholder="Product image URL" class="w-full p-3 mb-3 rounded-sm">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <input type="text" id="p-brand" placeholder="Brand" class="w-full p-3 rounded-sm">
+                <input type="text" id="p-model" placeholder="Model name" class="w-full p-3 rounded-sm">
+                <input type="text" id="p-warranty" placeholder="Warranty" class="w-full p-3 rounded-sm">
+                <input type="text" id="p-category" placeholder="Category" class="w-full p-3 rounded-sm">
+            </div>
+            <textarea id="p-features" placeholder="Key features, example: 8GB RAM, 128GB Storage, 5000mAh Battery" class="w-full p-3 mt-3 mb-4 rounded-sm"></textarea>
+            <button id="admin-save-button" type="button" onclick="handleSave()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-sm font-bold">Save Product</button>
+            <button type="button" onclick="closeAdminModal()" class="w-full mt-3 text-gray-500 hover:text-gray-900">Cancel</button>
+        </div>
+    </div>
+
+    <div id="auth-modal" class="hidden fixed inset-0 bg-black/60 z-[150] items-center justify-center p-4">
+        <div class="modal-panel p-6 rounded-md w-full max-w-sm shadow-2xl">
+            <h2 class="text-xl font-bold mb-4">Admin Login</h2>
+            <input type="email" id="admin-email" placeholder="Email" autocomplete="username" class="w-full p-3 mb-3 rounded-sm">
+            <input type="password" id="admin-pass" placeholder="Password" autocomplete="current-password" class="w-full p-3 mb-4 rounded-sm">
+            <button type="button" onclick="processLogin()" class="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-sm font-bold">Login</button>
+            <button type="button" onclick="closeAuthModal()" class="w-full mt-3 text-gray-500 hover:text-gray-900">Cancel</button>
+        </div>
+    </div>
+
+    <div id="toast" class="toast fixed left-3 right-3 bottom-4 sm:left-auto sm:right-5 sm:w-80 bg-gray-900 text-white px-4 py-3 rounded shadow-xl z-[200] text-sm"></div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBuCywyMgEw_j9yeHD-E4KwRWZGreWagTc",
+            authDomain: "shree-4c33e.firebaseapp.com",
+            projectId: "shree-4c33e",
+            storageBucket: "shree-4c33e.firebasestorage.app",
+            messagingSenderId: "759128544690",
+            appId: "1:759128544690:web:3f57e7ed9117a1acdd80ab"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+        const grid = document.getElementById("product-grid");
+        const statusMessage = document.getElementById("status-message");
+        const resultCount = document.getElementById("result-count");
+        const cartCount = document.getElementById("cart-count");
+        const cartItemsContainer = document.getElementById("cart-items");
+        const cartTotal = document.getElementById("cart-total");
+        const checkoutSubtotal = document.getElementById("checkout-subtotal");
+        const checkoutDelivery = document.getElementById("checkout-delivery");
+        const checkoutFinalTotal = document.getElementById("checkout-final-total");
+        const checkoutButton = document.getElementById("checkout-button");
+        const emptyCartNote = document.getElementById("empty-cart-note");
+        const paymentMethodSelect = document.getElementById("payment-method");
+        const codToggle = document.getElementById("cod-toggle");
+        const codToggleStatus = document.getElementById("cod-toggle-status");
+        const toast = document.getElementById("toast");
+        const whatsappNumber = "917052055713";
+        const cartStorageKey = "shreeJiTechCart";
+        const deliveryCharge = 0;
+        const checkoutSettingsRef = db.collection("settings").doc("checkout");
+        let products = [];
+        let cartItems = loadCartItems();
+        let checkoutSettings = {
+            codEnabled: true
+        };
+        let currentSort = "relevance";
+        let activeCategory = "";
+        let editingProductId = null;
+
+        auth.onAuthStateChanged((user) => {
+            document.body.classList.toggle("is-admin", Boolean(user));
+        });
+
+        function renderPaymentOptions() {
+            const selectedValue = paymentMethodSelect.value;
+            const options = [];
+
+            if (checkoutSettings.codEnabled) {
+                options.push(`<option value="Cash on Delivery">Cash on Delivery</option>`);
+            }
+
+            options.push(`<option value="UPI on delivery">UPI on delivery</option>`);
+            paymentMethodSelect.innerHTML = options.join("");
+
+            if ([...paymentMethodSelect.options].some((option) => option.value === selectedValue)) {
+                paymentMethodSelect.value = selectedValue;
+            }
+        }
+
+        function updateCodToggleUi() {
+            codToggle.checked = checkoutSettings.codEnabled;
+            codToggleStatus.textContent = checkoutSettings.codEnabled
+                ? "COD is on for customers."
+                : "COD is off. Customers can use UPI on delivery.";
+            renderPaymentOptions();
+        }
+
+        checkoutSettingsRef.onSnapshot((doc) => {
+            checkoutSettings = {
+                codEnabled: doc.exists ? doc.data().codEnabled !== false : true
+            };
+            updateCodToggleUi();
+        }, (error) => {
+            console.error(error);
+            updateCodToggleUi();
+            showToast("Checkout settings could not load. COD stays on.");
+        });
+
+        async function saveCodSetting(enabled) {
+            const previousValue = checkoutSettings.codEnabled;
+            checkoutSettings.codEnabled = enabled;
+            updateCodToggleUi();
+
+            try {
+                await checkoutSettingsRef.set({
+                    codEnabled: enabled,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+                showToast(enabled ? "Cash on Delivery enabled." : "Cash on Delivery disabled.");
+            } catch (error) {
+                console.error(error);
+                checkoutSettings.codEnabled = previousValue;
+                updateCodToggleUi();
+                alert("COD setting was not saved. Please check Firebase permissions.");
+            }
+        }
+
+        db.collection("products")
+            .onSnapshot((snapshot) => {
+                products = snapshot.docs.map((doc) => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                applyFilters();
+            }, (error) => {
+                console.error(error);
+                statusMessage.textContent = "Could not load products. Please check Firebase rules and internet connection.";
+                statusMessage.classList.remove("hidden");
+                resultCount.textContent = "Products unavailable";
+                showToast("Products could not load. Check Firebase rules.");
+            });
+
+        function escapeHtml(value) {
+            return String(value ?? "")
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
+        }
+
+        function parsePrice(value) {
+            const cleaned = String(value ?? "0").replace(/[^0-9.]/g, "");
+            const number = Number(cleaned);
+            return Number.isFinite(number) ? number : 0;
+        }
+
+        function formatPrice(value) {
+            const number = parsePrice(value);
+            if (!Number.isFinite(number)) return escapeHtml(value || "0");
+            return number.toLocaleString("en-IN");
+        }
+
+        function getSortedProducts(data) {
+            const sorted = [...data];
+
+            if (currentSort === "price") {
+                sorted.sort((a, b) => Number(a.price || 0) - Number(b.price || 0));
+            }
+
+            if (currentSort === "newest") {
+                sorted.reverse();
+            }
+
+            return sorted;
+        }
+
+        function productMatchesCategory(product, category) {
+            if (!category) return true;
+            const haystack = [
+                product.category,
+                product.name,
+                product.brand,
+                product.model,
+                product.features,
+                product.description
+            ].join(" ").toLowerCase();
+            return haystack.includes(category.toLowerCase());
+        }
+
+        function getProductPrice(product) {
+            return parsePrice(product.price);
+        }
+
+        function applyFilters() {
+            const query = document.getElementById("search-input").value.trim().toLowerCase();
+            const minPrice = Number(document.getElementById("min-price").value || 0);
+            const maxPriceValue = document.getElementById("max-price").value;
+            const maxPrice = maxPriceValue ? Number(maxPriceValue) : Infinity;
+
+            const filtered = products.filter((product) => {
+                const productText = [
+                    product.name,
+                    product.brand,
+                    product.model,
+                    product.category,
+                    product.features,
+                    product.description
+                ].join(" ").toLowerCase();
+                const price = getProductPrice(product);
+
+                return productText.includes(query)
+                    && productMatchesCategory(product, activeCategory)
+                    && price >= minPrice
+                    && price <= maxPrice;
+            });
+
+            updateActiveCategoryButtons();
+            displayProducts(filtered);
+        }
+
+        function setCategoryFilter(category) {
+            activeCategory = activeCategory === category ? "" : category;
+            applyFilters();
+            closeMobileFilters();
+            document.getElementById("products-section").scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+
+        function updateActiveCategoryButtons() {
+            document.querySelectorAll(".filter-category-button").forEach((button) => {
+                button.classList.toggle("is-active", button.dataset.category === activeCategory);
+            });
+            document.querySelectorAll("[data-nav-category]").forEach((button) => {
+                button.classList.toggle("is-active", button.dataset.navCategory === activeCategory);
+            });
+        }
+
+        function syncMobileFilters() {
+            document.getElementById("min-price").value = document.getElementById("mobile-min-price").value;
+            document.getElementById("max-price").value = document.getElementById("mobile-max-price").value;
+            applyFilters();
+        }
+
+        function syncDesktopFiltersToMobile() {
+            document.getElementById("mobile-min-price").value = document.getElementById("min-price").value;
+            document.getElementById("mobile-max-price").value = document.getElementById("max-price").value;
+        }
+
+        function clearFilters() {
+            activeCategory = "";
+            document.getElementById("search-input").value = "";
+            document.getElementById("min-price").value = "0";
+            document.getElementById("max-price").value = "";
+            syncDesktopFiltersToMobile();
+            applyFilters();
+            closeMobileFilters();
+        }
+
+        function openMobileFilters() {
+            syncDesktopFiltersToMobile();
+            document.getElementById("mobile-filter-overlay").classList.add("is-open");
+        }
+
+        function closeMobileFilters() {
+            document.getElementById("mobile-filter-overlay").classList.remove("is-open");
+        }
+
+        function setSort(sortType) {
+            currentSort = sortType;
+            document.querySelectorAll(".sort-button").forEach((button) => {
+                const active = button.dataset.sort === sortType;
+                button.classList.toggle("text-blue-600", active);
+                button.classList.toggle("border-b-2", active);
+                button.classList.toggle("border-blue-600", active);
+                button.classList.toggle("text-gray-700", !active);
+            });
+            applyFilters();
+        }
+
+        function showToast(message) {
+            toast.textContent = message;
+            toast.classList.add("is-visible");
+            window.clearTimeout(showToast.timer);
+            showToast.timer = window.setTimeout(() => {
+                toast.classList.remove("is-visible");
+            }, 2600);
+        }
+
+        function displayProducts(data) {
+            const sortedData = getSortedProducts(data);
+            resultCount.textContent = `${sortedData.length} product${sortedData.length === 1 ? "" : "s"} found`;
+
+            if (!sortedData.length) {
+                grid.innerHTML = "";
+                statusMessage.textContent = "No products found.";
+                statusMessage.classList.remove("hidden");
+                return;
+            }
+
+            statusMessage.classList.add("hidden");
+            grid.innerHTML = sortedData.map((product, index) => {
+                const image = escapeHtml(product.image || "https://placehold.co/600x480/e8f0ff/2874f0?text=Shree+Ji+Tech");
+                const name = escapeHtml(product.name || "Untitled Product");
+                const brand = escapeHtml(product.brand || "Shree Ji Tech");
+                const model = escapeHtml(product.model || product.name || "Standard Model");
+                const warranty = escapeHtml(product.warranty || "Seller warranty");
+                const category = escapeHtml(product.category || "Electronics");
+                const features = escapeHtml(product.features || product.description || "Quality checked product with reliable performance.");
+                const price = formatPrice(product.price);
+                const id = escapeHtml(product.id);
+                const rating = (4 + ((index % 8) / 10)).toFixed(1);
+                const numericPrice = parsePrice(product.price);
+                const mrp = numericPrice ? Math.round(numericPrice * 1.18).toLocaleString("en-IN") : "";
+
+                return `
+                    <article class="product-card p-3 sm:p-4 min-h-[310px] flex flex-col">
+                        <div class="relative h-36 sm:h-44 flex items-center justify-center bg-white mb-3">
+                            <img src="${image}" alt="${name}" loading="lazy" class="max-w-full max-h-full object-contain">
+                            <button type="button" class="absolute top-1 right-1 text-gray-300 hover:text-red-500" title="Wishlist">
+                                <i class="fas fa-heart"></i>
+                            </button>
+                        </div>
+                        <h4 class="text-sm font-semibold leading-5 min-h-[40px] text-gray-900">${name}</h4>
+                        <p class="text-xs text-gray-500 leading-5 mt-1 min-h-[40px] line-clamp-2">${features}</p>
+                        <div class="mt-3 space-y-1.5">
+                            <div class="spec-row">
+                                <span class="spec-label">Brand</span>
+                                <span class="spec-value">${brand}</span>
+                            </div>
+                            <div class="spec-row">
+                                <span class="spec-label">Model</span>
+                                <span class="spec-value">${model}</span>
+                            </div>
+                            <div class="spec-row">
+                                <span class="spec-label">Warranty</span>
+                                <span class="spec-value">${warranty}</span>
+                            </div>
+                            <div class="spec-row">
+                                <span class="spec-label">Category</span>
+                                <span class="spec-value">${category}</span>
+                            </div>
+                        </div>
+                        <div class="mt-2 flex items-center gap-2">
+                            <span class="rating-pill text-xs font-bold px-1.5 py-0.5 rounded">${rating} <i class="fas fa-star text-[9px]"></i></span>
+                            <span class="text-xs text-gray-400">(${120 + index * 17})</span>
+                        </div>
+                        <div class="mt-2">
+                            <span class="text-lg font-bold text-gray-950">Rs. ${price}</span>
+                            ${mrp ? `<span class="ml-2 text-xs text-gray-400 line-through">Rs. ${mrp}</span>` : ""}
+                        </div>
+                        <p class="text-sm text-green-700 font-semibold mt-1">Extra 10% off</p>
+                        <p class="text-xs text-gray-500 mt-1">Free delivery available</p>
+                        <div class="mt-auto pt-3 flex items-center justify-between">
+                            <button type="button" onclick="addToCart('${id}')" class="customer-only text-xs sm:text-sm bg-orange-500 hover:bg-orange-600 text-white px-3 py-2 rounded-sm font-bold">
+                                Add to Cart
+                            </button>
+                            <div class="admin-only items-center gap-3">
+                                <button type="button" onclick="editItem('${id}')" class="text-blue-600 hover:text-blue-700 text-xs font-bold">
+                                    Edit
+                                </button>
+                                <button type="button" onclick="deleteItem('${id}')" class="text-red-600 hover:text-red-700 text-xs font-bold">
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                    </article>
+                `;
+            }).join("");
+        }
+
+        async function handleSave() {
+            const name = document.getElementById("p-name").value.trim();
+            const price = document.getElementById("p-price").value.trim();
+            const image = document.getElementById("p-image-url").value.trim();
+            const brand = document.getElementById("p-brand").value.trim();
+            const model = document.getElementById("p-model").value.trim();
+            const warranty = document.getElementById("p-warranty").value.trim();
+            const category = document.getElementById("p-category").value.trim();
+            const features = document.getElementById("p-features").value.trim();
+
+            if (!name || !price || !image || !brand || !model || !warranty || !category || !features) {
+                alert("Please fill product name, price, image URL, brand, model, warranty, category, and key features.");
+                return;
+            }
+
+            try {
+                const productData = {
+                    name,
+                    price,
+                    image,
+                    brand,
+                    model,
+                    warranty,
+                    category,
+                    features,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                if (editingProductId) {
+                    productData.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+                    delete productData.createdAt;
+                    await db.collection("products").doc(editingProductId).update(productData);
+                } else {
+                    await db.collection("products").add(productData);
+                }
+
+                document.getElementById("p-name").value = "";
+                document.getElementById("p-price").value = "";
+                document.getElementById("p-image-url").value = "";
+                document.getElementById("p-brand").value = "";
+                document.getElementById("p-model").value = "";
+                document.getElementById("p-warranty").value = "";
+                document.getElementById("p-category").value = "";
+                document.getElementById("p-features").value = "";
+                editingProductId = null;
+                closeAdminModal();
+                showToast("Product saved successfully.");
+            } catch (error) {
+                console.error(error);
+                alert("Product was not saved. Please check Firebase permissions.");
+            }
+        }
+
+        function editItem(id) {
+            const product = products.find((item) => item.id === id);
+
+            if (!product) {
+                alert("Product not found. Please refresh the page.");
+                return;
+            }
+
+            editingProductId = id;
+            document.getElementById("admin-modal-title").textContent = "Edit Product";
+            document.getElementById("admin-save-button").textContent = "Update Product";
+            document.getElementById("p-name").value = product.name || "";
+            document.getElementById("p-price").value = product.price || "";
+            document.getElementById("p-image-url").value = product.image || "";
+            document.getElementById("p-brand").value = product.brand || "";
+            document.getElementById("p-model").value = product.model || "";
+            document.getElementById("p-warranty").value = product.warranty || "";
+            document.getElementById("p-category").value = product.category || "";
+            document.getElementById("p-features").value = product.features || product.description || "";
+            document.getElementById("admin-modal").classList.remove("hidden");
+            document.getElementById("admin-modal").classList.add("flex");
+        }
+
+        async function deleteItem(id) {
+            if (!confirm("Delete this product?")) return;
+            try {
+                await db.collection("products").doc(id).delete();
+                showToast("Product deleted.");
+            } catch (error) {
+                console.error(error);
+                alert("Product was not deleted. Please check Firebase permissions.");
+            }
+        }
+
+        function checkAdminAccess() {
+            document.getElementById("auth-modal").classList.remove("hidden");
+            document.getElementById("auth-modal").classList.add("flex");
+        }
+
+        function closeAuthModal() {
+            document.getElementById("auth-modal").classList.add("hidden");
+            document.getElementById("auth-modal").classList.remove("flex");
+        }
+
+        async function processLogin() {
+            const email = document.getElementById("admin-email").value.trim();
+            const password = document.getElementById("admin-pass").value;
+
+            if (!email || !password) {
+                alert("Please enter email and password.");
+                return;
+            }
+
+            try {
+                await auth.signInWithEmailAndPassword(email, password);
+                closeAuthModal();
+                showToast("Login successful.");
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+
+        async function logoutAdmin() {
+            await auth.signOut();
+            showToast("Logged out.");
+        }
+
+        function openAdminModal() {
+            editingProductId = null;
+            document.getElementById("admin-modal-title").textContent = "Add New Product";
+            document.getElementById("admin-save-button").textContent = "Save Product";
+            document.getElementById("p-name").value = "";
+            document.getElementById("p-price").value = "";
+            document.getElementById("p-image-url").value = "";
+            document.getElementById("p-brand").value = "";
+            document.getElementById("p-model").value = "";
+            document.getElementById("p-warranty").value = "";
+            document.getElementById("p-category").value = "";
+            document.getElementById("p-features").value = "";
+            document.getElementById("admin-modal").classList.remove("hidden");
+            document.getElementById("admin-modal").classList.add("flex");
+        }
+
+        function closeAdminModal() {
+            editingProductId = null;
+            document.getElementById("admin-modal").classList.add("hidden");
+            document.getElementById("admin-modal").classList.remove("flex");
+        }
+
+        function handleSearch(query) {
+            applyFilters();
+        }
+
+        function loadCartItems() {
+            try {
+                const savedCart = JSON.parse(localStorage.getItem(cartStorageKey) || "[]");
+                return Array.isArray(savedCart) ? savedCart : [];
+            } catch (error) {
+                return [];
+            }
+        }
+
+        function saveCartItems() {
+            localStorage.setItem(cartStorageKey, JSON.stringify(cartItems));
+        }
+
+        function getCartTotal() {
+            return cartItems.reduce((sum, item) => sum + (parsePrice(item.price) * item.quantity), 0);
+        }
+
+        function getFinalTotal() {
+            return getCartTotal() + deliveryCharge;
+        }
+
+        function updateCart() {
+            const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+            const productTotal = getCartTotal();
+            const finalTotal = getFinalTotal();
+
+            saveCartItems();
+            cartCount.textContent = String(totalQuantity);
+            cartTotal.textContent = `Rs. ${productTotal.toLocaleString("en-IN")}`;
+            checkoutSubtotal.textContent = `Rs. ${productTotal.toLocaleString("en-IN")}`;
+            checkoutDelivery.textContent = deliveryCharge ? `Rs. ${deliveryCharge.toLocaleString("en-IN")}` : "Free";
+            checkoutFinalTotal.textContent = `Rs. ${finalTotal.toLocaleString("en-IN")}`;
+            checkoutButton.disabled = !cartItems.length;
+            emptyCartNote.classList.toggle("hidden", Boolean(cartItems.length));
+
+            if (!cartItems.length) {
+                cartItemsContainer.innerHTML = `<p class="text-center text-gray-500 py-6">Your cart is empty.</p>`;
+                return;
+            }
+
+            cartItemsContainer.innerHTML = cartItems.map((item) => `
+                <div class="flex gap-3 border rounded-sm p-3">
+                    <img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name)}" class="w-16 h-16 object-contain bg-gray-50">
+                    <div class="flex-1">
+                        <h3 class="font-bold text-sm">${escapeHtml(item.name)}</h3>
+                        <p class="text-xs text-gray-500">${escapeHtml(item.brand || "Shree Ji Tech")}</p>
+                        <p class="font-bold mt-1">Rs. ${formatPrice(item.price)}</p>
+                        <div class="flex items-center justify-between mt-2">
+                            <div class="flex items-center border rounded-sm">
+                                <button type="button" onclick="changeCartQuantity('${item.id}', -1)" class="px-3 py-1">-</button>
+                                <span class="px-2 text-sm font-bold">${item.quantity}</span>
+                                <button type="button" onclick="changeCartQuantity('${item.id}', 1)" class="px-3 py-1">+</button>
+                            </div>
+                            <button type="button" onclick="removeFromCart('${item.id}')" class="text-red-600 text-xs font-bold">Remove</button>
+                        </div>
+                    </div>
+                </div>
+            `).join("");
+        }
+
+        function addToCart(id) {
+            const product = products.find((item) => item.id === id);
+
+            if (!product) {
+                alert("Product not found. Please refresh the page.");
+                return;
+            }
+
+            const existingItem = cartItems.find((item) => item.id === id);
+
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cartItems.push({
+                    id,
+                    name: product.name || "Product",
+                    price: parsePrice(product.price),
+                    image: product.image || "https://placehold.co/200x200/e8f0ff/2874f0?text=Product",
+                    brand: product.brand || "Shree Ji Tech",
+                    quantity: 1
+                });
+            }
+
+            updateCart();
+            showToast(`${product.name || "Product"} added to cart.`);
+        }
+
+        function changeCartQuantity(id, amount) {
+            const item = cartItems.find((cartItem) => cartItem.id === id);
+            if (!item) return;
+            item.quantity += amount;
+
+            if (item.quantity <= 0) {
+                cartItems = cartItems.filter((cartItem) => cartItem.id !== id);
+            }
+
+            updateCart();
+        }
+
+        function removeFromCart(id) {
+            cartItems = cartItems.filter((item) => item.id !== id);
+            updateCart();
+        }
+
+        function openCart() {
+            updateCart();
+            document.getElementById("cart-overlay").classList.add("is-open");
+        }
+
+        function closeCart() {
+            document.getElementById("cart-overlay").classList.remove("is-open");
+        }
+
+        function clearCheckoutErrors() {
+            document.querySelectorAll(".checkout-field").forEach((field) => {
+                field.classList.remove("has-error");
+                const error = field.querySelector(".checkout-error");
+                if (error) error.textContent = "";
+            });
+        }
+
+        function setCheckoutError(id, message) {
+            const wrapper = document.querySelector(`[data-field="${id}"]`);
+            if (!wrapper) return;
+            wrapper.classList.add("has-error");
+            const error = wrapper.querySelector(".checkout-error");
+            if (error) error.textContent = message;
+        }
+
+        function focusFirstCheckoutError() {
+            const firstError = document.querySelector(".checkout-field.has-error input, .checkout-field.has-error textarea, .checkout-field.has-error select");
+            if (!firstError) return;
+            firstError.focus();
+            firstError.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+
+        function getOrderId() {
+            const now = new Date();
+            const date = now.toISOString().slice(0, 10).replace(/-/g, "");
+            const time = String(now.getHours()).padStart(2, "0") + String(now.getMinutes()).padStart(2, "0");
+            const suffix = Math.floor(100 + Math.random() * 900);
+            return `SJT-${date}-${time}${suffix}`;
+        }
+
+        function placeWhatsAppOrder() {
+            clearCheckoutErrors();
+
+            const firstName = document.getElementById("customer-first-name").value.trim();
+            const lastName = document.getElementById("customer-last-name").value.trim();
+            const phone = document.getElementById("customer-phone").value.trim();
+            const address = document.getElementById("customer-address").value.trim();
+            const village = document.getElementById("customer-village").value.trim();
+            const city = document.getElementById("customer-city").value.trim();
+            const district = document.getElementById("customer-district").value.trim();
+            const pin = document.getElementById("customer-pin").value.trim();
+            const state = document.getElementById("customer-state").value.trim();
+            const country = document.getElementById("customer-country").value.trim();
+            const landmark = document.getElementById("customer-landmark").value.trim();
+            const deliveryNote = document.getElementById("customer-delivery-note").value.trim();
+            const paymentMethod = document.getElementById("payment-method").value;
+
+            if (!cartItems.length) {
+                alert("Please add at least one item to cart.");
+                return;
+            }
+
+            if (!firstName) setCheckoutError("customer-first-name", "First name is required.");
+            if (!phone) setCheckoutError("customer-phone", "Mobile number is required.");
+            if (phone && !/^[6-9]\d{9}$/.test(phone.replace(/\D/g, ""))) {
+                setCheckoutError("customer-phone", "Enter a valid 10 digit Indian mobile number.");
+            }
+            if (!address) setCheckoutError("customer-address", "House, street, and area are required.");
+            if (!village) setCheckoutError("customer-village", "Village or locality is required.");
+            if (!city) setCheckoutError("customer-city", "City or town is required.");
+            if (!district) setCheckoutError("customer-district", "District is required.");
+            if (!pin) setCheckoutError("customer-pin", "PIN code is required.");
+            if (pin && !/^\d{6}$/.test(pin)) {
+                setCheckoutError("customer-pin", "Enter a valid 6 digit PIN code.");
+            }
+            if (!state) setCheckoutError("customer-state", "State is required.");
+            if (!country) setCheckoutError("customer-country", "Country is required.");
+            if (!paymentMethod) setCheckoutError("payment-method", "Select a payment method.");
+
+            if (document.querySelector(".checkout-field.has-error")) {
+                focusFirstCheckoutError();
+                return;
+            }
+
+            const orderId = getOrderId();
+            const fullName = [firstName, lastName].filter(Boolean).join(" ");
+            const orderLines = cartItems.map((item, index) => {
+                const itemTotal = parsePrice(item.price) * item.quantity;
+                return `${index + 1}. ${item.name} x ${item.quantity} = Rs. ${itemTotal.toLocaleString("en-IN")}`;
+            }).join("\n");
+
+            const message = [
+                "New Order - Shree Ji Tech",
+                `Order ID: ${orderId}`,
+                "",
+                orderLines,
+                "",
+                `Product Total: Rs. ${getCartTotal().toLocaleString("en-IN")}`,
+                `Delivery Charge: ${deliveryCharge ? `Rs. ${deliveryCharge.toLocaleString("en-IN")}` : "Free"}`,
+                `Final Total: Rs. ${getFinalTotal().toLocaleString("en-IN")}`,
+                `Payment Method: ${paymentMethod}`,
+                "",
+                `Customer: ${fullName}`,
+                `Mobile: ${phone}`,
+                "",
+                "Delivery Address:",
+                `House/Street: ${address}`,
+                `Village/Locality: ${village}`,
+                `City/Town: ${city}`,
+                `District: ${district}`,
+                `PIN Code: ${pin}`,
+                `State: ${state}`,
+                `Country: ${country}`,
+                landmark ? `Landmark: ${landmark}` : "",
+                deliveryNote ? `Delivery Note: ${deliveryNote}` : ""
+            ].filter(Boolean).join("\n");
+
+            window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`, "_blank");
+        }
+
+        document.querySelectorAll(".checkout-field input, .checkout-field textarea, .checkout-field select").forEach((field) => {
+            field.addEventListener("input", () => {
+                const wrapper = field.closest(".checkout-field");
+                if (!wrapper) return;
+                wrapper.classList.remove("has-error");
+                const error = wrapper.querySelector(".checkout-error");
+                if (error) error.textContent = "";
+            });
+        });
+
+        updateCart();
+    </script>
 </body>
 </html>
